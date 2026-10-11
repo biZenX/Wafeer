@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.os.LocaleListCompat
 import com.serranoie.app.minus.domain.model.UserSettings
 import com.serranoie.app.minus.presentation.appColorScheme
+import com.serranoie.app.minus.presentation.appContrast
 import com.serranoie.app.minus.presentation.appTheme
 import com.serranoie.app.minus.presentation.appTypography
 import com.serranoie.app.minus.presentation.isRoundedFontEnabled
@@ -22,6 +23,7 @@ class ThemeManager @Inject constructor() {
         context.isRoundedFontEnabled = settings.isRoundedFontEnabled
         context.isAmoledEnabled = settings.isAmoledEnabled
         context.appColorScheme = settings.colorScheme
+        context.appContrast = settings.contrastMode
         context.dynamicColorEnabled = settings.dynamicColorEnabled
         val appLocale = if (settings.language == "system") {
             LocaleListCompat.getEmptyLocaleList()

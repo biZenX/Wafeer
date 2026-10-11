@@ -47,9 +47,13 @@ import com.serranoie.app.minus.presentation.ui.budget.mvi.intent.BudgetNumpadInt
 import com.serranoie.app.minus.presentation.ui.budget.mvi.intent.BudgetSystemIntent
 import com.serranoie.app.minus.presentation.ui.budget.mvi.intent.BudgetTransactionIntent
 import com.serranoie.app.minus.presentation.ui.editor.AnimState
+import com.serranoie.app.minus.presentation.util.ErrorLogRecorder
 import com.serranoie.app.minus.presentation.util.font.format.symbolOnlyCurrencyFormat
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import androidx.datastore.core.CorruptionException
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -60,10 +64,14 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.yield
+import kotlinx.serialization.SerializationException
 import logcat.asLog
 import logcat.logcat
 import java.math.BigDecimal
@@ -94,6 +102,7 @@ class BudgetViewModel @Inject constructor(
     private val clearEarlyFinishStateUseCase: ClearEarlyFinishStateUseCase,
     private val markOnboardingCompletedUseCase: MarkOnboardingCompletedUseCase,
     private val midnightTransitionManager: MidnightTransitionManager,
+    private val errorLogRecorder: ErrorLogRecorder,
 ) : ViewModel() {
 
     private val numpadController = NumpadController(budgetExpressionEvaluator)
@@ -115,7 +124,11 @@ class BudgetViewModel @Inject constructor(
 
     private val _pendingPeriodBoundaryOverride = MutableStateFlow<Pair<Long, Long>?>(null)
 
-    val uiState: StateFlow<BudgetUiState> = combine(
+    private val retryLoad = MutableStateFlow(0)
+
+    private var lastGoodState = BudgetUiState.INITIAL
+
+    private fun observeBudgetUiState(): Flow<BudgetUiState> = combine(
         budgetRepository.getBudgetSettings(),
         budgetRepository.getTransactions(),
         buildPeriodBoundaryFlow(),
@@ -209,15 +222,17 @@ class BudgetViewModel @Inject constructor(
             lastLeftoverChoice = userSettings.leftoverChoices.maxByOrNull { it.key }?.value,
             selectedViewPeriod = userSettings.budgetSplitViewPeriod,
         )
-    }.catch { error ->
-        logcat(TAG) { "Error in uiState pipeline: ${error.asLog()}" }
-        emit(
-            BudgetUiState(
-                isLoading = false,
-                error = error.message ?: "Unknown error",
-                isFirstLaunch = true
-            )
-        )
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val uiState: StateFlow<BudgetUiState> = retryLoad.flatMapLatest {
+        observeBudgetUiState()
+            .onEach { lastGoodState = it }
+            .catch { error ->
+                errorLogRecorder.record("BudgetViewModel.uiState", error)
+                logcat(TAG) { "Error in uiState pipeline: ${error.asLog()}" }
+                emit(lastGoodState.copy(isLoading = false, error = error.toBudgetUiError()))
+            }
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5000L),
@@ -226,7 +241,7 @@ class BudgetViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            uiState.collect { baseState ->
+            uiState.filter { it.error == null }.collect { baseState ->
                 budgetWidgetUpdater.update(baseState)
             }
         }
@@ -529,6 +544,8 @@ class BudgetViewModel @Inject constructor(
                 EditorIntent.SetLockDraggable(intent.locked),
                 hasCreditCardCutoffDay = uiState.value.budgetSettings?.creditCardCutoffDay != null,
             )
+
+            BudgetSystemIntent.RetryLoad -> retryLoad.update { it + 1 }
         }
     }
 
@@ -824,4 +841,11 @@ private class TransactionHandlerImpl(
 
 private object NoopPeriodActions : PeriodActions {
     override suspend fun noop() = Unit
+}
+
+private fun Throwable.toBudgetUiError(): BudgetUiState.Error = when (this) {
+    is NumberFormatException,
+    is SerializationException,
+    is CorruptionException -> BudgetUiState.Error.CorruptData
+    else -> BudgetUiState.Error.LoadFailed
 }

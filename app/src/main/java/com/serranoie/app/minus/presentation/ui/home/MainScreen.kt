@@ -13,6 +13,7 @@ import com.serranoie.app.minus.R
 import com.serranoie.app.minus.domain.model.BudgetPeriod
 import com.serranoie.app.minus.presentation.ui.budget.BudgetViewModel
 import com.serranoie.app.minus.presentation.ui.budget.mvi.intent.BudgetNumpadIntent
+import com.serranoie.app.minus.presentation.ui.budget.mvi.intent.BudgetSystemIntent
 import com.serranoie.app.minus.presentation.ui.budget.mvi.intent.BudgetTransactionIntent
 import com.serranoie.app.minus.presentation.ui.changelog.ChangelogGate
 import com.serranoie.app.minus.presentation.ui.theme.component.budget.formula.BudgetFormulaHost
@@ -201,6 +202,9 @@ fun MainScreen(
                             onUnresolvedSurplusBannerClick = budgetViewModel::onUnresolvedSurplusBannerClicked,
                             onLeftoverChoice = budgetViewModel::onLeftoverChoice,
                             onCreateCategory = budgetViewModel::createCategory,
+                            onRetryBudgetLoad = {
+                                budgetViewModel.processIntent(BudgetSystemIntent.RetryLoad)
+                            },
                             onPeriodSelected = { period ->
                                 mainScreenViewModel.processIntent(
                                     MainScreenUiIntent.SetSelectedPeriod(period), tutorialStage

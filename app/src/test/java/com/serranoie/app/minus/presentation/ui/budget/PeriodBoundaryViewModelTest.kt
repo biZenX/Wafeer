@@ -168,6 +168,7 @@ class PeriodBoundaryViewModelTest {
             clearEarlyFinishStateUseCase = ClearEarlyFinishStateUseCase(periodManager),
             markOnboardingCompletedUseCase = mockk<MarkOnboardingCompletedUseCase>(relaxed = true),
             midnightTransitionManager = transitionManager,
+            errorLogRecorder = mockk(relaxed = true),
         )
     }
 

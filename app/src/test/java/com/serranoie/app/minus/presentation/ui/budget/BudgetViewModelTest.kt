@@ -30,13 +30,16 @@ import com.serranoie.app.minus.presentation.ui.budget.mvi.intent.BudgetNumpadInt
 import com.serranoie.app.minus.presentation.ui.budget.mvi.intent.BudgetSystemIntent
 import com.serranoie.app.minus.presentation.ui.budget.mvi.intent.BudgetTransactionIntent
 import com.serranoie.app.minus.presentation.ui.editor.AnimState
+import com.serranoie.app.minus.presentation.util.ErrorLogRecorder
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
@@ -45,6 +48,7 @@ import kotlinx.coroutines.test.setMain
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
+import java.io.IOException
 import java.math.BigDecimal
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -74,6 +78,7 @@ class BudgetViewModelTest {
     private val markOnboardingCompletedUseCase: MarkOnboardingCompletedUseCase =
         mockk(relaxed = true)
     private val midnightTransitionManager: MidnightTransitionManager = mockk(relaxed = true)
+    private val errorLogRecorder: ErrorLogRecorder = mockk(relaxed = true)
 
     private val settingsFlow = MutableStateFlow<BudgetSettings?>(null)
     private val transactionsFlow = MutableStateFlow<List<Transaction>>(emptyList())
@@ -126,6 +131,7 @@ class BudgetViewModelTest {
         clearEarlyFinishStateUseCase = clearEarlyFinishStateUseCase,
         markOnboardingCompletedUseCase = markOnboardingCompletedUseCase,
         midnightTransitionManager = midnightTransitionManager,
+        errorLogRecorder = errorLogRecorder,
     )
 
     private fun sampleSettings() = BudgetSettings(
@@ -478,4 +484,63 @@ class BudgetViewModelTest {
             advanceUntilIdle()
             coVerify { transactionHandler.editTransaction(transaction) }
         }
+
+    @Test
+    fun when_transactions_stream_fails_then_last_budget_is_kept_and_load_failed_is_exposed() = runTest {
+        val failNow = CompletableDeferred<Unit>()
+        val transaction = sampleTransaction()
+        every { budgetRepository.getTransactions() } returns flow {
+            emit(listOf(transaction))
+            failNow.await()
+            throw IOException("disk")
+        }
+        settingsFlow.value = sampleSettings()
+        val viewModel = newViewModel()
+
+        viewModel.uiState.test {
+            awaitCondition { it.budgetSettings != null && it.transactions.isNotEmpty() }
+            failNow.complete(Unit)
+            val failed = awaitCondition { it.error != null }
+            assertThat(failed.error).isEqualTo(BudgetUiState.Error.LoadFailed)
+            assertThat(failed.budgetSettings).isEqualTo(sampleSettings())
+            assertThat(failed.transactions).containsExactly(transaction)
+            assertThat(failed.isLoading).isFalse()
+            cancelAndIgnoreRemainingEvents()
+        }
+        coVerify { errorLogRecorder.record(any(), any()) }
+        coVerify(exactly = 0) { budgetWidgetUpdater.update(match { it.error != null }) }
+    }
+
+    @Test
+    fun when_stored_data_cannot_be_parsed_then_corrupt_data_is_exposed() = runTest {
+        every { budgetRepository.getTransactions() } returns flow { throw NumberFormatException("bad amount") }
+        val viewModel = newViewModel()
+
+        viewModel.uiState.test {
+            val failed = awaitCondition { it.error != null }
+            assertThat(failed.error).isEqualTo(BudgetUiState.Error.CorruptData)
+            cancelAndIgnoreRemainingEvents()
+        }
+    }
+
+    @Test
+    fun when_retry_is_requested_after_a_failure_then_the_stream_resubscribes_and_clears_the_error() = runTest {
+        var subscriptions = 0
+        val transaction = sampleTransaction()
+        every { budgetRepository.getTransactions() } answers {
+            subscriptions++
+            if (subscriptions == 1) flow { throw IOException("disk") } else transactionsFlow
+        }
+        transactionsFlow.value = listOf(transaction)
+        val viewModel = newViewModel()
+
+        viewModel.uiState.test {
+            awaitCondition { it.error == BudgetUiState.Error.LoadFailed }
+            viewModel.processIntent(BudgetSystemIntent.RetryLoad)
+            val recovered = awaitCondition { it.error == null && it.transactions.isNotEmpty() }
+            assertThat(recovered.transactions).containsExactly(transaction)
+            assertThat(subscriptions).isEqualTo(2)
+            cancelAndIgnoreRemainingEvents()
+        }
+    }
 }

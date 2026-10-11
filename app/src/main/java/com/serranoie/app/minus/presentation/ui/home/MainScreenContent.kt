@@ -207,6 +207,24 @@ fun MainScreenContent(
         }
     }
 
+    val budgetLoadFailedMessage = stringResource(R.string.budget_load_failed)
+    val budgetCorruptDataMessage = stringResource(R.string.budget_load_corrupt_data)
+    val budgetRetryLabel = stringResource(R.string.budget_load_retry)
+
+    LaunchedEffect(budgetUiState.error) {
+        val message = when (budgetUiState.error) {
+            BudgetUiState.Error.LoadFailed -> budgetLoadFailedMessage
+            BudgetUiState.Error.CorruptData -> budgetCorruptDataMessage
+            null -> return@LaunchedEffect
+        }
+        val result = snackbarHostState.showSnackbar(
+            message = message,
+            actionLabel = budgetRetryLabel,
+            duration = SnackbarDuration.Indefinite,
+        )
+        if (result == SnackbarResult.ActionPerformed) actions.onRetryBudgetLoad()
+    }
+
     fun queueDeleteWithUndo(
         transaction: Transaction,
         message: String,

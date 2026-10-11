@@ -16,7 +16,7 @@ data class BudgetUiState(
     val budgetState: BudgetState? = null,
     val transactions: List<Transaction> = emptyList(),
     val selectedDate: LocalDate = LocalDate.now(),
-    val error: String? = null,
+    val error: Error? = null,
     val numpadInput: String = "",
     val isNumpadValid: Boolean = false,
     val editMode: EditMode = EditMode.ADD,
@@ -45,13 +45,13 @@ data class BudgetUiState(
     val hasUnresolvedRolloverSurplus: Boolean = false,
     val unresolvedSurplusAmount: BigDecimal? = null,
     val lastLeftoverChoice: LeftoverChoice? = null,
-    /**
-     * The period the user picked for the budget pill's view mode, as persisted in settings. Null
-     * until they choose one, in which case the budget's own [BudgetSettings.period] stands in.
-     * Kept here so a view-mode change alone still re-emits this state and refreshes the widgets.
-     */
     val selectedViewPeriod: BudgetPeriod? = null,
 ) {
+    sealed interface Error {
+        data object LoadFailed : Error
+        data object CorruptData : Error
+    }
+
     companion object {
         val INITIAL = BudgetUiState()
     }
