@@ -55,6 +55,7 @@ import androidx.glance.layout.padding
 import androidx.glance.material3.ColorProviders
 import com.serranoie.app.minus.R
 import com.serranoie.app.minus.domain.model.BudgetPeriod
+import com.serranoie.app.minus.domain.time.CalendarSystem
 import com.serranoie.app.minus.presentation.ui.theme.MinusTheme
 import com.serranoie.app.minus.presentation.util.combineColors
 import com.serranoie.app.minus.presentation.widget.AddExpenseWidget
@@ -87,9 +88,9 @@ import logcat.LogPriority
 import logcat.asLog
 import logcat.logcat
 import java.math.BigDecimal
-import java.time.YearMonth
 import androidx.glance.LocalContext as GlanceLocalContext
 import androidx.glance.layout.Box as GlanceBox
+import java.time.LocalDate
 
 private const val TAG = "WidgetGallerySheet"
 private const val PREVIEW_CURRENCY = "USD"
@@ -165,10 +166,14 @@ private val widgetGalleryItems = listOf(
         receiver = HeatmapWidgetReceiver::class.java,
         previewHeight = 180.dp,
     ) {
-        val months = remember { (3L downTo 0L).map { YearMonth.now().minusMonths(it) } }
+        val calendar = CalendarSystem.current()
+        val months = remember {
+            val currentMonthStart = calendar.firstDayOfMonth(LocalDate.now())
+            (3L downTo 0L).map { calendar.plusMonths(currentMonthStart, -it) }
+        }
         val monthCells = remember(months) {
             months.mapIndexed { monthIndex, month ->
-                (1..month.lengthOfMonth()).map { day ->
+                (1..calendar.lengthOfMonth(month)).map { day ->
                     MonthCellState(
                         dayNumber = day,
                         ratio = sampleHeatRatio(day),
@@ -212,9 +217,10 @@ private val widgetGalleryItems = listOf(
         previewWidth = 150.dp,
         previewHeight = 150.dp,
     ) {
-        val yearMonth = remember { YearMonth.now() }
-        val monthCells = remember(yearMonth) {
-            (1..yearMonth.lengthOfMonth()).map { day ->
+        val calendar = CalendarSystem.current()
+        val monthStart = remember { calendar.firstDayOfMonth(LocalDate.now()) }
+        val monthCells = remember(monthStart) {
+            (1..calendar.lengthOfMonth(monthStart)).map { day ->
                 MonthWidgetCellState(
                     dayNumber = day,
                     ratio = sampleHeatRatio(day),
@@ -224,7 +230,7 @@ private val widgetGalleryItems = listOf(
         }
         WidgetSurface {
             MonthHeatmapContent(
-                yearMonth = yearMonth,
+                monthStart = monthStart,
                 monthCells = monthCells,
                 totalSpent = 1250,
                 currency = PREVIEW_CURRENCY,

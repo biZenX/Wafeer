@@ -3,6 +3,7 @@ package com.serranoie.app.minus.presentation.ui.budget
 import android.content.Context
 import com.serranoie.app.minus.domain.model.BudgetPeriod
 import com.serranoie.app.minus.domain.model.Transaction
+import com.serranoie.app.minus.domain.time.CalendarSystem
 import com.serranoie.app.minus.presentation.ui.theme.component.budget.pill.calculateBudgetMetrics
 import com.serranoie.app.minus.presentation.widget.DailySpending
 import com.serranoie.app.minus.presentation.widget.MonthHeatmapData
@@ -136,87 +137,42 @@ class BudgetWidgetUpdater @Inject constructor(
     )
 
     private fun buildHeatmapData(baseState: BudgetUiState): WidgetHeatmapData {
-        val now = LocalDate.now()
-        val groupedByDate = groupTransactionsForHeatmap(baseState.transactions, now)
-        val defaultBudget = baseState.budgetSettings?.totalBudget ?: BigDecimal.ONE
-        val monthHeatmapData = buildMultiMonthHeatmapData(now, groupedByDate, defaultBudget)
-        val (currentMonthHeatmap, currentMonthTotalSpent) =
-            buildCurrentMonthHeatmap(now, groupedByDate, defaultBudget)
-
+        val monthHeatmapData = buildHeatmapMonths(
+            transactions = baseState.transactions,
+            now = LocalDate.now(),
+            budget = baseState.budgetSettings?.totalBudget ?: BigDecimal.ONE,
+            calendar = CalendarSystem.current(),
+        )
+        val currentMonthHeatmap = monthHeatmapData.last()
         return WidgetHeatmapData(
             monthHeatmapData = monthHeatmapData,
             currentMonthHeatmap = currentMonthHeatmap,
-            currentMonthTotalSpent = currentMonthTotalSpent,
+            currentMonthTotalSpent = currentMonthHeatmap.days.sumOf { it.spending }.toInt(),
         )
     }
+}
 
-    private fun groupTransactionsForHeatmap(
-        transactions: List<Transaction>,
-        now: LocalDate,
-    ): Map<LocalDate, List<Transaction>> {
-        val startMonth = now.minusMonths(3).withDayOfMonth(1)
-        val endMonth = now.withDayOfMonth(now.lengthOfMonth())
-        return transactions
-            .mapNotNull { tx ->
-                val date = tx.date?.toLocalDate() ?: return@mapNotNull null
-                if (tx.isDeleted || date.isBefore(startMonth) || date.isAfter(endMonth)) {
-                    return@mapNotNull null
-                }
-                date to tx
-            }
-            .groupBy(
-                keySelector = { it.first },
-                valueTransform = { it.second },
-            )
-    }
-
-    private fun buildMultiMonthHeatmapData(
-        now: LocalDate,
-        groupedByDate: Map<LocalDate, List<Transaction>>,
-        defaultBudget: BigDecimal,
-    ): List<MonthHeatmapData> {
-        return (0L..3L).map { monthOffset ->
-            val month = now.minusMonths(3 - monthOffset)
-            val days = (1..month.lengthOfMonth()).map { dayOfMonth ->
-                val day = month.withDayOfMonth(dayOfMonth)
-                val txs = groupedByDate[day].orEmpty()
-                DailySpending(
-                    dayOfMonth = dayOfMonth,
-                    spending = txs.sumOf { it.amount },
-                    budget = defaultBudget,
-                    transactionCount = txs.size,
-                )
-            }
-            MonthHeatmapData(
-                year = month.year,
-                month = month.monthValue,
-                days = days,
-            )
-        }
-    }
-
-    private fun buildCurrentMonthHeatmap(
-        now: LocalDate,
-        groupedByDate: Map<LocalDate, List<Transaction>>,
-        defaultBudget: BigDecimal,
-    ): Pair<MonthHeatmapData, Int> {
-        val currentMonthDays = (1..now.lengthOfMonth()).map { dayOfMonth ->
-            val day = now.withDayOfMonth(dayOfMonth)
-            val txs = groupedByDate[day].orEmpty()
+internal fun buildHeatmapMonths(
+    transactions: List<Transaction>,
+    now: LocalDate,
+    budget: BigDecimal,
+    calendar: CalendarSystem,
+): List<MonthHeatmapData> {
+    val groupedByDate = transactions
+        .filter { !it.isDeleted && it.date != null }
+        .groupBy { it.date!!.toLocalDate() }
+    val currentMonthStart = calendar.firstDayOfMonth(now)
+    return (3L downTo 0L).map { monthsBack ->
+        val monthStart = calendar.plusMonths(currentMonthStart, -monthsBack)
+        val days = (1..calendar.lengthOfMonth(monthStart)).map { dayOfMonth ->
+            val txs = groupedByDate[monthStart.plusDays(dayOfMonth - 1L)].orEmpty()
             DailySpending(
                 dayOfMonth = dayOfMonth,
                 spending = txs.sumOf { it.amount },
-                budget = defaultBudget,
+                budget = budget,
                 transactionCount = txs.size,
             )
         }
-
-        val currentMonthTotalSpent = currentMonthDays.sumOf { it.spending }.toInt()
-        val currentMonthHeatmap = MonthHeatmapData(
-            year = now.year,
-            month = now.monthValue,
-            days = currentMonthDays,
-        )
-        return currentMonthHeatmap to currentMonthTotalSpent
+        MonthHeatmapData(monthStart = monthStart, days = days)
     }
 }

@@ -1,6 +1,7 @@
 package com.serranoie.app.minus.domain.model
 
 import org.junit.Assert.assertEquals
+import com.serranoie.app.minus.domain.time.CalendarSystem
 import org.junit.Test
 import java.time.LocalDate
 
@@ -40,5 +41,25 @@ class CreditCardTest {
         val dueDate = calculatePaymentDueDate(card, today)
         
         assertEquals(LocalDate.of(2024, 6, 4), dueDate)
+    }
+
+    @Test
+    fun `test calculatePaymentDueDate - persian cutoff already passed this persian month`() {
+        val card = CreditCard(cutoffDay = 15, gracePeriodDays = 20)
+
+        assertEquals(
+            LocalDate.of(2026, 10, 27),
+            calculatePaymentDueDate(card, LocalDate.of(2026, 10, 13), CalendarSystem.PERSIAN),
+        )
+    }
+
+    @Test
+    fun `test calculatePaymentDueDate - persian cutoff ahead uses previous persian month`() {
+        val card = CreditCard(cutoffDay = 15, gracePeriodDays = 20)
+
+        assertEquals(
+            LocalDate.of(2026, 9, 28),
+            calculatePaymentDueDate(card, LocalDate.of(2026, 10, 1), CalendarSystem.PERSIAN),
+        )
     }
 }

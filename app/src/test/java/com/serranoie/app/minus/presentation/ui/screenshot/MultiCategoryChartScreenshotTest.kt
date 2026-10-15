@@ -13,12 +13,12 @@ import com.serranoie.app.minus.presentation.ui.theme.MinusTheme
 import com.serranoie.app.minus.presentation.ui.theme.component.budget.graphs.CategoryDayEntry
 import com.serranoie.app.minus.presentation.ui.theme.component.budget.graphs.MultiCategoryChart
 import com.serranoie.app.minus.presentation.ui.theme.component.charts.baseColors
+import com.serranoie.app.minus.presentation.util.font.format.localizedFormatter
 import org.junit.Rule
 import org.junit.Test
 import java.math.BigDecimal
 import java.time.LocalDate
 import java.time.ZoneId
-import java.time.format.DateTimeFormatter
 import java.util.Date
 import java.util.Locale
 
@@ -66,7 +66,7 @@ class MultiCategoryChartScreenshotTest {
                         windowIndex = 0,
                         scrollStep = 30,
                         dataSize = 30,
-                        dateFormatter = DateTimeFormatter.ofPattern("dd MMM"),
+                        dateFormatter = localizedFormatter("dd MMM"),
                     )
                 }
             }
@@ -93,7 +93,7 @@ class MultiCategoryChartScreenshotTest {
                         windowIndex = 0,
                         scrollStep = 30,
                         dataSize = 30,
-                        dateFormatter = DateTimeFormatter.ofPattern("dd MMM"),
+                        dateFormatter = localizedFormatter("dd MMM"),
                         forcedTooltipDate = start.plusDays(19),
                     )
                 }

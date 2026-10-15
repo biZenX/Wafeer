@@ -63,6 +63,7 @@ import com.serranoie.app.minus.presentation.ui.theme.ThemeManager
 import com.serranoie.app.minus.presentation.ui.theme.component.RolloverDialog
 import com.serranoie.app.minus.presentation.util.CensorManager
 import com.serranoie.app.minus.presentation.util.LocalCensorMode
+import com.serranoie.app.minus.presentation.util.font.format.formatLocalized
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.launchIn
@@ -352,11 +353,7 @@ class MainActivity : AppCompatActivity() {
         val periodLabel = if (data.isPersistedReopen) {
             stringResource(R.string.rollover_dialog_pending_label)
         } else {
-            "${data.periodStartDate.dayOfMonth} ${
-                data.periodStartDate.month.name.lowercase().take(3)
-            } - ${data.periodEndDate.dayOfMonth} ${
-                data.periodEndDate.month.name.lowercase().take(3)
-            }"
+            "${data.periodStartDate.formatLocalized("d MMM")} - ${data.periodEndDate.formatLocalized("d MMM")}"
         }
 
         fun resolveAndMaybeNavigate(strategy: RemainingBudgetStrategy?) {

@@ -2,6 +2,7 @@ package com.serranoie.app.minus.domain.calculator
 
 import com.serranoie.app.minus.domain.model.RecurrentFrequency
 import com.serranoie.app.minus.domain.model.Transaction
+import com.serranoie.app.minus.domain.time.CalendarSystem
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -63,4 +64,29 @@ class RecurringExpenseCalculatorTest {
         recurrentEndDate = LocalDateTime.of(2027, 1, 1, 0, 0),
         subscriptionDay = subscriptionDay
     )
+
+    @Test
+    fun monthlyRecurring_persianCalendar_usesPersianDayOfMonth() {
+        val tx = recurrentTransaction(LocalDate.of(2026, 9, 1), RecurrentFrequency.MONTHLY, subscriptionDay = 10)
+
+        assertTrue(calculator.isRecurringDueToday(tx, LocalDate.of(2026, 10, 2), CalendarSystem.PERSIAN))
+        assertFalse(calculator.isRecurringDueToday(tx, LocalDate.of(2026, 10, 10), CalendarSystem.PERSIAN))
+    }
+
+    @Test
+    fun monthlyRecurring_persianCalendar_fallsBackToPersianStartDay() {
+        val tx = recurrentTransaction(LocalDate.of(2026, 9, 25), RecurrentFrequency.MONTHLY)
+
+        assertTrue(calculator.isRecurringDueToday(tx, LocalDate.of(2026, 10, 25), CalendarSystem.PERSIAN))
+        assertFalse(calculator.isRecurringDueToday(tx, LocalDate.of(2026, 11, 25), CalendarSystem.PERSIAN))
+    }
+
+    @Test
+    fun monthlyRecurring_billingDayPastMonthEnd_isDueOnLastDayOfMonth() {
+        val tx = recurrentTransaction(LocalDate.of(2026, 1, 31), RecurrentFrequency.MONTHLY, subscriptionDay = 31)
+
+        assertTrue(calculator.isRecurringDueToday(tx, LocalDate.of(2026, 2, 28)))
+        assertFalse(calculator.isRecurringDueToday(tx, LocalDate.of(2026, 2, 27)))
+        assertTrue(calculator.isRecurringDueToday(tx, LocalDate.of(2026, 10, 22), CalendarSystem.PERSIAN))
+    }
 }

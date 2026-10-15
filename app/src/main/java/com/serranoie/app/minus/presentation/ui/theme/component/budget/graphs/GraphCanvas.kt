@@ -32,10 +32,11 @@ import androidx.compose.ui.util.lerp
 import com.serranoie.app.minus.R
 import com.serranoie.app.minus.presentation.ui.theme.MinusTheme
 import com.serranoie.app.minus.presentation.ui.theme.labelSmallCondensed
+import com.serranoie.app.minus.presentation.util.font.format.localizedFormatter
 import com.serranoie.app.minus.presentation.util.font.format.symbolOnlyCurrencyFormat
 import java.math.BigDecimal
 import java.text.Format
-import java.time.format.DateTimeFormatter
+import java.time.LocalDate
 import java.util.Date
 
 @Composable
@@ -55,7 +56,7 @@ internal fun GraphCanvas(
     renderDataSize: Int,
     oldDataSize: Int,
     animProgress: Float,
-    dateFormatter: DateTimeFormatter,
+    dateFormatter: (LocalDate) -> String,
 ) {
     val secondaryColor = MaterialTheme.colorScheme.secondary
     val tertiaryColor = MaterialTheme.colorScheme.tertiary
@@ -280,7 +281,7 @@ private fun PreviewBudgetGraphTooltip() {
                     renderDataSize = 7,
                     oldDataSize = 7,
                     animProgress = 1f,
-                    dateFormatter = DateTimeFormatter.ofPattern("dd MMM")
+                    dateFormatter = localizedFormatter("dd MMM")
                 )
             }
         }

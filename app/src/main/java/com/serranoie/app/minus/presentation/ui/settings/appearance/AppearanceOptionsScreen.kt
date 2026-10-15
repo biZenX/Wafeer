@@ -578,6 +578,7 @@ private fun LanguageSection(
         "de" to stringResource(R.string.settings_language_de),
         "el" to stringResource(R.string.settings_language_el),
         "es" to stringResource(R.string.settings_language_es),
+        "fa" to stringResource(R.string.settings_language_fa),
         "fr" to stringResource(R.string.settings_language_fr),
         "hi" to stringResource(R.string.settings_language_hi),
         "it" to stringResource(R.string.settings_language_it),

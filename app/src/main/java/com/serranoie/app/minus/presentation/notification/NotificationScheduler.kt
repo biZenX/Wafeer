@@ -17,6 +17,7 @@ import com.serranoie.app.minus.domain.model.CreditCard
 import com.serranoie.app.minus.domain.model.RecurrentFrequency
 import com.serranoie.app.minus.domain.model.Transaction
 import com.serranoie.app.minus.domain.model.calculatePaymentDueDate
+import com.serranoie.app.minus.domain.time.CalendarSystem
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -341,11 +342,12 @@ class NotificationScheduler @Inject constructor(
         notificationTime: Pair<Int, Int>,
         paidDates: Set<LocalDate> = emptySet(),
         leadDays: Long = 0L,
+        calendar: CalendarSystem = CalendarSystem.current(),
     ): LocalDateTime? {
         val startDate = transaction.date?.toLocalDate() ?: return null
         val frequency = transaction.recurrentFrequency ?: return null
         val endDate = transaction.recurrentEndDate?.toLocalDate()
-        val billingDay = transaction.subscriptionDay ?: startDate.dayOfMonth
+        val billingDay = transaction.subscriptionDay ?: calendar.dayOfMonth(startDate)
 
         fun advance(from: LocalDate): LocalDate = when (frequency) {
             RecurrentFrequency.WEEKLY -> from.plusWeeks(1)
@@ -354,6 +356,7 @@ class NotificationScheduler @Inject constructor(
                 startDate = startDate,
                 today = from.plusDays(1),
                 subscriptionDay = billingDay,
+                calendar = calendar,
             )
         }
 
@@ -364,6 +367,7 @@ class NotificationScheduler @Inject constructor(
                 startDate = startDate,
                 today = now.toLocalDate(),
                 subscriptionDay = billingDay,
+                calendar = calendar,
             )
         }
         var triggerDateTime = LocalDateTime.of(
@@ -403,12 +407,11 @@ class NotificationScheduler @Inject constructor(
         startDate: LocalDate,
         today: LocalDate,
         subscriptionDay: Int,
+        calendar: CalendarSystem = CalendarSystem.current(),
     ): LocalDate {
-        var candidate = today.withDayOfMonth(subscriptionDay.coerceIn(1, today.lengthOfMonth()))
+        var candidate = calendar.withDayOfMonth(today, subscriptionDay)
         if (candidate.isBefore(today)) {
-            val nextMonth = today.plusMonths(1)
-            candidate =
-                nextMonth.withDayOfMonth(subscriptionDay.coerceIn(1, nextMonth.lengthOfMonth()))
+            candidate = calendar.withDayOfMonth(calendar.plusMonths(today, 1), subscriptionDay)
         }
         return if (candidate.isBefore(startDate)) startDate else candidate
     }
@@ -447,12 +450,13 @@ class NotificationScheduler @Inject constructor(
         cutoffDay: Int,
         now: LocalDateTime,
         notificationTime: Pair<Int, Int>,
+        calendar: CalendarSystem = CalendarSystem.current(),
     ): LocalDateTime {
         val card = CreditCard(cutoffDay = cutoffDay)
         val time = LocalTime.of(notificationTime.first, notificationTime.second)
         return (0L..MAX_CREDIT_CUTOFF_LOOKAHEAD_MONTHS).asSequence()
             .map { monthsAhead ->
-                val dueDate = calculatePaymentDueDate(card, now.toLocalDate().plusMonths(monthsAhead))
+                val dueDate = calculatePaymentDueDate(card, calendar.plusMonths(now.toLocalDate(), monthsAhead), calendar)
                 LocalDateTime.of(dueDate.minusDays(CREDIT_CUTOFF_REMINDER_DAYS), time)
             }
             .first { it.isAfter(now) }

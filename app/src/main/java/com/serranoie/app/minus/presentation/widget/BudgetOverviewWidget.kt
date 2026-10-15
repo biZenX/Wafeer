@@ -38,7 +38,7 @@ import androidx.glance.text.Text
 import androidx.glance.text.TextAlign
 import androidx.glance.text.TextStyle
 import com.serranoie.app.minus.R
-import java.text.SimpleDateFormat
+import com.serranoie.app.minus.presentation.util.font.format.formatLocalized
 import java.util.Date
 import java.util.Locale
 
@@ -223,7 +223,7 @@ suspend fun updateBudgetOverviewWidget(
     endDate: Date,
     daysCount: Int,
 ) {
-    val dateFormat = SimpleDateFormat("dd MMM", Locale.getDefault())
+    val dateFormat: (Date) -> String = { it.formatLocalized("dd MMM") }
 
     val glanceIds = boundGlanceIds(context, BudgetOverviewWidgetReceiver::class.java, BudgetOverviewWidget::class.java)
 
@@ -232,8 +232,8 @@ suspend fun updateBudgetOverviewWidget(
             prefs[androidx.datastore.preferences.core.intPreferencesKey("budget_amount")] =
                 budgetAmount
             prefs[stringPreferencesKey("currency_code")] = currency
-            prefs[stringPreferencesKey("start_date")] = dateFormat.format(startDate)
-            prefs[stringPreferencesKey("end_date")] = dateFormat.format(endDate)
+            prefs[stringPreferencesKey("start_date")] = dateFormat(startDate)
+            prefs[stringPreferencesKey("end_date")] = dateFormat(endDate)
             prefs[androidx.datastore.preferences.core.intPreferencesKey("days_count")] = daysCount
         }
         BudgetOverviewWidget().update(context, glanceId)

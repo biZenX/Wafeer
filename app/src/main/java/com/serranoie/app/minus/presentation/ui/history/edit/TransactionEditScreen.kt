@@ -46,6 +46,7 @@ import com.serranoie.app.minus.R
 import com.serranoie.app.minus.domain.model.RecurrentFrequency
 import com.serranoie.app.minus.domain.model.SupportedCurrency
 import com.serranoie.app.minus.domain.model.Transaction
+import com.serranoie.app.minus.domain.time.CalendarSystem
 import com.serranoie.app.minus.presentation.LocalWindowInsets
 import com.serranoie.app.minus.presentation.ui.budget.mvi.intent.BudgetNumpadIntent
 import com.serranoie.app.minus.presentation.ui.editor.calculation.evaluateCalculation
@@ -119,7 +120,11 @@ fun TransactionEditScreen(
         mutableStateOf(transaction.recurrentFrequency ?: RecurrentFrequency.MONTHLY)
     }
     var subscriptionDay by remember {
-        mutableIntStateOf(transaction.subscriptionDay ?: transaction.date?.dayOfMonth ?: 1)
+        mutableIntStateOf(
+            transaction.subscriptionDay
+                ?: transaction.date?.toLocalDate()?.let(CalendarSystem.current()::dayOfMonth)
+                ?: 1
+        )
     }
     var recurrentEndDate by remember {
         mutableStateOf(transaction.recurrentEndDate?.toLocalDate() ?: budgetEndDate.plusMonths(3))

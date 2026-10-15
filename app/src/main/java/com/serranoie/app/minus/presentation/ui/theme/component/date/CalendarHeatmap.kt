@@ -44,19 +44,20 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import com.serranoie.app.minus.R
 import com.serranoie.app.minus.domain.model.Transaction
+import com.serranoie.app.minus.domain.time.CalendarSystem
 import com.serranoie.app.minus.presentation.isRoundedFontEnabled
 import com.serranoie.app.minus.presentation.ui.theme.MinusTheme
 import com.serranoie.app.minus.presentation.ui.theme.googleSansFlex
 import com.serranoie.app.minus.presentation.ui.theme.labelSmallCondensed
 import com.serranoie.app.minus.presentation.util.combineColors
+import com.serranoie.app.minus.presentation.util.font.format.formatLocalized
 import com.serranoie.app.minus.presentation.util.font.format.getWeek
 import com.serranoie.app.minus.presentation.util.font.format.prettyWeekDay
-import com.serranoie.app.minus.presentation.util.font.format.prettyYearMonth
+import com.serranoie.app.minus.presentation.util.font.format.prettyMonth
 import com.serranoie.app.minus.presentation.util.font.format.toDate
 import com.serranoie.app.minus.presentation.util.font.format.toLocalDate
 import java.math.BigDecimal
 import java.time.LocalDate
-import java.time.YearMonth
 import java.time.ZoneId
 import java.time.temporal.ChronoUnit
 import java.time.temporal.TemporalAdjusters
@@ -74,11 +75,14 @@ data class SpendingDay(
 
 data class Week(
     val startDate: LocalDate,
-    val yearMonth: YearMonth
-)
+    val monthStart: LocalDate,
+    val monthEnd: LocalDate,
+) {
+    fun isInMonth(day: LocalDate): Boolean = !day.isBefore(monthStart) && !day.isAfter(monthEnd)
+}
 
 data class Month(
-    val yearMonth: YearMonth,
+    val monthStart: LocalDate,
     val weeks: List<Week>
 )
 
@@ -159,7 +163,7 @@ fun CalendarHeatmap(
             val calendarUiState = calendarState.calendarUiState.value
 
             calendarState.listMonths.forEach { month ->
-                MonthHeader(yearMonth = month.yearMonth)
+                MonthHeader(monthStart = month.monthStart)
 
                 DaysOfWeek()
 
@@ -253,13 +257,13 @@ private fun HeatmapLegend(modifier: Modifier = Modifier) {
 }
 
 @Composable
-internal fun MonthHeader(modifier: Modifier = Modifier, yearMonth: YearMonth) {
+internal fun MonthHeader(modifier: Modifier = Modifier, monthStart: LocalDate) {
     Row(modifier = modifier.heightIn(min = CELL_SIZE), verticalAlignment = Alignment.Bottom) {
         Text(
             modifier = Modifier
                 .padding(start = 8.dp)
                 .weight(1f),
-            text = prettyYearMonth(yearMonth),
+            text = prettyMonth(monthStart),
             style = MaterialTheme.typography.titleMediumEmphasized,
             color = MaterialTheme.colorScheme.onSurface,
         )
@@ -292,7 +296,7 @@ private fun WeekRow(
         for (i in 0..6) {
             val currentDay = week.startDate.plusDays(i.toLong())
 
-            if (currentDay.month == week.yearMonth.month) {
+            if (week.isInMonth(currentDay)) {
                 val spendingDay = spendingDays[currentDay]
 
                 DayCell(
@@ -420,7 +424,7 @@ internal fun DayCell(
         )
 
         Text(
-            text = day.dayOfMonth.toString(),
+            text = day.formatLocalized("d"),
             style = dynamicStyle,
             fontStyle = if (disabled) FontStyle.Italic else FontStyle.Normal,
             color = when {
@@ -490,26 +494,24 @@ class CalendarState(
         val months = mutableListOf<Month>()
 
         val weekFields = WeekFields.of(locale)
+        val calendar = CalendarSystem.of(locale)
 
-        var currentMonth = YearMonth.from(start)
-        val endMonth = YearMonth.from(end)
-
-        while (!currentMonth.isAfter(endMonth)) {
+        var firstDayOfMonth = calendar.firstDayOfMonth(start)
+        while (!firstDayOfMonth.isAfter(end)) {
             val weeks = mutableListOf<Week>()
-            val firstDayOfMonth = currentMonth.atDay(1)
-            val lastDayOfMonth = currentMonth.atEndOfMonth()
+            val lastDayOfMonth = calendar.lastDayOfMonth(firstDayOfMonth)
 
             var d = firstDayOfMonth
             while (!d.isAfter(lastDayOfMonth)) {
                 val weekStart = d.with(TemporalAdjusters.previousOrSame(weekFields.firstDayOfWeek))
                 if (weeks.none { it.startDate == weekStart }) {
-                    weeks.add(Week(weekStart, currentMonth))
+                    weeks.add(Week(weekStart, firstDayOfMonth, lastDayOfMonth))
                 }
                 d = d.plusDays(1)
             }
 
-            months.add(Month(currentMonth, weeks.sortedBy { it.startDate }))
-            currentMonth = currentMonth.plusMonths(1)
+            months.add(Month(firstDayOfMonth, weeks.sortedBy { it.startDate }))
+            firstDayOfMonth = lastDayOfMonth.plusDays(1)
         }
 
         return months

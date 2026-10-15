@@ -48,6 +48,7 @@ import com.serranoie.app.minus.presentation.ui.budget.mvi.intent.BudgetSystemInt
 import com.serranoie.app.minus.presentation.ui.budget.mvi.intent.BudgetTransactionIntent
 import com.serranoie.app.minus.presentation.ui.editor.AnimState
 import com.serranoie.app.minus.presentation.util.ErrorLogRecorder
+import com.serranoie.app.minus.presentation.util.font.format.localizedFormatter
 import com.serranoie.app.minus.presentation.util.font.format.symbolOnlyCurrencyFormat
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -76,7 +77,6 @@ import logcat.asLog
 import logcat.logcat
 import java.math.BigDecimal
 import java.time.LocalDate
-import java.time.format.DateTimeFormatter
 import java.util.Locale
 import javax.inject.Inject
 
@@ -398,10 +398,10 @@ class BudgetViewModel @Inject constructor(
                     val today = LocalDate.now()
                     val card = CreditCard(cutoffDay = cutoffDay)
                     val dueDate = calculatePaymentDueDate(card, today)
-                    val formatter = DateTimeFormatter.ofPattern("dd MMM", Locale.getDefault())
+                    val formatter = localizedFormatter("dd MMM", Locale.getDefault())
                     notificationHelper.showCreditCutoffNotification(
                         totalAmount = "123.45",
-                        dueDateText = dueDate.format(formatter),
+                        dueDateText = dueDate.let(formatter),
                         currency = currency
                     )
                 }

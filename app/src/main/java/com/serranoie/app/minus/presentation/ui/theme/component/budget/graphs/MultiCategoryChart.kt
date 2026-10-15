@@ -42,11 +42,11 @@ import androidx.compose.ui.util.lerp
 import com.serranoie.app.minus.R
 import com.serranoie.app.minus.presentation.ui.theme.MinusTheme
 import com.serranoie.app.minus.presentation.ui.theme.labelSmallCondensed
+import com.serranoie.app.minus.presentation.util.font.format.localizedFormatter
 import com.serranoie.app.minus.presentation.util.font.format.symbolOnlyCurrencyFormat
 import java.math.BigDecimal
 import java.time.LocalDate
 import java.time.ZoneId
-import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
 import java.util.Date
 import kotlin.math.roundToInt
@@ -199,7 +199,7 @@ internal fun MultiCategoryChart(
     windowIndex: Int,
     scrollStep: Int,
     dataSize: Int,
-    dateFormatter: DateTimeFormatter,
+    dateFormatter: (LocalDate) -> String,
     selectedDate: LocalDate? = null,
     onDayTap: ((LocalDate) -> Unit)? = null,
     forcedTooltipDate: LocalDate? = null,
@@ -596,7 +596,7 @@ private fun PreviewMultiCategoryChart() {
                     windowIndex = 0,
                     scrollStep = 1,
                     dataSize = 7,
-                    dateFormatter = DateTimeFormatter.ofPattern("dd MMM"),
+                    dateFormatter = localizedFormatter("dd MMM"),
                     selectedDate = startLocalDate.plusDays(6),
                     forcedTooltipDate = startLocalDate.plusDays(6),
                 )
@@ -635,7 +635,7 @@ private fun PreviewMultiCategoryChartSparse() {
                     windowIndex = 0,
                     scrollStep = 1,
                     dataSize = 7,
-                    dateFormatter = DateTimeFormatter.ofPattern("dd MMM"),
+                    dateFormatter = localizedFormatter("dd MMM"),
                 )
             }
         }

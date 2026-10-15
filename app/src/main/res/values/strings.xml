@@ -381,6 +381,7 @@
     <string name="settings_language_el" translatable="false">Ελληνικά</string>
     <string name="settings_language_es" translatable="false">Español</string>
     <string name="settings_language_fr" translatable="false">Français</string>
+    <string name="settings_language_fa" translatable="false">فارسی</string>
     <string name="settings_language_hi" translatable="false">हिन्दी</string>
     <string name="settings_language_it" translatable="false">Italiano</string>
     <string name="settings_language_ja" translatable="false">日本語</string>

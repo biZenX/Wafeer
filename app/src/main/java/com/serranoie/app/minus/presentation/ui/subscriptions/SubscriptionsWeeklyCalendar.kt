@@ -67,12 +67,13 @@ import com.serranoie.app.minus.presentation.ui.theme.component.date.CalendarStat
 import com.serranoie.app.minus.presentation.ui.theme.component.expense.subscriptionPalette
 import com.serranoie.app.minus.presentation.ui.theme.labelMediumCondensed
 import com.serranoie.app.minus.presentation.ui.theme.labelSmallCondensed
+import com.serranoie.app.minus.presentation.util.font.format.formatLocalized
+import com.serranoie.app.minus.presentation.util.font.format.localizedFormatter
 import com.serranoie.app.minus.presentation.util.font.format.toDate
 import com.serranoie.app.minus.presentation.util.haptic.HapticUtil.performVirtualKeyHaptic
 import java.math.BigDecimal
 import java.text.NumberFormat
 import java.time.LocalDate
-import java.time.format.DateTimeFormatter
 import java.time.format.TextStyle
 import java.util.Locale
 import kotlin.math.roundToInt
@@ -120,7 +121,7 @@ internal fun SubscriptionsWeeklyCalendar(
         mutableIntStateOf(currentWeek.coerceAtLeast(0))
     }
     weekIndex = weekIndex.coerceIn(0, renderedWeeks.lastIndex)
-    val dateFormatter = remember(locale) { DateTimeFormatter.ofPattern("MMMM dd", locale) }
+    val dateFormatter = remember(locale) { localizedFormatter("MMMM dd", locale) }
 
     Card(
         modifier = modifier,
@@ -149,8 +150,8 @@ internal fun SubscriptionsWeeklyCalendar(
                             horizontalArrangement = Arrangement.spacedBy(8.dp),
                         ) {
                             Text(
-                                text = "${dateFormatter.format(animatedWeek.startDate)} – ${
-                                    dateFormatter.format(
+                                text = "${dateFormatter(animatedWeek.startDate)} – ${
+                                    dateFormatter(
                                         animatedWeekEnd
                                     )
                                 }",
@@ -327,7 +328,7 @@ private fun SubscriptionsWeeklyDayPill(
         )
         Spacer(modifier = Modifier.height(4.dp))
         Text(
-            text = day.dayOfMonth.toString(),
+            text = day.formatLocalized("d", locale),
             style = MaterialTheme.typography.bodyMediumEmphasized,
             color = if (isToday) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurface,
         )

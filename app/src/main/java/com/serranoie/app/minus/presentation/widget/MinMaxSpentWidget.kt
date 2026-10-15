@@ -41,8 +41,8 @@ import androidx.glance.text.Text
 import androidx.glance.text.TextStyle
 import com.serranoie.app.minus.R
 import com.serranoie.app.minus.domain.model.Transaction
+import com.serranoie.app.minus.presentation.util.font.format.formatLocalized
 import java.math.BigDecimal
-import java.text.SimpleDateFormat
 import java.time.ZoneId
 import java.util.Date
 import java.util.Locale
@@ -301,7 +301,7 @@ suspend fun updateMinMaxSpentWidget(
     val minSpent = activeSpends.minByOrNull { it.amount }
     val maxSpent = activeSpends.maxByOrNull { it.amount }
     val maxAmount = activeSpends.maxOfOrNull { it.amount } ?: BigDecimal.ZERO
-    val dateFormat = SimpleDateFormat("dd MMM yyyy HH:mm", Locale.getDefault())
+    val dateFormat: (Date) -> String = { it.formatLocalized("dd MMM yyyy HH:mm") }
     val orderedSpends = activeSpends.sortedBy { it.date }
     val minChart = buildSelectedChartWindow(orderedSpends, minSpent, maxAmount)
     val maxChart = buildSelectedChartWindow(orderedSpends, maxSpent, maxAmount)
@@ -315,14 +315,14 @@ suspend fun updateMinMaxSpentWidget(
             prefs[minAmountKey] = minSpent?.amount?.toInt() ?: 0
             prefs[maxAmountKey] = maxSpent?.amount?.toInt() ?: 0
             prefs[minDateKey] = minSpent?.date?.let {
-                dateFormat.format(
+                dateFormat(
                     Date.from(
                         it.atZone(ZoneId.systemDefault()).toInstant()
                     )
                 )
             } ?: "-"
             prefs[maxDateKey] = maxSpent?.date?.let {
-                dateFormat.format(
+                dateFormat(
                     Date.from(
                         it.atZone(ZoneId.systemDefault()).toInstant()
                     )

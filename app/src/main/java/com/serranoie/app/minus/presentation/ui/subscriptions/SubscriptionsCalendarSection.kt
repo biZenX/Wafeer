@@ -34,6 +34,7 @@ import com.serranoie.app.minus.presentation.ui.theme.component.date.DaysOfWeek
 import com.serranoie.app.minus.presentation.ui.theme.component.date.MonthHeader
 import com.serranoie.app.minus.presentation.ui.theme.component.expense.subscriptionPalette
 import com.serranoie.app.minus.presentation.ui.theme.labelSmallCondensed
+import com.serranoie.app.minus.presentation.util.font.format.formatLocalized
 import com.serranoie.app.minus.presentation.util.font.format.toDate
 import java.math.BigDecimal
 import java.time.LocalDate
@@ -60,7 +61,7 @@ internal fun SubscriptionsCalendarSection(
 
     Column(modifier = modifier) {
         calendarState.listMonths.forEach { month ->
-            MonthHeader(yearMonth = month.yearMonth)
+            MonthHeader(monthStart = month.monthStart)
             DaysOfWeek()
 
             val renderedWeeks = month.weeks.filter { week ->
@@ -85,9 +86,9 @@ internal fun SubscriptionsCalendarSection(
                                 .aspectRatio(1f)
                                 .padding(1.dp),
                         ) {
-                            if (day.month == week.yearMonth.month) {
+                            if (week.isInMonth(day)) {
                                 CalendarDayCell(
-                                    day = day.dayOfMonth,
+                                    day = day.formatLocalized("d"),
                                     charges = chargesByDay[day].orEmpty(),
                                     isToday = day == today,
                                     isOutsidePeriod = day.isBefore(periodStart) || day.isAfter(periodEnd),
@@ -128,7 +129,7 @@ private fun calendarDayCellShape(
 
 @Composable
 private fun CalendarDayCell(
-    day: Int,
+    day: String,
     charges: List<DayCharge>,
     isToday: Boolean,
     modifier: Modifier = Modifier,
@@ -168,7 +169,7 @@ private fun CalendarDayCell(
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Text(
-            text = day.toString(),
+            text = day,
             style = MaterialTheme.typography.labelSmallCondensed,
             color = if (isToday) {
                 MaterialTheme.colorScheme.onPrimaryContainer

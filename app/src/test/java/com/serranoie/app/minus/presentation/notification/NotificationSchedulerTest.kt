@@ -5,6 +5,7 @@ import com.serranoie.app.minus.data.repository.BudgetRepository
 import com.serranoie.app.minus.data.repository.SettingsRepository
 import com.serranoie.app.minus.domain.model.RecurrentFrequency
 import com.serranoie.app.minus.domain.model.Transaction
+import com.serranoie.app.minus.domain.time.CalendarSystem
 import io.mockk.mockk
 import org.junit.Test
 import java.math.BigDecimal
@@ -232,5 +233,52 @@ class NotificationSchedulerTest {
         )
         // cutoff 15 Oct -> due 4 Nov (Wed) -> reminder 1 Nov
         assertThat(result).isEqualTo(LocalDateTime.of(2026, 11, 1, 9, 0))
+    }
+
+    @Test
+    fun `persian monthly occurrence uses the persian billing day`() {
+        assertThat(scheduler.nextMonthlyOccurrence(d(2026, 1, 1), d(2026, 10, 13), 25, CalendarSystem.PERSIAN))
+            .isEqualTo(d(2026, 10, 17))
+        assertThat(scheduler.nextMonthlyOccurrence(d(2026, 1, 1), d(2026, 10, 13), 15, CalendarSystem.PERSIAN))
+            .isEqualTo(d(2026, 11, 6))
+        assertThat(scheduler.nextMonthlyOccurrence(d(2026, 1, 1), d(2026, 10, 13), 31, CalendarSystem.PERSIAN))
+            .isEqualTo(d(2026, 10, 22))
+    }
+
+    @Test
+    fun `persian monthly notification follows the persian subscription day`() {
+        val result = scheduler.nextOccurrenceDateTime(
+            recurringTx(
+                date = LocalDateTime.of(2026, 1, 5, 8, 0),
+                frequency = RecurrentFrequency.MONTHLY,
+                subscriptionDay = 1,
+            ),
+            now = LocalDateTime.of(2026, 10, 13, 12, 0),
+            notificationTime = notifyAt9,
+            calendar = CalendarSystem.PERSIAN,
+        )
+        assertThat(result).isEqualTo(LocalDateTime.of(2026, 10, 23, 9, 0))
+    }
+
+    @Test
+    fun `persian monthly notification without subscription day uses the persian start day`() {
+        val result = scheduler.nextOccurrenceDateTime(
+            recurringTx(date = LocalDateTime.of(2026, 8, 10, 8, 0), frequency = RecurrentFrequency.MONTHLY),
+            now = LocalDateTime.of(2026, 10, 11, 8, 0),
+            notificationTime = notifyAt9,
+            calendar = CalendarSystem.PERSIAN,
+        )
+        assertThat(result).isEqualTo(LocalDateTime.of(2026, 10, 11, 9, 0))
+    }
+
+    @Test
+    fun `persian credit cutoff reminder uses the persian cutoff day`() {
+        val result = scheduler.nextCreditCutoffReminderDateTime(
+            cutoffDay = 15,
+            now = LocalDateTime.of(2026, 10, 13, 12, 0),
+            notificationTime = notifyAt9,
+            calendar = CalendarSystem.PERSIAN,
+        )
+        assertThat(result).isEqualTo(LocalDateTime.of(2026, 10, 24, 9, 0))
     }
 }

@@ -48,13 +48,13 @@ import com.serranoie.app.minus.presentation.ui.theme.MinusTheme
 import com.serranoie.app.minus.presentation.ui.theme.component.charts.baseColors
 import com.serranoie.app.minus.presentation.util.Utils.confirmFeedback
 import com.serranoie.app.minus.presentation.util.combineColors
+import com.serranoie.app.minus.presentation.util.font.format.localizedFormatter
 import com.serranoie.app.minus.presentation.util.font.format.symbolOnlyCurrencyFormat
 import kotlinx.coroutines.delay
 import java.math.BigDecimal
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneId
-import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
 import java.util.Date
 import kotlin.math.abs
@@ -438,20 +438,20 @@ fun BudgetGraph(
     val locale = LocalConfiguration.current.locales[0]
     val dateLabelFormatter = remember(state.graphGranularity, locale) {
         when (state.graphGranularity) {
-            GraphGranularity.DAYS -> DateTimeFormatter.ofPattern("dd MMM", locale)
-            GraphGranularity.WEEK, GraphGranularity.BIWEEK -> DateTimeFormatter.ofPattern(
+            GraphGranularity.DAYS -> localizedFormatter("dd MMM", locale)
+            GraphGranularity.WEEK, GraphGranularity.BIWEEK -> localizedFormatter(
                 "dd MMM",
                 locale
             )
 
-            GraphGranularity.MONTH, GraphGranularity.TOTAL -> DateTimeFormatter.ofPattern(
+            GraphGranularity.MONTH, GraphGranularity.TOTAL -> localizedFormatter(
                 "dd MMM",
                 locale
             )
         }
     }
     val dayLabelFormatter = remember(locale) {
-        DateTimeFormatter.ofPattern("EEEE, MMMM d", locale)
+        localizedFormatter("EEEE, MMMM d", locale)
     }
 
     val currencyFormat = remember(state.currencyCode) {

@@ -53,14 +53,16 @@ import com.serranoie.app.minus.R
 import com.serranoie.app.minus.domain.model.BudgetPeriod
 import com.serranoie.app.minus.domain.model.BudgetSettings
 import com.serranoie.app.minus.domain.model.RecurrentFrequency
+import com.serranoie.app.minus.domain.time.CalendarSystem
 import com.serranoie.app.minus.presentation.ui.theme.MinusTheme
 import com.serranoie.app.minus.presentation.ui.theme.bodySmallCondensed
+import com.serranoie.app.minus.presentation.ui.theme.component.date.PersianDateCaption
 import com.serranoie.app.minus.presentation.ui.theme.labelMediumCondensed
+import com.serranoie.app.minus.presentation.util.font.format.localizedFormatter
 import java.math.BigDecimal
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
-import java.time.format.DateTimeFormatter
 import java.util.Locale
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
@@ -77,7 +79,7 @@ fun RecurrentExpenseDialog(
 
     var selectedFrequency by remember { mutableStateOf(RecurrentFrequency.MONTHLY) }
     var selectedDay by remember {
-        mutableIntStateOf(today.dayOfMonth.coerceIn(MinSubscriptionDay, MaxSubscriptionDay))
+        mutableIntStateOf(CalendarSystem.current().dayOfMonth(today).coerceIn(MinSubscriptionDay, MaxSubscriptionDay))
     }
 
     var showDatePicker by remember { mutableStateOf(false) }
@@ -121,10 +123,11 @@ fun RecurrentExpenseDialog(
             }
         }) {
             DatePicker(state = datePickerState)
+            PersianDateCaption(datePickerState.selectedDateMillis)
         }
     }
 
-    val dateFormatter = remember { DateTimeFormatter.ofPattern("dd MMM yyyy", Locale.getDefault()) }
+    val dateFormatter = remember { localizedFormatter("dd MMM yyyy", Locale.getDefault()) }
 
     AlertDialog(modifier = modifier, onDismissRequest = onDismiss, title = {
         Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
@@ -228,7 +231,7 @@ fun RecurrentExpenseDialog(
             )
 
             OutlinedTextField(
-                value = selectedEndDate.format(dateFormatter),
+                value = selectedEndDate.let(dateFormatter),
                 onValueChange = {},
                 readOnly = true,
                 placeholder = { Text(stringResource(R.string.date_placeholder)) },
@@ -322,9 +325,9 @@ private fun buildRecurrentSummary(
     frequency: RecurrentFrequency,
     selectedDay: Int,
     selectedEndDate: LocalDate,
-    formatter: DateTimeFormatter
+    formatter: (LocalDate) -> String
 ): String {
-    val formattedDate = selectedEndDate.format(formatter)
+    val formattedDate = selectedEndDate.let(formatter)
     return when (frequency) {
         RecurrentFrequency.WEEKLY -> stringResource(R.string.summary_weekly_format, formattedDate)
         RecurrentFrequency.BIWEEKLY -> stringResource(
