@@ -32,6 +32,6 @@ fun lastCutoffDate(
     return if (targetDate.isAfter(currentMonthCutoff)) {
         currentMonthCutoff
     } else {
-        calendar.plusMonths(currentMonthCutoff, -1)
+        calendar.withDayOfMonth(calendar.plusMonths(targetDate, -1), cutoffDay)
     }
 }

@@ -166,6 +166,63 @@ class HistoryCalculationsTest {
     }
 
     @Test
+    fun monthly_charge_on_clamped_gregorian_month_end_advances_and_reapplies_billing_day() {
+        val cases = listOf(
+            Triple(LocalDate.of(2026, 2, 28), 29, LocalDate.of(2026, 3, 29)),
+            Triple(LocalDate.of(2026, 2, 28), 30, LocalDate.of(2026, 3, 30)),
+            Triple(LocalDate.of(2026, 2, 28), 31, LocalDate.of(2026, 3, 31)),
+            Triple(LocalDate.of(2024, 2, 29), 31, LocalDate.of(2024, 3, 31)),
+            Triple(LocalDate.of(2026, 4, 30), 31, LocalDate.of(2026, 5, 31)),
+            Triple(LocalDate.of(2026, 2, 27), 31, LocalDate.of(2026, 2, 28)),
+        )
+
+        for ((today, billingDay, expected) in cases) {
+            val tx = recurrentTransaction(
+                id = 1L, startDate = LocalDate.of(2024, 1, 1), subscriptionDay = billingDay,
+            )
+            assertEquals(expected, calculateNextChargeDate(tx, today, CalendarSystem.GREGORIAN))
+        }
+    }
+
+    @Test
+    fun monthly_charge_on_clamped_persian_month_end_advances_and_reapplies_billing_day() {
+        val cases = listOf(
+            Triple(LocalDate.of(2026, 10, 22), 31, LocalDate.of(2026, 11, 21)),
+            Triple(LocalDate.of(2026, 3, 20), 30, LocalDate.of(2026, 4, 19)),
+            Triple(LocalDate.of(2026, 3, 20), 31, LocalDate.of(2026, 4, 20)),
+            Triple(LocalDate.of(2025, 3, 20), 31, LocalDate.of(2025, 4, 20)),
+            Triple(LocalDate.of(2026, 3, 19), 31, LocalDate.of(2026, 3, 20)),
+        )
+
+        for ((today, billingDay, expected) in cases) {
+            val tx = recurrentTransaction(
+                id = 1L, startDate = LocalDate.of(2024, 1, 1), subscriptionDay = billingDay,
+            )
+            assertEquals(expected, calculateNextChargeDate(tx, today, CalendarSystem.PERSIAN))
+        }
+    }
+
+    @Test
+    fun monthly_charge_uses_start_day_when_subscription_day_is_missing() {
+        val tx = recurrentTransaction(id = 1L, startDate = LocalDate.of(2026, 1, 31))
+
+        assertEquals(
+            LocalDate.of(2026, 3, 31),
+            calculateNextChargeDate(tx, LocalDate.of(2026, 2, 28), CalendarSystem.GREGORIAN),
+        )
+    }
+
+    @Test
+    fun monthly_charge_after_clamped_month_end_respects_subscription_end_date() {
+        val today = LocalDate.of(2026, 2, 28)
+        val tx = recurrentTransaction(
+            id = 1L, startDate = LocalDate.of(2026, 1, 31), subscriptionDay = 31,
+        ).copy(recurrentEndDate = today.atStartOfDay())
+
+        assertEquals(null, calculateNextChargeDate(tx, today, CalendarSystem.GREGORIAN))
+    }
+
+    @Test
     fun persian_calendar_next_charge_date_uses_persian_billing_day() {
         val tx = recurrentTransaction(id = 1L, startDate = LocalDate.of(2026, 1, 1), subscriptionDay = 15)
 

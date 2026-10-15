@@ -156,7 +156,7 @@ internal fun calculateNextChargeDate(
             val billingDay = transaction.subscriptionDay ?: calendar.dayOfMonth(startDate)
             var nextDate = calendar.withDayOfMonth(today, billingDay)
 
-            if (calendar.dayOfMonth(today) >= billingDay) {
+            if (!nextDate.isAfter(today)) {
                 nextDate = calendar.withDayOfMonth(calendar.plusMonths(nextDate, 1), billingDay)
             }
 

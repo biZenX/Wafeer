@@ -8,6 +8,36 @@ import java.time.LocalDate
 class CreditCardTest {
 
     @Test
+    fun `previous gregorian cutoff reapplies the requested day and clamps when needed`() {
+        val cases = listOf(
+            LocalDate.of(2026, 2, 10) to LocalDate.of(2026, 1, 31),
+            LocalDate.of(2024, 2, 29) to LocalDate.of(2024, 1, 31),
+            LocalDate.of(2026, 4, 15) to LocalDate.of(2026, 3, 31),
+            LocalDate.of(2026, 3, 15) to LocalDate.of(2026, 2, 28),
+            LocalDate.of(2024, 3, 15) to LocalDate.of(2024, 2, 29),
+            LocalDate.of(2026, 1, 10) to LocalDate.of(2025, 12, 31),
+        )
+
+        for ((targetDate, expected) in cases) {
+            assertEquals(expected, lastCutoffDate(31, targetDate, CalendarSystem.GREGORIAN))
+        }
+    }
+
+    @Test
+    fun `previous persian cutoff reapplies the requested day and clamps when needed`() {
+        val cases = listOf(
+            LocalDate.of(2026, 10, 1) to LocalDate.of(2026, 9, 22),
+            LocalDate.of(2026, 3, 20) to LocalDate.of(2026, 2, 19),
+            LocalDate.of(2026, 4, 1) to LocalDate.of(2026, 3, 20),
+            LocalDate.of(2025, 4, 1) to LocalDate.of(2025, 3, 20),
+        )
+
+        for ((targetDate, expected) in cases) {
+            assertEquals(expected, lastCutoffDate(31, targetDate, CalendarSystem.PERSIAN))
+        }
+    }
+
+    @Test
     fun `test calculatePaymentDueDate - normal case`() {
         val card = CreditCard(cutoffDay = 15, gracePeriodDays = 20)
         val today = LocalDate.of(2024, 7, 10)
