@@ -3,6 +3,7 @@ package com.serranoie.app.minus.presentation.ui.history
 import com.serranoie.app.minus.domain.model.PaidRecurrentOccurrence
 import com.serranoie.app.minus.domain.model.RecurrentFrequency
 import com.serranoie.app.minus.domain.model.Transaction
+import com.serranoie.app.minus.domain.time.CalendarSystem
 import com.serranoie.app.minus.presentation.ui.theme.component.expense.UpcomingRecurrentItem
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -117,7 +118,11 @@ internal fun groupTransactionsByDate(
 ): Map<LocalDate?, List<Transaction>> = transactions.groupBy { it.date?.toLocalDate() }
     .toSortedMap(compareByDescending { it })
 
-internal fun calculateNextChargeDate(transaction: Transaction, today: LocalDate): LocalDate? {
+internal fun calculateNextChargeDate(
+    transaction: Transaction,
+    today: LocalDate,
+    calendar: CalendarSystem = CalendarSystem.current(),
+): LocalDate? {
     if (!transaction.isRecurrent) {
         return null
     }
@@ -148,15 +153,11 @@ internal fun calculateNextChargeDate(transaction: Transaction, today: LocalDate)
         }
 
         RecurrentFrequency.MONTHLY -> {
-            val billingDay = transaction.subscriptionDay ?: startDate.dayOfMonth
-            var nextDate = today.withDayOfMonth(billingDay.coerceAtMost(today.lengthOfMonth()))
+            val billingDay = transaction.subscriptionDay ?: calendar.dayOfMonth(startDate)
+            var nextDate = calendar.withDayOfMonth(today, billingDay)
 
-            if (today.dayOfMonth >= billingDay) {
-                nextDate = nextDate.plusMonths(1)
-                val maxDay = nextDate.lengthOfMonth()
-                if (billingDay > maxDay) {
-                    nextDate = nextDate.withDayOfMonth(maxDay)
-                }
+            if (calendar.dayOfMonth(today) >= billingDay) {
+                nextDate = calendar.withDayOfMonth(calendar.plusMonths(nextDate, 1), billingDay)
             }
 
             if (endDate != null && nextDate.isAfter(endDate)) null else nextDate
@@ -171,6 +172,7 @@ internal fun getRecurringChargesInPeriod(
     today: LocalDate,
     paidOccurrences: Set<PaidRecurrentOccurrence> = emptySet(),
     billedThrough: LocalDateTime? = null,
+    calendar: CalendarSystem = CalendarSystem.current(),
 ): List<Transaction> {
     val frequency = transaction.recurrentFrequency ?: return emptyList()
     val originalDateTime = transaction.date ?: return emptyList()
@@ -205,10 +207,8 @@ internal fun getRecurringChargesInPeriod(
             RecurrentFrequency.WEEKLY -> chargeDate.plusWeeks(1)
             RecurrentFrequency.BIWEEKLY -> chargeDate.plusWeeks(2)
             RecurrentFrequency.MONTHLY -> {
-                val billingDay = transaction.subscriptionDay ?: startDate.dayOfMonth
-                val nextMonth = chargeDate.plusMonths(1)
-                val maxDay = nextMonth.lengthOfMonth()
-                nextMonth.withDayOfMonth(billingDay.coerceAtMost(maxDay))
+                val billingDay = transaction.subscriptionDay ?: calendar.dayOfMonth(startDate)
+                calendar.withDayOfMonth(calendar.plusMonths(chargeDate, 1), billingDay)
             }
         }
     }

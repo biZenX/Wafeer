@@ -66,9 +66,9 @@ import com.serranoie.app.minus.presentation.util.censor
 import com.serranoie.app.minus.presentation.util.font.calcAdaptiveFont
 import com.serranoie.app.minus.presentation.util.combineColors
 import com.serranoie.app.minus.presentation.util.font.format.formatCurrencySymbolOnly
+import com.serranoie.app.minus.presentation.util.font.format.localizedFormatter
 import java.math.BigDecimal
 import java.time.LocalDate
-import java.time.format.DateTimeFormatter
 
 @Composable
 fun PastPeriodsBottomSheet(
@@ -189,12 +189,10 @@ private fun ArchivedPeriodCard(
                     ) {
                         Text(
                             text = "${
-                                period.startDate.format(
-                                    DateTimeFormatter.ofPattern("dd MMM")
+                                period.startDate.let(localizedFormatter("dd MMM")
                                 )
                             } - ${
-                                period.endDate.format(
-                                    DateTimeFormatter.ofPattern("dd MMM yyyy")
+                                period.endDate.let(localizedFormatter("dd MMM yyyy")
                                 )
                             }",
                             style = MaterialTheme.typography.titleSmallEmphasized,

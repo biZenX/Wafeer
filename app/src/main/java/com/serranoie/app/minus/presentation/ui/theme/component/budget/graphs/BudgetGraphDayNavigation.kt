@@ -32,8 +32,8 @@ import androidx.compose.ui.unit.dp
 import com.serranoie.app.minus.R
 import com.serranoie.app.minus.presentation.ui.theme.MinusTheme
 import com.serranoie.app.minus.presentation.util.Utils.confirmFeedback
+import com.serranoie.app.minus.presentation.util.font.format.localizedFormatter
 import java.time.LocalDate
-import java.time.format.DateTimeFormatter
 
 const val BUDGET_GRAPH_DAY_PREV_TAG = "BUDGET_GRAPH_DAY_PREV_TAG"
 const val BUDGET_GRAPH_DAY_NEXT_TAG = "BUDGET_GRAPH_DAY_NEXT_TAG"
@@ -44,7 +44,7 @@ internal fun BudgetGraphDayNavigation(
     date: LocalDate,
     dayIndex: Int,
     totalDays: Int,
-    dateFormatter: DateTimeFormatter,
+    dateFormatter: (LocalDate) -> String,
     onPrevDay: () -> Unit,
     onNextDay: () -> Unit,
     canGoPrev: Boolean,
@@ -75,7 +75,7 @@ internal fun BudgetGraphDayNavigation(
             label = "dayLabelSlide",
         ) { animatedDate ->
             Text(
-                text = animatedDate.format(dateFormatter),
+                text = animatedDate.let(dateFormatter),
                 style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 maxLines = 1,
@@ -132,7 +132,7 @@ private fun BudgetGraphDayNavigationPreview() {
                 date = LocalDate.now(),
                 dayIndex = 5,
                 totalDays = 30,
-                dateFormatter = DateTimeFormatter.ofPattern("EEE, MMM d"),
+                dateFormatter = localizedFormatter("EEE, MMM d"),
                 onPrevDay = {},
                 onNextDay = {},
                 canGoPrev = true,

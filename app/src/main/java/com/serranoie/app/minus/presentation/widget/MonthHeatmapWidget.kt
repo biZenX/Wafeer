@@ -10,6 +10,7 @@ import androidx.compose.ui.unit.sp
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.floatPreferencesKey
 import androidx.datastore.preferences.core.intPreferencesKey
+import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.glance.GlanceId
 import androidx.glance.GlanceModifier
@@ -39,11 +40,12 @@ import androidx.glance.text.Text
 import androidx.glance.text.TextAlign
 import androidx.glance.text.TextStyle
 import com.serranoie.app.minus.R
+import com.serranoie.app.minus.domain.time.CalendarSystem
+import com.serranoie.app.minus.presentation.util.font.format.formatLocalized
 import java.math.BigDecimal
 import java.time.DayOfWeek
-import java.time.YearMonth
+import java.time.LocalDate
 import java.util.Locale
-import java.time.format.TextStyle as JavaTextStyle
 
 internal data class MonthWidgetCellState(
     val dayNumber: Int,
@@ -61,8 +63,7 @@ private const val MONTH_WIDGET_GRID_COLUMNS = 7
 private const val MONTH_WIDGET_GRID_ROWS = 6
 private const val MONTH_WIDGET_MAX_DAYS = 31
 
-private val monthWidgetYearKey = intPreferencesKey("month_heatmap_year")
-private val monthWidgetMonthKey = intPreferencesKey("month_heatmap_month")
+private val monthWidgetStartKey = longPreferencesKey("month_heatmap_start")
 private val monthWidgetTotalSpentKey = intPreferencesKey("month_heatmap_total_spent")
 private val monthWidgetCurrencyKey = stringPreferencesKey("month_heatmap_currency")
 
@@ -88,22 +89,21 @@ private fun monthWidgetHeatColorRes(
     }
 }
 
-private fun monthWidgetTitle(yearMonth: YearMonth): String {
-    val month = yearMonth.month.getDisplayName(JavaTextStyle.FULL, Locale.getDefault())
-    return month.uppercase(Locale.getDefault())
+private fun monthWidgetTitle(monthStart: LocalDate): String {
+    return monthStart.formatLocalized("LLLL").uppercase(Locale.getDefault())
 }
 
-private fun monthWidgetFirstDayOffset(yearMonth: YearMonth): Int {
-    val first = yearMonth.atDay(1).dayOfWeek
+private fun monthWidgetFirstDayOffset(monthStart: LocalDate): Int {
+    val first = monthStart.dayOfWeek
     return (first.value - DayOfWeek.MONDAY.value + 7) % 7
 }
 
 private fun buildMonthWidgetCalendarCells(
-    yearMonth: YearMonth,
+    monthStart: LocalDate,
     monthCells: List<MonthWidgetCellState>,
 ): List<MonthWidgetCalendarCellState> {
-    val daysInMonth = yearMonth.lengthOfMonth()
-    val offset = monthWidgetFirstDayOffset(yearMonth)
+    val daysInMonth = CalendarSystem.current().lengthOfMonth(monthStart)
+    val offset = monthWidgetFirstDayOffset(monthStart)
     val byDay = monthCells.associateBy { it.dayNumber }
 
     return List(MONTH_WIDGET_GRID_COLUMNS * MONTH_WIDGET_GRID_ROWS) { index ->
@@ -141,7 +141,7 @@ private fun MonthWidgetDayCell(cell: MonthWidgetCalendarCellState) {
     ) {
         if (hasDay) {
             Text(
-                text = cell.dayNumber.toString(),
+                text = String.format(Locale.getDefault(), "%d", cell.dayNumber),
                 style =
                     TextStyle(
                         fontSize = 10.sp,
@@ -161,7 +161,7 @@ private fun MonthWidgetDayCell(cell: MonthWidgetCalendarCellState) {
 
 @Composable
 internal fun MonthHeatmapContent(
-    yearMonth: YearMonth,
+    monthStart: LocalDate,
     monthCells: List<MonthWidgetCellState>,
     totalSpent: Int,
     modifier: GlanceModifier = GlanceModifier,
@@ -169,13 +169,13 @@ internal fun MonthHeatmapContent(
     currency: String = "USD",
     totalSpentLabel: String = context.getString(R.string.total_spent),
 ) {
-    val calendarCells = buildMonthWidgetCalendarCells(yearMonth, monthCells)
+    val calendarCells = buildMonthWidgetCalendarCells(monthStart, monthCells)
 
     Column(
         modifier = modifier.fillMaxSize().padding(6.dp),
     ) {
         Text(
-            text = monthWidgetTitle(yearMonth),
+            text = monthWidgetTitle(monthStart),
             style =
                 TextStyle(
                     fontSize = 12.sp,
@@ -230,12 +230,8 @@ class MonthHeatmapWidget : GlanceAppWidget() {
     @Composable
     private fun WidgetContent() {
         val prefs = currentState<Preferences>()
-        val now = YearMonth.now()
-        val yearMonth =
-            YearMonth.of(
-                prefs[monthWidgetYearKey] ?: now.year,
-                prefs[monthWidgetMonthKey] ?: now.monthValue,
-            )
+        val monthStart = prefs[monthWidgetStartKey]?.let(LocalDate::ofEpochDay)
+            ?: CalendarSystem.current().firstDayOfMonth(LocalDate.now())
         val monthCells =
             (1..MONTH_WIDGET_MAX_DAYS).map { day ->
                 MonthWidgetCellState(
@@ -256,7 +252,7 @@ class MonthHeatmapWidget : GlanceAppWidget() {
                     .padding(8.dp),
         ) {
             MonthHeatmapContent(
-                yearMonth = yearMonth,
+                monthStart = monthStart,
                 monthCells = monthCells,
                 totalSpent = totalSpent,
                 currency = currency,
@@ -281,8 +277,7 @@ suspend fun updateMonthHeatmapWidget(
 
     glanceIds.forEach { glanceId ->
         updateAppWidgetState(context, glanceId) { prefs ->
-            prefs[monthWidgetYearKey] = monthData.year
-            prefs[monthWidgetMonthKey] = monthData.month
+            prefs[monthWidgetStartKey] = monthData.monthStart.toEpochDay()
             prefs[monthWidgetTotalSpentKey] = totalSpent
             prefs[monthWidgetCurrencyKey] = currency
 
@@ -324,7 +319,7 @@ suspend fun updateMonthHeatmapWidget(
 @Preview(widthDp = 140, heightDp = 140)
 @Composable
 private fun MonthHeatmapContentPreview() {
-    val ym = YearMonth.of(2026, 4)
+    val ym = LocalDate.of(2026, 4, 1)
     val cells =
         remember {
             (1..ym.lengthOfMonth()).map { day ->
@@ -349,7 +344,7 @@ private fun MonthHeatmapContentPreview() {
             modifier = GlanceModifier.fillMaxSize().background(GlanceTheme.colors.surface),
         ) {
             MonthHeatmapContent(
-                yearMonth = ym,
+                monthStart = ym,
                 monthCells = cells,
                 totalSpent = 1250,
                 currency = "USD",

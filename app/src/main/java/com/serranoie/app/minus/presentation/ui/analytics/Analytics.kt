@@ -124,6 +124,7 @@ import com.serranoie.app.minus.presentation.util.Utils.toToast
 import com.serranoie.app.minus.presentation.util.Utils.weakHapticFeedback
 import com.serranoie.app.minus.presentation.util.combineColors
 import com.serranoie.app.minus.presentation.util.font.format.formatCurrencySymbolOnly
+import com.serranoie.app.minus.presentation.util.font.format.localizedFormatter
 import com.serranoie.app.minus.presentation.util.font.format.toLocalDate
 import com.serranoie.app.minus.presentation.util.haptic.HapticUtil.performUIHaptic
 import kotlinx.coroutines.delay
@@ -131,7 +132,6 @@ import kotlinx.coroutines.launch
 import logcat.logcat
 import java.math.BigDecimal
 import java.time.LocalDate
-import java.time.format.DateTimeFormatter
 import java.util.Date
 import kotlin.time.Duration.Companion.milliseconds
 
@@ -349,9 +349,9 @@ fun Analytics(
 
     val openDaySheet: (LocalDate) -> Unit = { date ->
         val daySpends = state.spends.filter { it.date?.toLocalDate() == date }
-        val formatter = DateTimeFormatter.ofPattern("dd MMMM", locale)
+        val formatter = localizedFormatter("dd MMMM", locale)
         selectedDayData = state.toCategoryAnalyticsState(
-            categoryName = date.format(formatter),
+            categoryName = date.let(formatter),
             categorySpends = daySpends
         ).copy(isDayView = true)
         view.weakHapticFeedback()
@@ -430,8 +430,8 @@ fun Analytics(
                     val periodLabel = if (state.isHistoricalView) {
                         val start = state.startPeriodDate.toLocalDate()
                         val end = state.finishPeriodDate?.toLocalDate() ?: start
-                        "${start.format(DateTimeFormatter.ofPattern("dd MMM"))} – ${
-                            end.format(DateTimeFormatter.ofPattern("dd MMM yyyy"))
+                        "${start.let(localizedFormatter("dd MMM"))} – ${
+                            end.let(localizedFormatter("dd MMM yyyy"))
                         }"
                     } else null
                     MiddlePeriodHeader(
@@ -772,7 +772,7 @@ fun Analytics(
     }
 
     pendingPeriodToDelete?.let { period ->
-        val dateFormatter = DateTimeFormatter.ofPattern("dd MMM yyyy")
+        val dateFormatter = localizedFormatter("dd MMM yyyy")
         AlertDialog(
             onDismissRequest = { pendingPeriodToDelete = null },
             title = {
@@ -785,8 +785,8 @@ fun Analytics(
                 Text(
                     stringResource(
                         R.string.past_period_delete_confirm_message,
-                        period.startDate.format(dateFormatter),
-                        period.endDate.format(dateFormatter),
+                        period.startDate.let(dateFormatter),
+                        period.endDate.let(dateFormatter),
                     ),
                     style = MaterialTheme.typography.bodyMediumCondensed,
                 )

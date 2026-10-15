@@ -46,11 +46,11 @@ import com.serranoie.app.minus.presentation.ui.theme.component.expense.UpcomingR
 import com.serranoie.app.minus.presentation.ui.theme.isNightMode
 import com.serranoie.app.minus.presentation.ui.theme.titleMediumCondensed
 import com.serranoie.app.minus.presentation.util.censor
+import com.serranoie.app.minus.presentation.util.font.format.localizedFormatter
 import com.serranoie.app.minus.presentation.util.haptic.HapticUtil.performUIHaptic
 import java.math.BigDecimal
 import java.text.NumberFormat
 import java.time.LocalDate
-import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
 
 /**
@@ -75,7 +75,7 @@ internal fun SubscriptionItem(
     val locale = LocalConfiguration.current.locales[0]
     val name =
         transaction.comment.ifBlank { stringResource(R.string.recurrent_ticket_unnamed_subscription) }
-    val dateFormatter = remember(locale) { DateTimeFormatter.ofPattern("MMM d", locale) }
+    val dateFormatter = remember(locale) { localizedFormatter("MMM d", locale) }
 
     val daysUntil = ChronoUnit.DAYS.between(LocalDate.now(), item.nextChargeDate)
     val subtitle = when {
@@ -84,13 +84,13 @@ internal fun SubscriptionItem(
         daysUntil < 7 -> stringResource(
             R.string.subscriptions_item_due_in_days,
             daysUntil,
-            dateFormatter.format(item.nextChargeDate),
+            dateFormatter(item.nextChargeDate),
         )
 
         else -> stringResource(
             R.string.subscriptions_item_due_in_weeks,
             daysUntil / 7,
-            dateFormatter.format(item.nextChargeDate),
+            dateFormatter(item.nextChargeDate),
         )
     }
 

@@ -1,5 +1,6 @@
 package com.serranoie.app.minus.domain.model
 
+import com.serranoie.app.minus.domain.time.CalendarSystem
 import java.time.DayOfWeek
 import java.time.LocalDate
 
@@ -8,24 +9,29 @@ data class CreditCard(
     val gracePeriodDays: Long = 20
 )
 
-fun calculatePaymentDueDate(card: CreditCard, targetDate: LocalDate = LocalDate.now()): LocalDate {
-    val currentMonthCutoff = try {
-        targetDate.withDayOfMonth(card.cutoffDay)
-    } catch (e: Exception) {
-        targetDate.withDayOfMonth(targetDate.lengthOfMonth())
-    }
-
-    val actualCutoffDate = if (targetDate.isAfter(currentMonthCutoff)) {
-        currentMonthCutoff
-    } else {
-        currentMonthCutoff.minusMonths(1)
-    }
-
-    val rawDueDate = actualCutoffDate.plusDays(card.gracePeriodDays)
+fun calculatePaymentDueDate(
+    card: CreditCard,
+    targetDate: LocalDate = LocalDate.now(),
+    calendar: CalendarSystem = CalendarSystem.current(),
+): LocalDate {
+    val rawDueDate = lastCutoffDate(card.cutoffDay, targetDate, calendar).plusDays(card.gracePeriodDays)
 
     return when (rawDueDate.dayOfWeek) {
         DayOfWeek.SATURDAY -> rawDueDate.plusDays(2)
         DayOfWeek.SUNDAY -> rawDueDate.plusDays(1)
         else -> rawDueDate
+    }
+}
+
+fun lastCutoffDate(
+    cutoffDay: Int,
+    targetDate: LocalDate,
+    calendar: CalendarSystem = CalendarSystem.current(),
+): LocalDate {
+    val currentMonthCutoff = calendar.withDayOfMonth(targetDate, cutoffDay)
+    return if (targetDate.isAfter(currentMonthCutoff)) {
+        currentMonthCutoff
+    } else {
+        calendar.plusMonths(currentMonthCutoff, -1)
     }
 }

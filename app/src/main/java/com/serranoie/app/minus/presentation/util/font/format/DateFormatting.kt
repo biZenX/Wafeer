@@ -1,16 +1,18 @@
 ﻿package com.serranoie.app.minus.presentation.util.font.format
 
+import android.icu.text.SimpleDateFormat as IcuSimpleDateFormat
+import android.icu.util.ULocale
 import android.text.format.DateFormat
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import com.serranoie.app.minus.R
+import com.serranoie.app.minus.domain.time.CalendarSystem
 import logcat.logcat
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.LocalDateTime
-import java.time.YearMonth
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
@@ -30,6 +32,22 @@ fun LocalDateTime.toDate(): Date = Date(
         ZoneId.systemDefault().rules.getOffset(this)
     ) * 1000
 )
+
+fun LocalDate.formatLocalized(pattern: String, locale: Locale = Locale.getDefault()): String =
+    atStartOfDay().formatLocalized(pattern, locale)
+
+fun LocalDateTime.formatLocalized(pattern: String, locale: Locale = Locale.getDefault()): String =
+    toDate().formatLocalized(pattern, locale)
+
+fun Date.formatLocalized(pattern: String, locale: Locale = Locale.getDefault()): String {
+    val calendar = if (CalendarSystem.of(locale) == CalendarSystem.PERSIAN) "persian" else "gregorian"
+    val uLocale = ULocale.forLocale(locale).setKeywordValue("calendar", calendar)
+    return IcuSimpleDateFormat(pattern, uLocale).format(this)
+}
+
+fun localizedFormatter(pattern: String, locale: Locale = Locale.getDefault()): (LocalDate) -> String =
+    { it.formatLocalized(pattern, locale) }
+
 
 fun Date.toLocalDate(): LocalDate = this.toInstant()
     .atZone(ZoneId.systemDefault())
@@ -83,28 +101,7 @@ fun getWeek(): Array<DayOfWeek> {
 
 fun getWeek(locale: Locale): Array<DayOfWeek> {
     val firstDayOfWeek = WeekFields.of(locale).firstDayOfWeek
-
-    return if (firstDayOfWeek == DayOfWeek.MONDAY) {
-        arrayOf(
-            DayOfWeek.MONDAY,
-            DayOfWeek.TUESDAY,
-            DayOfWeek.WEDNESDAY,
-            DayOfWeek.THURSDAY,
-            DayOfWeek.FRIDAY,
-            DayOfWeek.SATURDAY,
-            DayOfWeek.SUNDAY
-        )
-    } else {
-        arrayOf(
-            DayOfWeek.SUNDAY,
-            DayOfWeek.MONDAY,
-            DayOfWeek.TUESDAY,
-            DayOfWeek.WEDNESDAY,
-            DayOfWeek.THURSDAY,
-            DayOfWeek.FRIDAY,
-            DayOfWeek.SATURDAY
-        )
-    }
+    return Array(7) { firstDayOfWeek.plus(it.toLong()) }
 }
 
 @Composable
@@ -115,16 +112,12 @@ fun prettyDate(
 ): String {
     val locale = LocalConfiguration.current.locales[0]
 
-    val dateWithMonthAndYearFormatter = DateTimeFormatter.ofPattern("dd MMMM yyyy", locale)
-    val currentFullDate = dateWithMonthAndYearFormatter.format(LocalDate.now())
-    val convertedFullDate = dateWithMonthAndYearFormatter.format(date.toLocalDateTime())
-
     var final = ""
 
-    final += if (simplifyIfToday && convertedFullDate == currentFullDate) {
+    final += if (simplifyIfToday && date.toLocalDate() == LocalDate.now()) {
         stringResource(R.string.today)
     } else {
-        DateTimeFormatter.ofPattern(pattern, locale).format(date.toLocalDateTime())
+        date.formatLocalized(pattern, locale)
     }
 
     return final.trim()
@@ -142,12 +135,7 @@ fun prettyDate(
 ): String {
     val locale = LocalConfiguration.current.locales[0]
 
-    val yearOnlyFormatter = DateTimeFormatter.ofPattern("yyyy", locale)
-    val dateWithMonthFormatter = if (shortMonth) {
-        DateTimeFormatter.ofPattern("dd MMM", locale)
-    } else {
-        DateTimeFormatter.ofPattern("dd MMMM", locale)
-    }
+    val dateWithMonthPattern = if (shortMonth) "dd MMM" else "dd MMMM"
     val timeFormatter = if (DateFormat.is24HourFormat(LocalContext.current)) {
         DateTimeFormatter.ofPattern("HH:mm", locale)
     } else {
@@ -158,13 +146,13 @@ fun prettyDate(
     val currentLocalDate = LocalDate.now()
     val isToday = date?.toLocalDate() == currentLocalDate
 
-    val currentYear = yearOnlyFormatter.format(currentLocalDate)
-    val convertedYear = yearOnlyFormatter.format(date?.toLocalDate())
+    val currentYear = currentLocalDate.formatLocalized("yyyy", locale)
+    val convertedYear = date?.formatLocalized("yyyy", locale)
 
     val datePart = if (human && isToday) {
         stringResource(R.string.today)
     } else if (!forceHideDate && (!isToday || !showTime || forceShowDate)) {
-        var dp = dateWithMonthFormatter.format(date?.toLocalDate())
+        var dp = date?.formatLocalized(dateWithMonthPattern, locale).orEmpty()
         if (convertedYear != currentYear || forceShowYear) {
             dp += " $convertedYear"
         }
@@ -177,22 +165,11 @@ fun prettyDate(
 }
 
 @Composable
-fun prettyYearMonth(yearMonth: YearMonth): String {
+fun prettyMonth(monthStart: LocalDate): String {
     val locale = LocalConfiguration.current.locales[0]
-
-    val yearOnlyFormatter = DateTimeFormatter.ofPattern("yyyy", locale)
-    val monthFormatter = DateTimeFormatter.ofPattern("LLLL", locale)
-    val monthWithYearFormatter = DateTimeFormatter.ofPattern("LLLL yyyy", locale)
-
-    return if (yearMonth.year.toString() == yearOnlyFormatter.format(LocalDate.now())) {
-        yearMonth.format(monthFormatter)
-    } else {
-        yearMonth.format(monthWithYearFormatter)
-    }.replaceFirstChar {
-        if (it.isLowerCase()) it.titlecase(
-            locale
-        ) else it.toString()
-    }
+    val sameYear = monthStart.formatLocalized("yyyy", locale) == LocalDate.now().formatLocalized("yyyy", locale)
+    return monthStart.formatLocalized(if (sameYear) "LLLL" else "LLLL yyyy", locale)
+        .replaceFirstChar { if (it.isLowerCase()) it.titlecase(locale) else it.toString() }
 }
 
 @Composable

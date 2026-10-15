@@ -22,7 +22,6 @@ import java.math.RoundingMode
 import java.text.Format
 import java.time.LocalDate
 import java.time.ZoneId
-import java.time.format.DateTimeFormatter
 import java.util.Date
 import kotlin.math.roundToInt
 
@@ -42,7 +41,7 @@ internal fun DrawScope.drawCoordinateSystem(
     params: GraphDrawParams,
     textMeasurer: TextMeasurer,
     currencyFormat: Format,
-    dateFormatter: DateTimeFormatter,
+    dateFormatter: (LocalDate) -> String,
     startDate: Date,
     windowIndex: Int,
     scrollStep: Int,
@@ -104,7 +103,7 @@ internal fun DrawScope.drawCoordinateSystem(
     for (index in 0 until dataSize) {
         val x = leftMargin + index * stepWidth
         val date = startLocalDate.plusDays((windowStartIndex + index).toLong())
-        val dateText = date.format(dateFormatter)
+        val dateText = date.let(dateFormatter)
 
         val isEnd = index == dataSize - 1
         val isFirst = index == 0

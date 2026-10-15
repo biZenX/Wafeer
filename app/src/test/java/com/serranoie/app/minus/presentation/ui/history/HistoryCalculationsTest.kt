@@ -3,6 +3,7 @@ package com.serranoie.app.minus.presentation.ui.history
 import com.serranoie.app.minus.domain.model.PaidRecurrentOccurrence
 import com.serranoie.app.minus.domain.model.RecurrentFrequency
 import com.serranoie.app.minus.domain.model.Transaction
+import com.serranoie.app.minus.domain.time.CalendarSystem
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -162,5 +163,33 @@ class HistoryCalculationsTest {
         )
 
         assertEquals(5, charges.size)
+    }
+
+    @Test
+    fun persian_calendar_next_charge_date_uses_persian_billing_day() {
+        val tx = recurrentTransaction(id = 1L, startDate = LocalDate.of(2026, 1, 1), subscriptionDay = 15)
+
+        assertEquals(
+            LocalDate.of(2026, 11, 6),
+            calculateNextChargeDate(tx, LocalDate.of(2026, 10, 13), CalendarSystem.PERSIAN),
+        )
+    }
+
+    @Test
+    fun persian_calendar_monthly_charges_land_on_persian_billing_day() {
+        val tx = recurrentTransaction(id = 1L, startDate = LocalDate.of(2026, 9, 23), subscriptionDay = 1)
+
+        val charges = getRecurringChargesInPeriod(
+            transaction = tx,
+            periodStart = LocalDate.of(2026, 9, 23),
+            periodEnd = LocalDate.of(2026, 11, 21),
+            today = LocalDate.of(2026, 12, 1),
+            calendar = CalendarSystem.PERSIAN,
+        )
+
+        assertEquals(
+            listOf(LocalDate.of(2026, 9, 23), LocalDate.of(2026, 10, 23)),
+            charges.map { it.date?.toLocalDate() },
+        )
     }
 }

@@ -5,6 +5,7 @@ import com.serranoie.app.minus.data.repository.BudgetRepository
 import com.serranoie.app.minus.domain.model.Category
 import com.serranoie.app.minus.domain.model.RecurrentFrequency
 import com.serranoie.app.minus.domain.model.Transaction
+import com.serranoie.app.minus.domain.time.CalendarSystem
 import com.serranoie.app.minus.domain.usecase.AddTransactionUseCase
 import com.serranoie.app.minus.domain.usecase.DeleteTransactionUseCase
 import com.serranoie.app.minus.presentation.notification.NotificationScheduler
@@ -146,5 +147,17 @@ class BudgetTransactionHandlerTest {
 
         assertThat(result.isFailure).isTrue()
         assertThat(result.exceptionOrNull()).isInstanceOf(IllegalArgumentException::class.java)
+    }
+
+    @Test
+    fun `persian monthly recurrence lands on the persian subscription day of the current month`() {
+        val date = handler.resolveRecurrentTransactionDate(
+            frequency = RecurrentFrequency.MONTHLY,
+            subscriptionDay = 1,
+            now = LocalDateTime.of(2026, 10, 13, 10, 30),
+            calendar = CalendarSystem.PERSIAN,
+        )
+
+        assertThat(date).isEqualTo(LocalDateTime.of(2026, 9, 23, 10, 30))
     }
 }

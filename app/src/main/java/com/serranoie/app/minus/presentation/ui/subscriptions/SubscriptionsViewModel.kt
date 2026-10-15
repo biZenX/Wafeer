@@ -11,6 +11,7 @@ import com.serranoie.app.minus.domain.model.PaidRecurrentOccurrence
 import com.serranoie.app.minus.domain.model.RecurrentFrequency
 import com.serranoie.app.minus.domain.model.RecurrentOccurrenceStatus
 import com.serranoie.app.minus.domain.model.Transaction
+import com.serranoie.app.minus.domain.time.CalendarSystem
 import com.serranoie.app.minus.domain.usecase.GetCurrentPeriodIdUseCase
 import com.serranoie.app.minus.presentation.ui.budget.BudgetTransactionHandler
 import com.serranoie.app.minus.presentation.ui.history.buildUpcomingRecurrentItems
@@ -55,8 +56,8 @@ data class SubscriptionsUiState(
     val activeCount: Int = 0,
     val currencyCode: String = "USD",
     val daysUntilNextCharge: Long? = null,
-    val periodStart: LocalDate = LocalDate.now().withDayOfMonth(1),
-    val periodEnd: LocalDate = LocalDate.now().let { it.withDayOfMonth(it.lengthOfMonth()) },
+    val periodStart: LocalDate = CalendarSystem.current().firstDayOfMonth(LocalDate.now()),
+    val periodEnd: LocalDate = CalendarSystem.current().lastDayOfMonth(LocalDate.now()),
     val chargesByDay: Map<LocalDate, List<DayCharge>> = emptyMap(),
     val periodBudgetTotal: BigDecimal = BigDecimal.ZERO,
     val periodCommittedTotal: BigDecimal = BigDecimal.ZERO,
@@ -201,8 +202,8 @@ class SubscriptionsViewModel @Inject constructor(
         val daysUntilNextCharge = (dueSoon.firstOrNull() ?: upcoming.firstOrNull())
             ?.let { ChronoUnit.DAYS.between(today, it.nextChargeDate) }
 
-        val periodStart = settings?.startDate ?: today.withDayOfMonth(1)
-        val periodEnd = settings?.getPeriodEndDate() ?: today.withDayOfMonth(today.lengthOfMonth())
+        val periodStart = settings?.startDate ?: CalendarSystem.current().firstDayOfMonth(today)
+        val periodEnd = settings?.getPeriodEndDate() ?: CalendarSystem.current().lastDayOfMonth(today)
 
         val recordedStatusByOccurrence =
             paidOccurrences.associate { (it.transactionId to it.occurrenceDate) to it.status }
@@ -261,9 +262,9 @@ class SubscriptionsViewModel @Inject constructor(
                 RecurrentFrequency.WEEKLY -> chargeDate.plusWeeks(1)
                 RecurrentFrequency.BIWEEKLY -> chargeDate.plusWeeks(2)
                 RecurrentFrequency.MONTHLY -> {
-                    val billingDay = transaction.subscriptionDay ?: startDate.dayOfMonth
-                    val nextMonth = chargeDate.plusMonths(1)
-                    nextMonth.withDayOfMonth(billingDay.coerceAtMost(nextMonth.lengthOfMonth()))
+                    val calendar = CalendarSystem.current()
+                    val billingDay = transaction.subscriptionDay ?: calendar.dayOfMonth(startDate)
+                    calendar.withDayOfMonth(calendar.plusMonths(chargeDate, 1), billingDay)
                 }
             }
         }

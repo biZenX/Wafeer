@@ -6,6 +6,7 @@ import app.cash.turbine.test
 import com.google.common.truth.Truth.assertThat
 import com.serranoie.app.minus.data.repository.BudgetRepository
 import com.serranoie.app.minus.domain.calculator.RecurringExpenseCalculator
+import com.serranoie.app.minus.domain.model.BudgetSettings
 import com.serranoie.app.minus.domain.model.PaidRecurrentOccurrence
 import com.serranoie.app.minus.domain.model.RecurrentFrequency
 import com.serranoie.app.minus.domain.model.RecurrentOccurrenceStatus
@@ -29,6 +30,7 @@ import org.junit.Before
 import org.junit.Test
 import java.math.BigDecimal
 import java.time.LocalDate
+import java.util.Locale
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class SubscriptionsViewModelTest {
@@ -256,6 +258,35 @@ class SubscriptionsViewModelTest {
             vm.onSkip(t, LocalDate.now().plusDays(3))
             assertThat(awaitItem()).isEqualTo(SubscriptionsUiEffect.ShowSnackbar("error"))
             cancelAndIgnoreRemainingEvents()
+        }
+    }
+
+    @Test
+    fun `persian locale places monthly charges on the persian subscription day`() = runTest {
+        val previousLocale = Locale.getDefault()
+        Locale.setDefault(Locale.forLanguageTag("fa-IR"))
+        try {
+            val t = recurrentTransaction(
+                startDate = LocalDate.of(2026, 9, 23),
+                frequency = RecurrentFrequency.MONTHLY,
+                subscriptionDay = 1,
+            )
+            every { budgetRepository.getTransactions() } returns flowOf(listOf(t))
+            every { budgetRepository.getBudgetSettings() } returns flowOf(
+                BudgetSettings.DEFAULT.copy(
+                    startDate = LocalDate.of(2026, 9, 23),
+                    endDate = LocalDate.of(2026, 11, 21),
+                )
+            )
+
+            newViewModel().uiState.test {
+                val state = awaitCondition { !it.isLoading }
+                assertThat(state.chargesByDay.keys)
+                    .containsExactly(LocalDate.of(2026, 9, 23), LocalDate.of(2026, 10, 23))
+                cancelAndIgnoreRemainingEvents()
+            }
+        } finally {
+            Locale.setDefault(previousLocale)
         }
     }
 }

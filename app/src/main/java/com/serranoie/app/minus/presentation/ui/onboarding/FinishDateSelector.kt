@@ -43,9 +43,9 @@ import com.serranoie.app.minus.domain.model.BudgetPeriod
 import com.serranoie.app.minus.presentation.ui.editor.sheets.split.availablePeriodsFor
 import com.serranoie.app.minus.presentation.ui.editor.sheets.split.staticBlockBudget
 import com.serranoie.app.minus.presentation.ui.theme.MinusTheme
+import com.serranoie.app.minus.presentation.util.font.format.localizedFormatter
 import java.math.BigDecimal
 import java.time.LocalDate
-import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
 import java.util.Date
 
@@ -76,7 +76,7 @@ fun FinishDateSelector(
     onBackPressed: () -> Unit,
     onApply: (startDate: LocalDate, endDate: LocalDate, period: BudgetPeriod) -> Unit,
 ) {
-    val dateFormatter = remember { DateTimeFormatter.ofPattern("dd MMM") }
+    val dateFormatter = remember { localizedFormatter("dd MMM") }
 
     val dateRangePickerState = rememberDateRangePickerState()
 
@@ -131,8 +131,8 @@ fun FinishDateSelector(
                             text = stringResource(
                                 R.string.onboarding_finish_date_selector_days_range,
                                 totalDays,
-                                startDate?.format(dateFormatter).orEmpty(),
-                                endDate?.format(dateFormatter).orEmpty(),
+                                startDate?.let(dateFormatter).orEmpty(),
+                                endDate?.let(dateFormatter).orEmpty(),
                             ),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),

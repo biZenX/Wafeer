@@ -9,6 +9,7 @@ import androidx.compose.ui.unit.sp
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.floatPreferencesKey
 import androidx.datastore.preferences.core.intPreferencesKey
+import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.glance.GlanceId
 import androidx.glance.GlanceModifier
 import androidx.glance.GlanceTheme
@@ -36,10 +37,11 @@ import androidx.glance.text.Text
 import androidx.glance.text.TextAlign
 import androidx.glance.text.TextStyle
 import com.serranoie.app.minus.R
+import com.serranoie.app.minus.domain.time.CalendarSystem
+import com.serranoie.app.minus.presentation.util.font.format.formatLocalized
 import java.math.BigDecimal
 import java.time.DayOfWeek
-import java.time.YearMonth
-import java.time.format.TextStyle as JavaTextStyle
+import java.time.LocalDate
 import java.util.Locale
 
 data class DailySpending(
@@ -50,8 +52,7 @@ data class DailySpending(
 )
 
 data class MonthHeatmapData(
-    val year: Int,
-    val month: Int,
+    val monthStart: LocalDate,
     val days: List<DailySpending>,
 )
 
@@ -72,8 +73,7 @@ private const val GRID_COLUMNS = 7
 private const val GRID_ROWS = 6
 private const val MAX_DAYS_PER_MONTH = 31
 
-private fun monthYearKey(index: Int) = intPreferencesKey("heatmap_month_year_$index")
-private fun monthValueKey(index: Int) = intPreferencesKey("heatmap_month_value_$index")
+private fun monthStartKey(index: Int) = longPreferencesKey("heatmap_month_start_$index")
 private fun ratioKey(monthIndex: Int, day: Int) =
     floatPreferencesKey("heatmap_ratio_${monthIndex}_$day")
 
@@ -115,22 +115,21 @@ private fun calculateSpendingRatio(
     return (amountRatio * 0.6f + countRatio * 0.4f).coerceIn(0f, 1.4f)
 }
 
-private fun monthTitle(yearMonth: YearMonth): String {
-    val month = yearMonth.month.getDisplayName(JavaTextStyle.FULL, Locale.getDefault())
-    return month.uppercase(Locale.getDefault())
+private fun monthTitle(monthStart: LocalDate): String {
+    return monthStart.formatLocalized("LLLL").uppercase(Locale.getDefault())
 }
 
-private fun firstDayOffset(yearMonth: YearMonth): Int {
-    val first = yearMonth.atDay(1).dayOfWeek
+private fun firstDayOffset(monthStart: LocalDate): Int {
+    val first = monthStart.dayOfWeek
     return (first.value - DayOfWeek.MONDAY.value + 7) % 7
 }
 
 private fun buildCalendarCells(
-    yearMonth: YearMonth,
+    monthStart: LocalDate,
     monthCells: List<MonthCellState>,
 ): List<CalendarCellState> {
-    val daysInMonth = yearMonth.lengthOfMonth()
-    val offset = firstDayOffset(yearMonth)
+    val daysInMonth = CalendarSystem.current().lengthOfMonth(monthStart)
+    val offset = firstDayOffset(monthStart)
     val byDay = monthCells.associateBy { it.dayNumber }
 
     return List(GRID_COLUMNS * GRID_ROWS) { index ->
@@ -167,7 +166,7 @@ private fun DayCell(cell: CalendarCellState) {
     ) {
         if (hasDay) {
             Text(
-                text = cell.dayNumber.toString(),
+                text = String.format(Locale.getDefault(), "%d", cell.dayNumber),
                 style = TextStyle(
                     fontSize = 6.sp,
                     fontWeight = FontWeight.Medium,
@@ -185,15 +184,15 @@ private fun DayCell(cell: CalendarCellState) {
 
 @Composable
 private fun MonthGrid(
-    yearMonth: YearMonth,
+    monthStart: LocalDate,
     monthCells: List<MonthCellState>,
     modifier: GlanceModifier = GlanceModifier,
 ) {
-    val calendarCells = buildCalendarCells(yearMonth, monthCells)
+    val calendarCells = buildCalendarCells(monthStart, monthCells)
 
     Column(modifier = modifier.fillMaxSize()) {
         Text(
-            text = monthTitle(yearMonth),
+            text = monthTitle(monthStart),
             style = TextStyle(
                 fontSize = 8.sp,
                 fontWeight = FontWeight.Bold,
@@ -228,7 +227,7 @@ private fun MonthGrid(
 
 @Composable
 internal fun HeatmapContent(
-    months: List<YearMonth>,
+    months: List<LocalDate>,
     monthCells: List<List<MonthCellState>>,
     modifier: GlanceModifier = GlanceModifier,
 ) {
@@ -245,7 +244,7 @@ internal fun HeatmapContent(
             ) {
                 repeat(2) { column ->
                     val index = row * 2 + column
-                    val yearMonth = months.getOrNull(index)
+                    val monthStart = months.getOrNull(index)
                     val cells = monthCells.getOrNull(index).orEmpty()
 
                     Box(
@@ -254,9 +253,9 @@ internal fun HeatmapContent(
                             .fillMaxHeight()
                             .padding(2.dp),
                     ) {
-                        if (yearMonth != null) {
+                        if (monthStart != null) {
                             MonthGrid(
-                                yearMonth = yearMonth,
+                                monthStart = monthStart,
                                 monthCells = cells,
                             )
                         }
@@ -267,18 +266,18 @@ internal fun HeatmapContent(
     }
 }
 
+private fun defaultMonthStart(index: Int): LocalDate {
+    val calendar = CalendarSystem.current()
+    return calendar.plusMonths(calendar.firstDayOfMonth(LocalDate.now()), index - MONTHS_TO_RENDER + 1L)
+}
+
 class HeatmapWidget : GlanceAppWidget() {
     override suspend fun provideGlance(context: Context, id: GlanceId) {
         provideContent {
             GlanceTheme {
                 val prefs = currentState<Preferences>()
-                val now = YearMonth.now()
-
                 val months = (0 until MONTHS_TO_RENDER).map { index ->
-                    val defaultMonth = now.minusMonths((MONTHS_TO_RENDER - 1L - index))
-                    val year = prefs[monthYearKey(index)] ?: defaultMonth.year
-                    val monthValue = prefs[monthValueKey(index)] ?: defaultMonth.monthValue
-                    YearMonth.of(year, monthValue)
+                    prefs[monthStartKey(index)]?.let(LocalDate::ofEpochDay) ?: defaultMonthStart(index)
                 }
 
                 val monthCells = (0 until MONTHS_TO_RENDER).map { monthIndex ->
@@ -328,12 +327,7 @@ suspend fun updateHeatmapWidget(
         updateAppWidgetState(context, glanceId) { prefs ->
             for (monthIndex in 0 until MONTHS_TO_RENDER) {
                 val month = normalizedMonths.getOrNull(monthIndex)
-                val fallback = YearMonth.now().minusMonths((MONTHS_TO_RENDER - 1L - monthIndex))
-                val yearMonth =
-                    if (month != null) YearMonth.of(month.year, month.month) else fallback
-
-                prefs[monthYearKey(monthIndex)] = yearMonth.year
-                prefs[monthValueKey(monthIndex)] = yearMonth.monthValue
+                prefs[monthStartKey(monthIndex)] = (month?.monthStart ?: defaultMonthStart(monthIndex)).toEpochDay()
 
                 for (day in 1..MAX_DAYS_PER_MONTH) {
                     val spending = month?.days?.firstOrNull { it.dayOfMonth == day }
@@ -361,10 +355,10 @@ suspend fun updateHeatmapWidget(
 @Composable
 private fun HeatmapContentPreview() {
     val months = listOf(
-        YearMonth.of(2026, 2),
-        YearMonth.of(2026, 3),
-        YearMonth.of(2026, 4),
-        YearMonth.of(2026, 5),
+        LocalDate.of(2026, 2, 1),
+        LocalDate.of(2026, 3, 1),
+        LocalDate.of(2026, 4, 1),
+        LocalDate.of(2026, 5, 1),
     )
 
     val monthCells = months.mapIndexed { monthIndex, ym ->

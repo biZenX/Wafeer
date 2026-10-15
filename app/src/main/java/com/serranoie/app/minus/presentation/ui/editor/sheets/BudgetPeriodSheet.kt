@@ -127,13 +127,13 @@ import com.serranoie.app.minus.presentation.ui.theme.titleMediumCondensed
 import com.serranoie.app.minus.presentation.util.Utils.confirmFeedback
 import com.serranoie.app.minus.presentation.util.Utils.weakHapticFeedback
 import com.serranoie.app.minus.presentation.util.font.format.CurrencyAmountInputVisualTransformation
+import com.serranoie.app.minus.presentation.util.font.format.localizedFormatter
 import com.serranoie.app.minus.presentation.util.font.format.symbolOnlyCurrencyFormat
 import logcat.logcat
 import java.math.BigDecimal
 import java.text.NumberFormat
 import java.time.LocalDate
 import java.time.ZoneId
-import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
 import java.util.Date
 import java.util.Locale
@@ -669,7 +669,7 @@ fun EditBudgetContent(
     val resources = LocalResources.current
     val dateFormatter =
         remember {
-            DateTimeFormatter.ofPattern("d MMM", Locale.getDefault())
+            localizedFormatter("d MMM", Locale.getDefault())
         }
 
     val budgetFieldLabel = stringResource(R.string.total_budget)
@@ -1013,7 +1013,7 @@ fun EditBudgetContent(
                     label = stringResource(R.string.budget_duration_label),
                     description =
                         if (endCache != null) {
-                            "${startCache.format(dateFormatter)} — ${endCache?.format(dateFormatter)}"
+                            "${startCache.let(dateFormatter)} — ${endCache?.let(dateFormatter)}"
                         } else {
                             stringResource(R.string.budget_no_date_defined)
                         },

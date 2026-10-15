@@ -11,6 +11,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.serranoie.app.minus.R
 import com.serranoie.app.minus.presentation.ui.theme.MinusTheme
+import com.serranoie.app.minus.presentation.ui.theme.component.date.PersianDateCaption
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneOffset
@@ -53,6 +54,7 @@ internal fun EditDatePickerDialog(
         }
     ) {
         DatePicker(state = datePickerState)
+        PersianDateCaption(datePickerState.selectedDateMillis)
     }
 
     @Suppress("UNUSED_VARIABLE")

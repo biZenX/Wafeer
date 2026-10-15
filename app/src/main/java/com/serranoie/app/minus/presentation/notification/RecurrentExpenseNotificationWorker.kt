@@ -5,11 +5,13 @@ import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.serranoie.app.minus.data.repository.BudgetRepository
 import com.serranoie.app.minus.data.repository.SettingsRepository
+import com.serranoie.app.minus.domain.calculator.RecurringExpenseCalculator
 import com.serranoie.app.minus.domain.model.BudgetSettings
 import com.serranoie.app.minus.domain.model.CreditCard
-import com.serranoie.app.minus.domain.model.RecurrentFrequency
 import com.serranoie.app.minus.domain.model.Transaction
 import com.serranoie.app.minus.domain.model.calculatePaymentDueDate
+import com.serranoie.app.minus.domain.model.lastCutoffDate
+import com.serranoie.app.minus.presentation.util.font.format.localizedFormatter
 import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
 import dagger.hilt.android.EntryPointAccessors
@@ -18,7 +20,6 @@ import kotlinx.coroutines.flow.first
 import logcat.asLog
 import logcat.logcat
 import java.time.LocalDate
-import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
 import java.util.Locale
 
@@ -150,14 +151,7 @@ class RecurrentExpenseNotificationWorker(
             return
         }
 
-        val currentMonthCutoff = runCatching { today.withDayOfMonth(cutoffDay) }.getOrElse {
-            today.withDayOfMonth(today.lengthOfMonth())
-        }
-        val actualCutoffDate = if (today.isAfter(currentMonthCutoff)) {
-            currentMonthCutoff
-        } else {
-            currentMonthCutoff.minusMonths(1)
-        }
+        val actualCutoffDate = lastCutoffDate(cutoffDay, today)
 
         val creditTotal = transactions
             .filter { tx ->
@@ -171,10 +165,10 @@ class RecurrentExpenseNotificationWorker(
 
         if (creditTotal <= java.math.BigDecimal.ZERO) return
 
-        val formatter = DateTimeFormatter.ofPattern("dd MMM", Locale.getDefault())
+        val formatter = localizedFormatter("dd MMM", Locale.getDefault())
         notificationHelper.showCreditCutoffNotification(
             totalAmount = creditTotal.toPlainString(),
-            dueDateText = dueDate.format(formatter),
+            dueDateText = dueDate.let(formatter),
             currency = settings.currencyCode
         )
         settingsRepository.setString(LAST_CREDIT_CUTOFF_REMINDER_KEY, dueDate.toString())
@@ -190,7 +184,7 @@ class RecurrentExpenseNotificationWorker(
         budgetRepository: BudgetRepository,
     ) {
         val frequency = transaction.recurrentFrequency ?: return
-        if (!isDueToday(transaction, today, frequency)) {
+        if (!RecurringExpenseCalculator().isRecurringDueToday(transaction, today)) {
             logcat { "Recurrent notification worker fired but transaction is not due today: transactionId=${transaction.id} today=$today" }
             return
         }
@@ -262,42 +256,4 @@ class RecurrentExpenseNotificationWorker(
         settingsRepository.setString(dedupeKey, today.toString())
         logcat { "Upcoming recurrent reminder shown for transactionId=${transaction.id} occurrenceDate=$occurrenceDate daysUntil=$daysUntil" }
     }
-
-    private fun isDueToday(transaction: Transaction, today: LocalDate, frequency: RecurrentFrequency): Boolean {
-        val startDate = transaction.date?.toLocalDate() ?: return false
-        
-        val endDate = transaction.recurrentEndDate?.toLocalDate()
-        if (endDate != null && today.isAfter(endDate)) {
-            return false
-        }
-        
-        if (today.isBefore(startDate)) {
-            return false
-        }
-
-        return when (frequency) {
-            RecurrentFrequency.WEEKLY -> {
-                val daysBetween = ChronoUnit.DAYS.between(startDate, today).toInt()
-                daysBetween >= 0 && daysBetween % 7 == 0
-            }
-            RecurrentFrequency.BIWEEKLY -> {
-                val daysBetween = ChronoUnit.DAYS.between(startDate, today).toInt()
-                daysBetween >= 0 && daysBetween % 14 == 0
-            }
-            RecurrentFrequency.MONTHLY -> {
-                val billingDay = transaction.subscriptionDay ?: startDate.dayOfMonth
-                val todayDay = today.dayOfMonth
-                
-                if (todayDay != billingDay) {
-                    return false
-                }
-                
-                // For monthly subscriptions, we should notify on the billing day 
-                // as long as we're within the subscription period (startDate to endDate)
-                // This handles both the first billing and subsequent billings
-                true
-            }
-        }
-    }
-
 }

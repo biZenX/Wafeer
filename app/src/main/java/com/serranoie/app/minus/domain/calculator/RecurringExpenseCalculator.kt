@@ -2,6 +2,7 @@ package com.serranoie.app.minus.domain.calculator
 
 import com.serranoie.app.minus.domain.model.RecurrentFrequency
 import com.serranoie.app.minus.domain.model.Transaction
+import com.serranoie.app.minus.domain.time.CalendarSystem
 import java.math.BigDecimal
 import java.math.RoundingMode
 import java.time.LocalDate
@@ -27,7 +28,11 @@ class RecurringExpenseCalculator @Inject constructor() {
         }.setScale(2, RoundingMode.HALF_UP)
     }
 
-    fun isRecurringDueToday(transaction: Transaction, today: LocalDate): Boolean {
+    fun isRecurringDueToday(
+        transaction: Transaction,
+        today: LocalDate,
+        calendar: CalendarSystem = CalendarSystem.current(),
+    ): Boolean {
         val frequency = transaction.recurrentFrequency ?: return false
         val startDate = transaction.date?.toLocalDate() ?: return false
 
@@ -52,8 +57,8 @@ class RecurringExpenseCalculator @Inject constructor() {
             }
 
             RecurrentFrequency.MONTHLY -> {
-                val billingDay = transaction.subscriptionDay ?: startDate.dayOfMonth
-                today.dayOfMonth == billingDay
+                val billingDay = transaction.subscriptionDay ?: calendar.dayOfMonth(startDate)
+                calendar.dayOfMonth(today) == billingDay.coerceAtMost(calendar.lengthOfMonth(today))
             }
         }
     }

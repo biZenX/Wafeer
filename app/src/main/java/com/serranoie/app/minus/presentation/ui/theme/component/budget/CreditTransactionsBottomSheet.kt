@@ -47,17 +47,18 @@ import com.serranoie.app.minus.R
 import com.serranoie.app.minus.domain.model.CreditCard
 import com.serranoie.app.minus.domain.model.Transaction
 import com.serranoie.app.minus.domain.model.calculatePaymentDueDate
+import com.serranoie.app.minus.domain.time.CalendarSystem
 import com.serranoie.app.minus.presentation.ui.editor.dialogs.CreditCutoffDayDialog
 import com.serranoie.app.minus.presentation.ui.theme.MinusTheme
 import com.serranoie.app.minus.presentation.ui.theme.labelLargeCondensed
 import com.serranoie.app.minus.presentation.ui.theme.titleMediumCondensed
 import com.serranoie.app.minus.presentation.util.censor
+import com.serranoie.app.minus.presentation.util.font.format.localizedFormatter
 import com.serranoie.app.minus.presentation.util.font.format.prettyDate
 import com.serranoie.app.minus.presentation.util.font.format.symbolOnlyCurrencyFormat
 import java.math.BigDecimal
 import java.time.LocalDate
 import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
 
 @Composable
 fun CreditTransactionsBottomSheet(
@@ -183,13 +184,13 @@ fun CreditCardVisualization(
 
     // If today is after the calculated due date, show the one for the next month
     val displayDueDate = if (today.isAfter(dueDate)) {
-        val nextMonthDate = today.plusMonths(1)
+        val nextMonthDate = CalendarSystem.current().plusMonths(today, 1)
         calculatePaymentDueDate(card, nextMonthDate)
     } else {
         dueDate
     }
 
-    val dueDateText = displayDueDate.format(DateTimeFormatter.ofPattern("dd MMMM"))
+    val dueDateText = displayDueDate.let(localizedFormatter("dd MMMM"))
 
     Box(
         modifier = modifier
