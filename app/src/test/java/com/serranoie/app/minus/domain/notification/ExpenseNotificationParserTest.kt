@@ -85,9 +85,25 @@ class ExpenseNotificationParserTest {
     }
 
     @Test
-    fun shared_symbol_alone_is_not_evidence() {
-        assertNull(parse("Purchase approved $42.90 at STARBUCKS"))
-        assertNull(parse("Compra aprobada $420.00 en OXXO", "MXN"))
+    fun shared_symbol_is_evidence_for_the_budget_currency() {
+        assertEquals(BigDecimal("42.90"), parse("Purchase approved $42.90 at STARBUCKS"))
+        assertEquals(BigDecimal("420.00"), parse("Compra aprobada $420.00 en OXXO", "MXN"))
+    }
+
+    @Test
+    fun parses_mercado_pago_purchase_notification() {
+        assertEquals(
+            BigDecimal("598.40"),
+            parse(
+                "Compra por $ 598.40 fue aprobada Ve los detalles de tu compra en CELIA RESTAURANTE aquí.",
+                "MXN",
+            ),
+        )
+    }
+
+    @Test
+    fun shared_symbol_is_not_evidence_when_another_currency_code_is_named() {
+        assertNull(parse("Compra por $ 598.40 USD aprobada", "MXN"))
     }
 
     @Test

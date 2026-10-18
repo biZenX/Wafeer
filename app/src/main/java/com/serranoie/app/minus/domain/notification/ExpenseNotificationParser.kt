@@ -14,19 +14,6 @@ object ExpenseNotificationParser {
         """[+\-]?\d{1,3}(?:[.,\u00A0 ]\d{3})+(?:[.,]\d{1,2})?|[+\-]?\d+(?:[.,]\d{1,2})?"""
     )
 
-    /**
-     * Symbols that more than one supported currency uses, such as "$" for USD, MXN, ARS, COP and
-     * CLP. Seeing one of these says nothing about which currency the amount is in, so they are not
-     * accepted as evidence on their own.
-     */
-    private val SHARED_SYMBOLS: Set<String> by lazy {
-        SupportedCurrency.ALL
-            .groupingBy { it.symbol.trim().lowercase() }
-            .eachCount()
-            .filterValues { it > 1 }
-            .keys
-    }
-
     fun parse(
         text: String,
         currencyCode: String,
@@ -59,28 +46,22 @@ object ExpenseNotificationParser {
         return null
     }
 
-    /**
-     * Where in [haystack] the configured currency is spelled out. The ISO code always counts, but
-     * only as a whole code, so "usdx" or "busd" is not evidence of USD. The symbol counts only when
-     * a single supported currency uses it.
-     */
     private fun evidenceRanges(haystack: String, currencyCode: String): List<IntRange> {
         val code = currencyCode.trim().lowercase()
         val ranges = mutableListOf<IntRange>()
         if (code.isNotEmpty()) ranges += occurrencesOf(haystack, code)
 
         val symbol = SupportedCurrency.findByCode(currencyCode)?.symbol?.trim()?.lowercase()
-        if (!symbol.isNullOrEmpty() && symbol != code && symbol !in SHARED_SYMBOLS) {
+        val namesOtherCurrency = SupportedCurrency.ALL.any {
+            val other = it.code.lowercase()
+            other != code && occurrencesOf(haystack, other).isNotEmpty()
+        }
+        if (!symbol.isNullOrEmpty() && symbol != code && !namesOtherCurrency) {
             ranges += occurrencesOf(haystack, symbol)
         }
         return ranges
     }
 
-    /**
-     * Every occurrence of [token] in [haystack] that is not glued to a letter on either end, so an
-     * alphabetic token is matched as a whole word while digits around it are still allowed
-     * ("12.00usd" counts, "usdx" does not).
-     */
     private fun occurrencesOf(haystack: String, token: String): List<IntRange> {
         if (token.isEmpty()) return emptyList()
         val ranges = mutableListOf<IntRange>()
