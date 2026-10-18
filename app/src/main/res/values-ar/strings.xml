@@ -1045,9 +1045,9 @@
     <string name="about_app_title">تطبيق وفير</string>
     <string name="about_app_version">الإصدار: v%1$s</string>
     <string name="about_developer">المطور: TAtz</string>
-    <string name="about_developer_title">المطور وقائد المشروع</string>
+    <string name="about_developer_title">مطور التطبيق</string>
     <string name="about_developer_handle">@biZenX</string>
-    <string name="about_developer_tagline">صُنع بشغف وحرص لتقديم تجربة مالية ذكية ومبسطة بالكامل</string>
+    <string name="about_developer_tagline"></string>
     <string name="about_github_profile_title">الملف الشخصي للمطور</string>
     <string name="about_github_profile_desc">github.com/biZenX</string>
     <string name="about_repository_title">المستودع البرمجي مفتوح المصدر</string>

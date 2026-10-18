@@ -1018,9 +1018,9 @@
     <string name="about_app_title">Wafeer</string>
     <string name="about_app_version">Version: v%1$s</string>
     <string name="about_developer">Developer: TAtz</string>
-    <string name="about_developer_title">Lead Developer &amp; Maintainer</string>
+    <string name="about_developer_title">App Developer</string>
     <string name="about_developer_handle">@biZenX</string>
-    <string name="about_developer_tagline">Crafted with passion for mindful personal finance &amp; budgeting</string>
+    <string name="about_developer_tagline"></string>
     <string name="about_github_profile_title">Developer Profile</string>
     <string name="about_github_profile_desc">github.com/biZenX</string>
     <string name="about_repository_title">Source Code Repository</string>

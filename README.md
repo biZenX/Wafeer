@@ -5,8 +5,8 @@
 # Wafeer
 
 <p align="center">
-  <strong>Mindful, offline-first personal budget and expense tracking for Android and Wear OS.</strong><br/>
-  Built with Google Material 3 Expressive. Log expenses instantly, calculate on the fly, and achieve financial calm.
+  <strong>Fast, offline-first personal budget and expense tracking for Android and Wear OS.</strong><br/>
+  Built with Modern Android & Material 3. Log expenses instantly, calculate on the fly, and manage daily spending with ease.
 </p>
 
 <p align="center">
@@ -125,5 +125,5 @@ Please check out our developer guides:
 
 ## License
 
-Wafeer is free and open-source software maintained by **TAtz ([@biZenX](https://github.com/biZenX))**.  
+Wafeer is free and open-source software maintained by **TAtz**.  
 Released under the terms of the **[GNU General Public License v3.0 (GPLv3)](LICENSE)**.

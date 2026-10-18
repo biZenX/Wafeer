@@ -181,27 +181,16 @@ fun AboutBottomSheet(
 
             Spacer(modifier = Modifier.height(4.dp))
 
-            // Developer Role / Handle
+            // Developer Title
             Text(
-                text = "${stringResource(R.string.about_developer_title)} • ${stringResource(R.string.about_developer_handle)}",
+                text = stringResource(R.string.about_developer_title),
                 style = MaterialTheme.typography.bodyMedium,
-                fontWeight = FontWeight.Medium,
+                fontWeight = FontWeight.Normal,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center
             )
 
-            Spacer(modifier = Modifier.height(6.dp))
-
-            // Tagline
-            Text(
-                text = stringResource(R.string.about_developer_tagline),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.outline,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.padding(horizontal = 16.dp)
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(14.dp))
 
             // Version Chip
             AssistChip(
