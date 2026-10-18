@@ -463,7 +463,7 @@
     <string name="settings_time_picker_cancel">إلغاء</string>
     <string name="settings_time_picker_confirm">تأكيد</string>
     <string name="settings_about_title">حول التطبيق</string>
-    <string name="settings_about_subtitle">تطبيق وفير — المطور Arkim</string>
+    <string name="settings_about_subtitle">تطبيق وفير — المطور TAtz</string>
     <string name="settings_bug_report_title">إرسال ملاحظات أو إبلاغ عن مشكلة</string>
     <string name="settings_bug_report_subtitle">شاركنا اقتراحك أو مشكلة واجهتك وسنعمل على حلها سريعاً</string>
     <string name="settings_what_is_this_for">ما فائدة هذا الإجراء؟</string>
@@ -1044,7 +1044,7 @@
     <!-- About & Credits -->
     <string name="about_app_title">تطبيق وفير</string>
     <string name="about_app_version">الإصدار: v%1$s</string>
-    <string name="about_developer">المطور: Arkim</string>
+    <string name="about_developer">المطور: TAtz</string>
     <string name="about_developer_title">المطور وقائد المشروع</string>
     <string name="about_developer_handle">@biZenX</string>
     <string name="about_developer_tagline">صُنع بشغف وحرص لتقديم تجربة مالية ذكية ومبسطة بالكامل</string>
@@ -1060,5 +1060,5 @@
     <string name="about_architecture_tag">M3 Expressive</string>
     <string name="about_foss_badge">مفتوح المصدر 100%</string>
     <!-- Open Source Attribution -->
-    <string name="about_licenses_summary">تطبيق وفير مرخص بـ GNU GPLv3 للمطور Arkim • النواة المعمارية مرخصة بـ Apache 2.0 للمطور Isaac Serrano</string>
+    <string name="about_licenses_summary">تطبيق وفير مرخص بـ GNU GPLv3 للمطور TAtz • النواة المعمارية مرخصة بـ Apache 2.0 للمطور Isaac Serrano</string>
 </resources>

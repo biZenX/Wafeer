@@ -125,5 +125,5 @@ Please check out our developer guides:
 
 ## License
 
-Wafeer is free and open-source software maintained by **Arkim ([@biZenX](https://github.com/biZenX))**.  
+Wafeer is free and open-source software maintained by **TAtz ([@biZenX](https://github.com/biZenX))**.  
 Released under the terms of the **[GNU General Public License v3.0 (GPLv3)](LICENSE)**.

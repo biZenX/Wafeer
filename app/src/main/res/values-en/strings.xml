@@ -1017,7 +1017,7 @@
     <!-- About & Credits -->
     <string name="about_app_title">Wafeer</string>
     <string name="about_app_version">Version: v%1$s</string>
-    <string name="about_developer">Developer: Arkim</string>
+    <string name="about_developer">Developer: TAtz</string>
     <string name="about_developer_title">Lead Developer &amp; Maintainer</string>
     <string name="about_developer_handle">@biZenX</string>
     <string name="about_developer_tagline">Crafted with passion for mindful personal finance &amp; budgeting</string>
@@ -1033,5 +1033,5 @@
     <string name="about_architecture_tag">M3 Expressive</string>
     <string name="about_foss_badge">100% Free &amp; Open Source</string>
     <!-- Open Source Attribution -->
-    <string name="about_licenses_summary">Wafeer is licensed under GNU GPLv3 by Arkim • Architecture licensed under Apache 2.0 by Isaac Serrano</string>
+    <string name="about_licenses_summary">Wafeer is licensed under GNU GPLv3 by TAtz • Architecture licensed under Apache 2.0 by Isaac Serrano</string>
 </resources>

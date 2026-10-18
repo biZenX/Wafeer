@@ -395,7 +395,7 @@
     <string name="settings_time_picker_cancel">إلغاء</string>
     <string name="settings_time_picker_confirm">تأكيد</string>
     <string name="settings_about_title">حول التطبيق</string>
-    <string name="settings_about_subtitle">تطبيق وفير — المطور Arkim</string>
+    <string name="settings_about_subtitle">تطبيق وفير — المطور TAtz</string>
     <string name="settings_bug_report_title">إرسال ملاحظات أو إبلاغ عن مشكلة</string>
     <string name="settings_bug_report_subtitle">شاركنا اقتراحك أو مشكلة واجهتك وسنعمل على حلها سريعاً</string>
     <string name="settings_what_is_this_for">ما فائدة هذا الإجراء؟</string>
@@ -849,5 +849,5 @@
     <string name="settings_reset_tips_subtitle">إعادة تفعيل كافة النصائح اللي لغيتها قبل كده</string>
     <string name="settings_reset_tips_toast">تمت إعادة تفعيل كل النصائح بنجاح</string>
     <!-- Open Source Attribution -->
-    <string name="about_licenses_summary">تطبيق وفير مرخص بـ GNU GPLv3 للمطور Arkim • النواة المعمارية مرخصة بـ Apache 2.0 للمطور Isaac Serrano</string>
+    <string name="about_licenses_summary">تطبيق وفير مرخص بـ GNU GPLv3 للمطور TAtz • النواة المعمارية مرخصة بـ Apache 2.0 للمطور Isaac Serrano</string>
 </resources>

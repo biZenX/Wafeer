@@ -165,7 +165,7 @@ fun AboutBottomSheet(
                 horizontalArrangement = Arrangement.Center
             ) {
                 Text(
-                    text = "Arkim",
+                    text = "TAtz",
                     style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onSurface
