@@ -45,7 +45,6 @@ import com.serranoie.app.minus.domain.time.CalendarSystem
 import com.serranoie.app.minus.presentation.ui.editor.sheets.split.availablePeriodsFor
 import com.serranoie.app.minus.presentation.ui.editor.sheets.split.staticBlockBudget
 import com.serranoie.app.minus.presentation.ui.theme.MinusTheme
-import com.serranoie.app.minus.presentation.ui.theme.component.date.JalaliDateRangePicker
 import com.serranoie.app.minus.presentation.util.font.format.localizedFormatter
 import java.math.BigDecimal
 import java.time.LocalDate
