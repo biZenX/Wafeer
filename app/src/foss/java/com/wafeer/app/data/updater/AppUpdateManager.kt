@@ -341,7 +341,7 @@ class AppUpdateManager @Inject constructor(
 
     private fun parseReleaseHighlights(body: String, remoteVersionCode: Int = 0): Pair<List<String>, List<String>> {
         val langCode = com.wafeer.app.presentation.util.LocaleHelper.currentLanguageCode()
-        val isAr = langCode == "ar"
+        val isAr = langCode.startsWith("ar") || com.wafeer.app.presentation.util.LocaleHelper.isArabic()
 
         // If the remote release is already in our localized GeneratedChangelog, use its native localized items directly
         if (remoteVersionCode > 0) {
@@ -375,7 +375,7 @@ class AppUpdateManager @Inject constructor(
                 currentSection = when {
                     headerLower.contains("مميزات") || headerLower.contains("ميزات") || headerLower.contains("feature") -> "FEATURE"
                     headerLower.contains("تحسين") || headerLower.contains("إصلاح") || headerLower.contains("اصلاح") ||
-                        headerLower.contains("improve") || headerLower.contains("fix") -> "IMPROVEMENT"
+                        headerLower.contains("تحديث") || headerLower.contains("improve") || headerLower.contains("fix") -> "IMPROVEMENT"
                     else -> currentSection
                 }
                 continue
@@ -399,7 +399,11 @@ class AppUpdateManager @Inject constructor(
 
         // If the release body contains both Arabic and English bullets, prefer the lines matching Arabic vs Latin script first
         val matchingLocaleLines = taggedLines.filter { (line, _) ->
-            com.wafeer.app.data.repository.ChangelogRepository.containsArabic(line) == isAr
+            if (isAr) {
+                com.wafeer.app.data.repository.ChangelogRepository.containsArabic(line)
+            } else {
+                !com.wafeer.app.data.repository.ChangelogRepository.containsArabic(line)
+            }
         }
         val candidateLines = (matchingLocaleLines.ifEmpty { taggedLines })
             .map { (line, section) ->

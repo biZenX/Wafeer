@@ -20,13 +20,17 @@ object LocaleHelper {
         } else {
             runCatching { Locale.getDefault()?.language }.getOrNull().orEmpty()
         }
-        return raw.lowercase(Locale.ROOT)
+        val clean = raw.lowercase(Locale.ROOT)
             .substringBefore('-')
             .substringBefore('_')
-            .ifBlank { "en" }
+            .trim()
+        return if (clean.startsWith("ar")) "ar" else clean.ifBlank { "en" }
     }
 
-    fun isArabic(): Boolean = currentLanguageCode() == "ar"
+    fun isArabic(): Boolean {
+        val code = currentLanguageCode()
+        return code == "ar" || code.startsWith("ar")
+    }
 
     fun isEnglish(): Boolean = currentLanguageCode() == "en"
 }

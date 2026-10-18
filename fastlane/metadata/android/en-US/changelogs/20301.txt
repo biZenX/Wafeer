@@ -1,0 +1,4 @@
+- fix: Fix bug where update notes and changelog were shown in English when Arabic is active.
+- fix: Fix locale detection for regional Arabic variants and Egyptian Arabic.
+- improve: Polish update dialog and changelog presentation with accurate localized headers.
+- improve: Update developer attribution and general stability improvements.

@@ -33,6 +33,11 @@ class ChangelogRepository @Inject constructor() {
             val cleanKey = cleanNormalizedKey(trimmed)
             if (cleanKey.isEmpty()) return trimmed
 
+            // If the target is Arabic and the text is already Arabic, keep it intact
+            if ((targetLang == "ar" || targetLang.startsWith("ar")) && containsArabic(trimmed)) {
+                return trimmed
+            }
+
             val enReleases = GeneratedChangelog.getReleases("en")
             val arReleases = GeneratedChangelog.getReleases("ar")
             val targetReleases = GeneratedChangelog.getReleases(targetLang)
@@ -57,6 +62,32 @@ class ChangelogRepository @Inject constructor() {
                 }
             }
 
+            // Fallback translations for generic release notes / changelog terms when targeting Arabic
+            if (targetLang == "ar" || targetLang.startsWith("ar")) {
+                val lower = cleanKey.lowercase()
+                return when {
+                    lower.contains("fix bug") || lower.contains("bug fix") || lower.contains("fixes and stability") ->
+                        "إصلاح الأخطاء وتحسين الاستقرار"
+                    lower.contains("general improvement") || lower.contains("improvements and bug fixes") ->
+                        "تحسينات عامة وإصلاح الأخطاء"
+                    lower.contains("performance") ->
+                        "تحسينات في الأداء وسرعة الاستجابة"
+                    lower.contains("stability") ->
+                        "تحسينات الاستقرار وموثوقية النظام"
+                    lower.contains("cleanup") || lower.contains("clean up") ->
+                        "تنظيف شامل للمشروع وتحسينات عامة"
+                    lower.contains("localization") || lower.contains("translation") ->
+                        "تحسينات الترجمة ودعم اللغات"
+                    lower.contains("minor improvement") ->
+                        "تحسينات وإصلاحات طفيفة"
+                    lower.contains("feature") ->
+                        "ميزات وإضافات جديدة"
+                    lower.contains("update") ->
+                        "تحديثات وإصلاحات عامة"
+                    else -> trimmed
+                }
+            }
+
             return trimmed
         }
 
@@ -72,7 +103,7 @@ class ChangelogRepository @Inject constructor() {
             val targetLang = langCode.lowercase().substringBefore('-').substringBefore('_').ifBlank { "en" }
             val matched = GeneratedChangelog.getReleases(targetLang)
                 .firstOrNull { it.versionCode == release.versionCode }
-            if (matched != null && matched.items.size == release.items.size) {
+            if (matched != null && matched.items.isNotEmpty()) {
                 return matched
             }
             return release.copy(

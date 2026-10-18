@@ -360,7 +360,9 @@ private data class UpdateDialogStrings(
     val installNow: String,
 )
 
-private fun updateDialogStrings(langCode: String): UpdateDialogStrings = when (langCode) {
+private fun updateDialogStrings(langCode: String): UpdateDialogStrings = when (
+    if (langCode.trim().lowercase().startsWith("ar")) "ar" else langCode.trim().lowercase().substringBefore('-').substringBefore('_')
+) {
     "ar" -> UpdateDialogStrings(
         close = "إغلاق",
         title = "يتوفر تحديث جديد لوفير",
