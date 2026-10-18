@@ -1,19 +1,36 @@
-# License & Attribution / الترخيص والإسناد
+# License & Open Source Attribution / الترخيص والإسناد
 
 ## English
-This project is licensed under the **GNU General Public License v3.0 (GPLv3)**.
-See the complete license terms in the [LICENSE](LICENSE) file.
 
+### Primary Project License (GNU GPLv3)
+**Wafeer (وفير)** is free and open-source software licensed under the **GNU General Public License v3.0 (GPLv3)**.
 - **Repository:** [https://github.com/biZenX/Wafeer](https://github.com/biZenX/Wafeer)
-- **Derivative Work & Enhancements (Wafeer):** Copyright (c) 2026 Arkim ([@biZenX](https://github.com/biZenX)).
+- **Author & Project Lead:** Arkim ([@biZenX](https://github.com/biZenX))
+- **Copyright:** (c) 2026 Arkim. All rights reserved under GNU GPLv3.
 
-This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+See the complete terms of the GNU General Public License v3.0 in the [LICENSE](LICENSE) file.
+
+### Open Source Attribution (Apache License 2.0)
+In accordance with Section 4 of the Apache License, Version 2.0 and in full respect of open-source creator rights:
+- **Foundational Architecture:** Minus ([https://github.com/isaacsa51/minus](https://github.com/isaacsa51/minus))
+- **Original Author:** Isaac Serrano ([@isaacsa51](https://github.com/isaacsa51))
+- **License:** Apache License, Version 2.0
+
+All subsequent development, complete Arabic localization and RTL support, Material 3 Expressive UI, and feature enhancements are authored by Arkim under GNU GPLv3.
 
 ---
 
 ## العربية
-هذا المشروع مرخص بموجب **رخصة جنو العمومية، الإصدار 3.0 (GNU General Public License v3.0 - GPLv3)**.
-يمكنك الاطلاع على النص الكامل للرخصة في ملف [LICENSE](LICENSE).
 
+### ترخيص المشروع (GNU GPLv3)
+تطبيق **وفير (Wafeer)** هو برنامج حر ومفتوح المصدر مرخص بموجب **رخصة جنو العمومية، الإصدار 3.0 (GNU GPLv3)**.
 - **المستودع:** [https://github.com/biZenX/Wafeer](https://github.com/biZenX/Wafeer)
-- **العمل المشتق والتطويرات (وفير - Wafeer):** حقوق النشر (c) 2026 للمطور Arkim ([@biZenX](https://github.com/biZenX)).
+- **المطور وقائد المشروع:** Arkim ([@biZenX](https://github.com/biZenX))
+- **حقوق النشر:** (c) 2026 للمطور Arkim. جميع الحقوق محفوظة بموجب GPLv3.
+
+النص الكامل للرخصة متوفر في ملف [LICENSE](LICENSE).
+
+### إسناد المصادر المفتوحة (Apache License 2.0)
+التزاماً بأحكام ترخيص Apache License 2.0 (القسم 4) واحتراماً لحقوق المطورين:
+- تستند النواة المعمارية التأسيسية للمشروع إلى مشروع **Minus** مفتوح المصدر للمطور **Isaac Serrano (@isaacsa51)** الخاضع لترخيص Apache License 2.0.
+- كافة التحسينات، الدعم الكامل للعربية، تصميم Material 3 Expressive، والميزات المبتكرة مطورة بواسطة **Arkim** وتخضع لرخصة **GNU GPLv3**.

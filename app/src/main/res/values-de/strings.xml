@@ -872,7 +872,7 @@
     <string name="notification_channel_spend_detected_name">Spend reminders</string>
     <string name="notification_channel_spend_detected_description">Reminders to log a charge Wafeer spotted in another app\'s notification.</string>
     <string name="notification_scan_detected_message">Seems like you just spent %1$s. Don\'t forget to log it.</string>
-    <string name="notification_scan_action_minus_it">Log it</string>
+    <string name="notification_scan_action_log_it">Log it</string>
     <string name="notification_scan_action_quick_save">Save as is</string>
     <string name="notification_scan_action_undo">Undo</string>
     <string name="notification_scan_saved_title">Saved to Wafeer</string>
@@ -1036,7 +1036,6 @@
     <string name="about_app_title">Wafeer</string>
     <string name="about_app_version">Version: v%1$s</string>
     <string name="about_developer">Developer: Arkim</string>
-    <string name="about_credits_title">Open Source Credits</string>
-    <string name="about_credits_desc">Built upon the open-source architecture of Minus by Isaac Serrano (@isaacsa51) under the Apache License 2.0.</string>
-    <string name="about_credits_link">GitHub: biZenX/Wafeer</string>
+    <!-- Open Source Attribution -->
+    <string name="about_licenses_summary">Wafeer is licensed under GNU GPLv3 by Arkim • Architecture licensed under Apache 2.0 by Isaac Serrano</string>
 </resources>

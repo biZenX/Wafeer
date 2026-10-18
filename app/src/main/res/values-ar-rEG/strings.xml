@@ -358,7 +358,7 @@
     <string name="notification_channel_spend_detected_name">تذكيرات المصروفات</string>
     <string name="notification_channel_spend_detected_description">تنبيهات فورية لتسجيل عمليات الدفع اللي اتقرت من إشعارات التطبيقات التانية.</string>
     <string name="notification_scan_detected_message">شكلك لسه صارف %1$s. متنساش تسجلها في وفير.</string>
-    <string name="notification_scan_action_minus_it">سجّلها</string>
+    <string name="notification_scan_action_log_it">سجّلها</string>
     <string name="notification_scan_action_quick_save">حفظ سريع</string>
     <string name="notification_scan_action_undo">تراجع</string>
     <string name="notification_scan_saved_title">اتحفظت في وفير</string>
@@ -848,4 +848,6 @@
     <string name="settings_reset_tips_title">إعادة إظهار النصائح المستبعدة</string>
     <string name="settings_reset_tips_subtitle">إعادة تفعيل كافة النصائح اللي لغيتها قبل كده</string>
     <string name="settings_reset_tips_toast">تمت إعادة تفعيل كل النصائح بنجاح</string>
+    <!-- Open Source Attribution -->
+    <string name="about_licenses_summary">تطبيق وفير مرخص بـ GNU GPLv3 للمطور Arkim • النواة المعمارية مرخصة بـ Apache 2.0 للمطور Isaac Serrano</string>
 </resources>

@@ -1,4 +1,4 @@
-﻿package com.wafeer.app.presentation.util.font.format
+package com.wafeer.app.presentation.util.font.format
 
 import android.text.format.DateFormat
 import androidx.compose.runtime.Composable
@@ -58,7 +58,7 @@ fun countDays(toDate: Date, fromDate: Date): Int {
     val daysTo = ceil(toDateRound.time / DAY.toDouble()).toInt()
 
     val result = daysTo - daysFrom + 1
-    logcat("DateFormatting - ISAAC") { "countDays: fromDate=$fromDate (rounded=$fromDateRound, daysFrom=$daysFrom), toDate=$toDate (rounded=$toDateRound, daysTo=$daysTo), result=$result" }
+    logcat("DateFormatting") { "countDays: fromDate=$fromDate (rounded=$fromDateRound, daysFrom=$daysFrom), toDate=$toDate (rounded=$toDateRound, daysTo=$daysTo), result=$result" }
     return result
 }
 

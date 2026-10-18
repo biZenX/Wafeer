@@ -1,0 +1,4 @@
+- feat: GNU GPLv3 Licensing: Ensuring complete software freedom for Wafeer.
+- feat: Official Landing Page: Full responsive mobile overhaul on GitHub Pages.
+- improve: Clean Open Source Attribution: Architecture attributed to Apache 2.0.
+- fix: Comprehensive Cleanup: Test snapshots and internal identifiers aligned with Wafeer.

@@ -602,7 +602,7 @@ class NotificationHelper @Inject constructor(
             .setContentIntent(openPendingIntent)
             .setAutoCancel(true)
             .setCategory(NotificationCompat.CATEGORY_REMINDER)
-            .addAction(0, context.getString(R.string.notification_scan_action_minus_it), openPendingIntent)
+            .addAction(0, context.getString(R.string.notification_scan_action_log_it), openPendingIntent)
             .addAction(0, context.getString(R.string.notification_scan_action_quick_save), quickSavePendingIntent)
             .build()
 

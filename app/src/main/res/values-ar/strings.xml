@@ -426,7 +426,7 @@
     <string name="notification_channel_spend_detected_name">تذكيرات المصروفات</string>
     <string name="notification_channel_spend_detected_description">تنبيهات فورية لتسجيل عمليات الدفع التي تم رصدها من إشعارات التطبيقات الأخرى.</string>
     <string name="notification_scan_detected_message">يبدو أنك أنفقت %1$s للتو. لا تنسَ تسجيلها في وفير.</string>
-    <string name="notification_scan_action_minus_it">سجّلها</string>
+    <string name="notification_scan_action_log_it">سجّلها</string>
     <string name="notification_scan_action_quick_save">حفظ سريع</string>
     <string name="notification_scan_action_undo">تراجع</string>
     <string name="notification_scan_saved_title">تم الحفظ في وفير</string>
@@ -1059,7 +1059,6 @@
     <string name="about_license_label">ترخيص GNU GPLv3</string>
     <string name="about_architecture_tag">M3 Expressive</string>
     <string name="about_foss_badge">مفتوح المصدر 100%</string>
-    <string name="about_credits_title">شكر وتقدير لمشروع مفتوح المصدر</string>
-    <string name="about_credits_desc">مبني استناداً إلى النواة المعمارية لتطبيق Minus مفتوح المصدر للمطور Isaac Serrano (@isaacsa51) تحت ترخيص Apache License 2.0.</string>
-    <string name="about_credits_link">GitHub: biZenX/Wafeer</string>
+    <!-- Open Source Attribution -->
+    <string name="about_licenses_summary">تطبيق وفير مرخص بـ GNU GPLv3 للمطور Arkim • النواة المعمارية مرخصة بـ Apache 2.0 للمطور Isaac Serrano</string>
 </resources>
