@@ -40,9 +40,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.serranoie.app.minus.R
 import com.serranoie.app.minus.domain.model.BudgetPeriod
+import com.serranoie.app.minus.domain.time.CalendarSystem
 import com.serranoie.app.minus.presentation.ui.editor.sheets.split.availablePeriodsFor
 import com.serranoie.app.minus.presentation.ui.editor.sheets.split.staticBlockBudget
 import com.serranoie.app.minus.presentation.ui.theme.MinusTheme
+import com.serranoie.app.minus.presentation.ui.theme.component.date.JalaliDateRangePicker
 import com.serranoie.app.minus.presentation.util.font.format.localizedFormatter
 import java.math.BigDecimal
 import java.time.LocalDate
@@ -79,12 +81,22 @@ fun FinishDateSelector(
     val dateFormatter = remember { localizedFormatter("dd MMM") }
 
     val dateRangePickerState = rememberDateRangePickerState()
+    val usePersianPicker = CalendarSystem.current() == CalendarSystem.PERSIAN
+    var persianRange by remember { mutableStateOf<Pair<LocalDate?, LocalDate?>>(null to null) }
 
-    val startDate: LocalDate? = remember(dateRangePickerState.selectedStartDateMillis) {
-        dateRangePickerState.selectedStartDateMillis?.let { LocalDate.ofEpochDay(it / 86_400_000) }
+    val startDate: LocalDate? = if (usePersianPicker) {
+        persianRange.first
+    } else {
+        remember(dateRangePickerState.selectedStartDateMillis) {
+            dateRangePickerState.selectedStartDateMillis?.let { LocalDate.ofEpochDay(it / 86_400_000) }
+        }
     }
-    val endDate: LocalDate? = remember(dateRangePickerState.selectedEndDateMillis) {
-        dateRangePickerState.selectedEndDateMillis?.let { LocalDate.ofEpochDay(it / 86_400_000) }
+    val endDate: LocalDate? = if (usePersianPicker) {
+        persianRange.second
+    } else {
+        remember(dateRangePickerState.selectedEndDateMillis) {
+            dateRangePickerState.selectedEndDateMillis?.let { LocalDate.ofEpochDay(it / 86_400_000) }
+        }
     }
     val hasRange = startDate != null && endDate != null
     val totalDays = if (hasRange) ChronoUnit.DAYS.between(startDate, endDate).toInt() + 1 else 0
@@ -160,7 +172,16 @@ fun FinishDateSelector(
                 enter = fadeIn(animationSpec = tween(300, delayMillis = 50)) +
                         scaleIn(initialScale = 0.95f, animationSpec = tween(300, delayMillis = 50)),
             ) {
-                DateRangePicker(
+                if (usePersianPicker) {
+                    JalaliDateRangePicker(
+                        startDate = startDate,
+                        endDate = endDate,
+                        onSelectionChange = { start, end -> persianRange = start to end },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .weight(1f),
+                    )
+                } else DateRangePicker(
                     state = dateRangePickerState,
                     colors = DatePickerDefaults.colors(
                         titleContentColor = MaterialTheme.colorScheme.onSurface,

@@ -33,7 +33,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.drawscope.scale
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
@@ -42,6 +44,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.BaselineShift
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import com.serranoie.app.minus.R
@@ -407,35 +410,41 @@ fun Arrow(
     tint: Color = LocalContentColor.current,
 ) {
     Canvas(modifier = modifier) {
-        val d = density
-        val triSide = 9f * d
-        val triHeight = triSide
-        val halfSide = triSide / 2
-
-        val right = size.width
-        val centerY = size.height / 2
-
-        val thickness = size.height * 0.095f
-        val halfThick = thickness / 2
-        val lineEnd = right - triHeight + halfThick
-
-        val arrowPath = Path().apply {
-            moveTo(right, centerY)
-            lineTo(lineEnd, centerY - halfSide)
-            moveTo(right, centerY)
-            lineTo(lineEnd, centerY + halfSide)
+        scale(scaleX = if (layoutDirection == LayoutDirection.Rtl) -1f else 1f, scaleY = 1f) {
+            drawArrow(tint)
         }
-
-        drawPath(arrowPath, SolidColor(tint), style = Stroke(width = thickness, cap = StrokeCap.Round))
-
-        drawLine(
-            color = tint,
-            start = Offset(0f, centerY),
-            end = Offset(lineEnd + triHeight - 6f, centerY), // 6f is to make the line have an offset to be on top of the triangle.
-            strokeWidth = thickness,
-            cap = StrokeCap.Round,
-        )
     }
+}
+
+private fun DrawScope.drawArrow(tint: Color) {
+    val d = density
+    val triSide = 9f * d
+    val triHeight = triSide
+    val halfSide = triSide / 2
+
+    val right = size.width
+    val centerY = size.height / 2
+
+    val thickness = size.height * 0.095f
+    val halfThick = thickness / 2
+    val lineEnd = right - triHeight + halfThick
+
+    val arrowPath = Path().apply {
+        moveTo(right, centerY)
+        lineTo(lineEnd, centerY - halfSide)
+        moveTo(right, centerY)
+        lineTo(lineEnd, centerY + halfSide)
+    }
+
+    drawPath(arrowPath, SolidColor(tint), style = Stroke(width = thickness, cap = StrokeCap.Round))
+
+    drawLine(
+        color = tint,
+        start = Offset(0f, centerY),
+        end = Offset(lineEnd + triHeight - 6f, centerY), // 6f is to make the line have an offset to be on top of the triangle.
+        strokeWidth = thickness,
+        cap = StrokeCap.Round,
+    )
 }
 
 @Preview(device = "id:pixel_tablet", showBackground = true)

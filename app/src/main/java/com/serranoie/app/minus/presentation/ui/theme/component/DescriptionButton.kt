@@ -9,7 +9,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.KeyboardArrowRight
+import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowRight
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardColors
 import androidx.compose.material3.CardDefaults
@@ -32,7 +32,7 @@ fun DescriptionButton(
 	title: @Composable () -> Unit,
 	description: @Composable (() -> Unit)? = null,
 	secondDescription: @Composable (() -> Unit)? = null,
-	icon: ImageVector = Icons.Rounded.KeyboardArrowRight,
+	icon: ImageVector = Icons.AutoMirrored.Rounded.KeyboardArrowRight,
 	onClick: () -> Unit,
 	contentPadding: PaddingValues = PaddingValues(horizontal = 24.dp, vertical = 16.dp),
 	colors: CardColors = CardDefaults.cardColors(),
