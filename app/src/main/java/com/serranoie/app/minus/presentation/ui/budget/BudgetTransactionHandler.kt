@@ -197,7 +197,14 @@ class BudgetTransactionHandler @Inject constructor(
             return now
         }
 
-        return LocalDateTime.of(calendar.withDayOfMonth(now.toLocalDate(), subscriptionDay), now.toLocalTime())
+        val today = now.toLocalDate()
+        val thisMonth = calendar.withDayOfMonth(today, subscriptionDay)
+        val firstCharge = if (thisMonth.isBefore(today)) {
+            calendar.withDayOfMonth(calendar.plusMonths(thisMonth, 1), subscriptionDay)
+        } else {
+            thisMonth
+        }
+        return LocalDateTime.of(firstCharge, now.toLocalTime())
     }
 
     suspend fun deleteTransaction(transaction: Transaction): Result<Unit> {

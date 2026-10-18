@@ -88,7 +88,7 @@ class HistoryCalculationsTest {
     }
 
     @Test
-    fun when_out_of_period_charge_date_is_paid_then_item_is_excluded_from_future_out_of_period() {
+    fun when_out_of_period_charge_date_is_paid_then_the_following_charge_is_shown() {
         val today = LocalDate.of(2026, 3, 1)
         val periodStart = LocalDate.of(2026, 3, 1)
         val periodEnd = LocalDate.of(2026, 3, 10)
@@ -104,7 +104,25 @@ class HistoryCalculationsTest {
         )
 
         assertTrue(upcoming.isEmpty())
-        assertTrue(future.isEmpty())
+        assertEquals(LocalDate.of(2026, 4, 15), future.single().nextChargeDate)
+    }
+
+    @Test
+    fun when_next_in_period_charge_is_paid_then_the_following_in_period_charge_is_upcoming() {
+        val today = LocalDate.of(2026, 3, 3)
+        val periodStart = LocalDate.of(2026, 3, 1)
+        val periodEnd = LocalDate.of(2026, 3, 31)
+        val tx = recurrentTransaction(id = 1L, startDate = LocalDate.of(2026, 3, 2), frequency = RecurrentFrequency.WEEKLY)
+
+        val (upcoming, _) = buildUpcomingRecurrentItems(
+            transactions = listOf(tx),
+            budgetStartDate = periodStart,
+            budgetEndDate = periodEnd,
+            today = today,
+            paidOccurrences = setOf(PaidRecurrentOccurrence(tx.id, LocalDate.of(2026, 3, 9))),
+        )
+
+        assertEquals(LocalDate.of(2026, 3, 16), upcoming.single().nextChargeDate)
     }
 
     @Test

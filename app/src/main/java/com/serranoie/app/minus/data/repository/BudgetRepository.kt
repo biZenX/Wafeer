@@ -32,6 +32,8 @@ interface BudgetRepository {
 
     suspend fun upsertTransactions(transactions: List<Transaction>)
 
+    suspend fun replaceAllTransactions(transactions: List<Transaction>)
+
     suspend fun existsTransactionByClientGeneratedId(clientGeneratedId: String): Boolean
 
     suspend fun getRecentTransactions(limit: Int): List<Transaction>

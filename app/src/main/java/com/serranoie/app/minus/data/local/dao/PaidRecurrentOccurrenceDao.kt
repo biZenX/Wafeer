@@ -21,4 +21,7 @@ interface PaidRecurrentOccurrenceDao {
 
     @Query("DELETE FROM paid_recurrent_occurrences WHERE transactionId = :transactionId")
     suspend fun deleteAllForTransaction(transactionId: Long)
+
+    @Query("DELETE FROM paid_recurrent_occurrences")
+    suspend fun deleteAll()
 }

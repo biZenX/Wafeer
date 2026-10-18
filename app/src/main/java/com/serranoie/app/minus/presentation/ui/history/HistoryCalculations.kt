@@ -58,7 +58,7 @@ internal fun buildUpcomingRecurrentItems(
 
     val upcomingInPeriod = recurrentTransactions.mapNotNull { transaction ->
         val savedDate = transaction.date?.toLocalDate()
-        val nextDate = calculateNextChargeDate(transaction, today) ?: savedDate?.takeIf { date ->
+        val nextDate = nextUnresolvedChargeDate(transaction, today, paidOccurrences) ?: savedDate?.takeIf { date ->
             date.isAfter(today)
         }
         nextDate?.let { date ->
@@ -77,10 +77,8 @@ internal fun buildUpcomingRecurrentItems(
     }.distinctBy { it.transaction.id }.sortedBy { it.nextChargeDate }
 
     val futureOutOfPeriod = recurrentTransactions.mapNotNull { transaction ->
-        calculateNextChargeDate(transaction, today)?.let { nextDate ->
-            if (nextDate.isAfter(budgetEndDate) &&
-                !paidOccurrences.contains(PaidRecurrentOccurrence(transaction.id, nextDate))
-            ) {
+        nextUnresolvedChargeDate(transaction, today, paidOccurrences)?.let { nextDate ->
+            if (nextDate.isAfter(budgetEndDate)) {
                 UpcomingRecurrentItem(
                     transaction = transaction,
                     nextChargeDate = nextDate,
@@ -117,6 +115,14 @@ internal fun groupTransactionsByDate(
     transactions: List<Transaction>,
 ): Map<LocalDate?, List<Transaction>> = transactions.groupBy { it.date?.toLocalDate() }
     .toSortedMap(compareByDescending { it })
+
+private fun nextUnresolvedChargeDate(
+    transaction: Transaction,
+    today: LocalDate,
+    paidOccurrences: Set<PaidRecurrentOccurrence>,
+): LocalDate? = generateSequence(calculateNextChargeDate(transaction, today)) {
+    calculateNextChargeDate(transaction, it)
+}.firstOrNull { !paidOccurrences.contains(PaidRecurrentOccurrence(transaction.id, it)) }
 
 internal fun calculateNextChargeDate(
     transaction: Transaction,

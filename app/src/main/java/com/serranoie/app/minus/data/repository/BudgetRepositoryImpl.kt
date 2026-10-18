@@ -272,6 +272,14 @@ class BudgetRepositoryImpl @Inject constructor(
         transactionDao.insertAllOrReplace(entities)
     }
 
+    override suspend fun replaceAllTransactions(transactions: List<Transaction>) {
+        appDatabase.withTransaction {
+            transactionDao.deleteAll()
+            paidRecurrentOccurrenceDao.deleteAll()
+            transactionDao.insertAllOrReplace(transactions.map { it.toEntity() })
+        }
+    }
+
     override suspend fun existsTransactionByClientGeneratedId(clientGeneratedId: String): Boolean {
         return transactionDao.existsByClientGeneratedId(clientGeneratedId)
     }

@@ -214,6 +214,33 @@ class MinusCsvServiceTest {
     }
 
     @Test
+    fun `a full backup replaces every local transaction instead of merging`() = runTest {
+        val meta = CsvBackupMetadata(
+            budgetSettings = settings(),
+            currentPeriodStartedAtMillis = 1_709_000_000_000L,
+            currentPeriodId = 202L,
+        )
+        val replaced = slot<List<Transaction>>()
+        coEvery { repository.replaceAllTransactions(capture(replaced)) } just Runs
+
+        service.importTransactions(
+            csvOf(listOf(tx(id = 5L, comment = "Coffee"), tx(id = 0L, comment = "Rent")), metadata = meta)
+        )
+
+        assertThat(replaced.captured.map { it.comment }).containsExactly("Coffee", "Rent")
+        assertThat(replaced.captured.map { it.id }).containsExactly(5L, 0L)
+        assertThat(upsertedTransactions.isCaptured).isFalse()
+        assertThat(addedTransactions).isEmpty()
+    }
+
+    @Test
+    fun `a partial import without metadata merges and never wipes`() = runTest {
+        service.importTransactions(csvOf(listOf(tx(id = 1L))))
+
+        coVerify(exactly = 0) { repository.replaceAllTransactions(any()) }
+    }
+
+    @Test
     fun `a backup without metadata leaves settings and onboarding untouched`() = runTest {
         service.importTransactions(csvOf(listOf(tx(id = 1L))))
 

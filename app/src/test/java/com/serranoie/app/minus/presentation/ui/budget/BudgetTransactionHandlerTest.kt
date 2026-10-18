@@ -158,6 +158,30 @@ class BudgetTransactionHandlerTest {
             calendar = CalendarSystem.PERSIAN,
         )
 
-        assertThat(date).isEqualTo(LocalDateTime.of(2026, 9, 23, 10, 30))
+        assertThat(date).isEqualTo(LocalDateTime.of(2026, 10, 23, 10, 30))
+    }
+
+    @Test
+    fun `monthly subscription day that already passed this month starts next month`() {
+        val date = handler.resolveRecurrentTransactionDate(
+            frequency = RecurrentFrequency.MONTHLY,
+            subscriptionDay = 5,
+            now = LocalDateTime.of(2026, 10, 18, 10, 30),
+            calendar = CalendarSystem.GREGORIAN,
+        )
+
+        assertThat(date).isEqualTo(LocalDateTime.of(2026, 11, 5, 10, 30))
+    }
+
+    @Test
+    fun `monthly subscription day of today stays today`() {
+        val date = handler.resolveRecurrentTransactionDate(
+            frequency = RecurrentFrequency.MONTHLY,
+            subscriptionDay = 18,
+            now = LocalDateTime.of(2026, 10, 18, 10, 30),
+            calendar = CalendarSystem.GREGORIAN,
+        )
+
+        assertThat(date).isEqualTo(LocalDateTime.of(2026, 10, 18, 10, 30))
     }
 }

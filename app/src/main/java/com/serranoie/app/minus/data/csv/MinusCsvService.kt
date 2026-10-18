@@ -70,11 +70,14 @@ class MinusCsvService @Inject constructor(
         val fresh = rows.filter { it.id == 0L }
             .map { it.toDomainTransaction(categoryId = categoryIdsByComment[it.comment.trim()]) }
 
-        if (reusable.isNotEmpty()) {
-            repository.upsertTransactions(reusable)
+        if (payload.metadata != null) {
+            repository.replaceAllTransactions(reusable + fresh.map { it.copy(id = 0L) })
+        } else {
+            if (reusable.isNotEmpty()) {
+                repository.upsertTransactions(reusable)
+            }
+            fresh.forEach { repository.addTransaction(it.copy(id = 0L)) }
         }
-
-        fresh.forEach { repository.addTransaction(it.copy(id = 0L)) }
 
         if (payload.archivedBudgets.isNotEmpty()) {
             repository.upsertArchivedBudgets(payload.archivedBudgets)
