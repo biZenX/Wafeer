@@ -1,19 +1,18 @@
 # License & Attribution / الترخيص والإسناد
 
 ## English
-This project is licensed under the **Apache License, Version 2.0**.
+This project is licensed under the **GNU General Public License v3.0 (GPLv3)**.
 See the complete license terms in the [LICENSE](LICENSE) file.
 
 - **Repository:** [https://github.com/biZenX/Wafeer](https://github.com/biZenX/Wafeer)
 - **Derivative Work & Enhancements (Wafeer):** Copyright (c) 2026 Arkim ([@biZenX](https://github.com/biZenX)).
 
-Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at:
-http://www.apache.org/licenses/LICENSE-2.0
+This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
 
 ---
 
 ## العربية
-هذا المشروع مرخص بموجب **رخصة أباتشي، الإصدار 2.0 (Apache License 2.0)**.
+هذا المشروع مرخص بموجب **رخصة جنو العمومية، الإصدار 3.0 (GNU General Public License v3.0 - GPLv3)**.
 يمكنك الاطلاع على النص الكامل للرخصة في ملف [LICENSE](LICENSE).
 
 - **المستودع:** [https://github.com/biZenX/Wafeer](https://github.com/biZenX/Wafeer)

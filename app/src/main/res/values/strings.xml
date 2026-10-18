@@ -1056,7 +1056,7 @@
     <string name="about_website_desc">bizenx.github.io/Wafeer</string>
     <string name="about_issues_title">الملاحظات والإبلاغ عن الأخطاء</string>
     <string name="about_issues_desc">إبلاغ عن مشكلة برمجية أو اقتراح ميزة جديدة</string>
-    <string name="about_license_label">ترخيص Apache License 2.0</string>
+    <string name="about_license_label">ترخيص GNU GPLv3</string>
     <string name="about_architecture_tag">M3 Expressive</string>
     <string name="about_foss_badge">مفتوح المصدر 100%</string>
     <string name="about_credits_title">شكر وتقدير لمشروع مفتوح المصدر</string>

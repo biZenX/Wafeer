@@ -14,7 +14,7 @@
   <img src="https://img.shields.io/badge/Platform-Android_%7C_Wear_OS-3DDC84?style=flat-square&logo=android&logoColor=white" alt="Platform">
   <img src="https://img.shields.io/badge/Architecture-Material_3_Expressive-7F52FF?style=flat-square" alt="Material 3 Expressive">
   <img src="https://img.shields.io/badge/Offline-100%25_Local-blue?style=flat-square" alt="Offline">
-  <img src="https://img.shields.io/badge/License-Apache_2.0-blue.svg?style=flat-square" alt="License">
+  <img src="https://img.shields.io/badge/License-GPLv3-blue.svg?style=flat-square" alt="License">
 </p>
 
 <p align="center">
@@ -126,4 +126,4 @@ Please check out our developer guides:
 ## License
 
 Wafeer is free and open-source software maintained by **Arkim ([@biZenX](https://github.com/biZenX))**.  
-Released under the terms of the **[Apache License 2.0](LICENSE)**.
+Released under the terms of the **[GNU General Public License v3.0 (GPLv3)](LICENSE)**.
