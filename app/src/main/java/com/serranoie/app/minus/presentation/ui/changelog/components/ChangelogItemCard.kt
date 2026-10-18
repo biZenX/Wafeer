@@ -43,7 +43,7 @@ internal fun ChangelogItemCard(
         ) {
             ChangelogItemTitleWithLinks(
                 text = item.title,
-                style = MaterialTheme.typography.bodyMedium,
+                style = MaterialTheme.typography.bodySmallEmphasized,
                 color = MaterialTheme.colorScheme.onSurface,
             )
         }

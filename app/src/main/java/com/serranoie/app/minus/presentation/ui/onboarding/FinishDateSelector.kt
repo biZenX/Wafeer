@@ -34,7 +34,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
@@ -45,6 +44,7 @@ import com.serranoie.app.minus.domain.time.CalendarSystem
 import com.serranoie.app.minus.presentation.ui.editor.sheets.split.availablePeriodsFor
 import com.serranoie.app.minus.presentation.ui.editor.sheets.split.staticBlockBudget
 import com.serranoie.app.minus.presentation.ui.theme.MinusTheme
+import com.serranoie.app.minus.presentation.ui.theme.component.date.JalaliDateRangePicker
 import com.serranoie.app.minus.presentation.util.font.format.localizedFormatter
 import java.math.BigDecimal
 import java.time.LocalDate
@@ -81,7 +81,7 @@ fun FinishDateSelector(
     val dateFormatter = remember { localizedFormatter("dd MMM") }
 
     val dateRangePickerState = rememberDateRangePickerState()
-    val usePersianPicker = CalendarSystem.of(LocalConfiguration.current.locales[0]) == CalendarSystem.PERSIAN
+    val usePersianPicker = CalendarSystem.current() == CalendarSystem.PERSIAN
     var persianRange by remember { mutableStateOf<Pair<LocalDate?, LocalDate?>>(null to null) }
 
     val startDate: LocalDate? = if (usePersianPicker) {
