@@ -1,0 +1,6 @@
+- feat: integrate Essentials island SDK and budget provider service
+- fix: widgets now render with corner radius no matter OEM
+- feat: improve full backup restores and recurrent transaction calculations (#312)
+- feat: accept shared currency symbols as evidence in notification parser
+- feat: add persian calendar support and RTL view (#311)
+- feat: improve budget state error handling and restore contrast mode in theme manager
