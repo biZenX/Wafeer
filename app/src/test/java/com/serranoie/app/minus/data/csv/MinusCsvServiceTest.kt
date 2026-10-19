@@ -7,6 +7,8 @@ import com.serranoie.app.minus.domain.model.ArchivedBudget
 import com.serranoie.app.minus.domain.model.BudgetPeriod
 import com.serranoie.app.minus.domain.model.BudgetSettings
 import com.serranoie.app.minus.domain.model.Category
+import com.serranoie.app.minus.domain.model.PaidRecurrentOccurrence
+import com.serranoie.app.minus.domain.model.RecurrentOccurrenceStatus
 import com.serranoie.app.minus.domain.model.Transaction
 import com.serranoie.app.minus.domain.model.UserSettings
 import io.mockk.Runs
@@ -52,9 +54,10 @@ class MinusCsvServiceTest {
         transactions: List<Transaction> = emptyList(),
         archived: List<ArchivedBudget> = emptyList(),
         metadata: CsvBackupMetadata? = null,
+        paidOccurrences: Set<PaidRecurrentOccurrence> = emptySet(),
     ): ByteArrayInputStream {
         val out = ByteArrayOutputStream()
-        MinusCsvExporter().export(transactions, archived, metadata, out)
+        MinusCsvExporter().export(transactions, archived, metadata, paidOccurrences, out)
         return ByteArrayInputStream(out.toByteArray())
     }
 
@@ -214,6 +217,51 @@ class MinusCsvServiceTest {
     }
 
     @Test
+    fun `a full backup replaces every local transaction instead of merging`() = runTest {
+        val meta = CsvBackupMetadata(
+            budgetSettings = settings(),
+            currentPeriodStartedAtMillis = 1_709_000_000_000L,
+            currentPeriodId = 202L,
+        )
+        val replaced = slot<List<Transaction>>()
+        coEvery { repository.replaceAllTransactions(capture(replaced), any()) } just Runs
+
+        service.importTransactions(
+            csvOf(listOf(tx(id = 5L, comment = "Coffee"), tx(id = 0L, comment = "Rent")), metadata = meta)
+        )
+
+        assertThat(replaced.captured.map { it.comment }).containsExactly("Coffee", "Rent")
+        assertThat(replaced.captured.map { it.id }).containsExactly(5L, 0L)
+        assertThat(upsertedTransactions.isCaptured).isFalse()
+        assertThat(addedTransactions).isEmpty()
+    }
+
+    @Test
+    fun `a partial import without metadata merges and never wipes`() = runTest {
+        service.importTransactions(csvOf(listOf(tx(id = 1L))))
+
+        coVerify(exactly = 0) { repository.replaceAllTransactions(any(), any()) }
+    }
+
+    @Test
+    fun `a partial import merges paid and skipped occurrences without replacing local data`() = runTest {
+        val date = LocalDate.of(2026, 3, 10)
+        val paid = PaidRecurrentOccurrence(5L, date)
+        val skipped = PaidRecurrentOccurrence(5L, date.plusMonths(1), RecurrentOccurrenceStatus.SKIPPED)
+
+        service.importTransactions(
+            csvOf(transactions = listOf(tx(id = 5L)), paidOccurrences = setOf(paid, skipped))
+        )
+
+        coVerify { repository.upsertTransactions(match { it.single().id == 5L }) }
+        coVerify(exactly = 1) { repository.markRecurrentOccurrencePaid(5L, date, RecurrentOccurrenceStatus.PAID) }
+        coVerify(exactly = 1) {
+            repository.markRecurrentOccurrencePaid(5L, date.plusMonths(1), RecurrentOccurrenceStatus.SKIPPED)
+        }
+        coVerify(exactly = 0) { repository.replaceAllTransactions(any(), any()) }
+    }
+
+    @Test
     fun `a backup without metadata leaves settings and onboarding untouched`() = runTest {
         service.importTransactions(csvOf(listOf(tx(id = 1L))))
 
@@ -261,6 +309,7 @@ class MinusCsvServiceTest {
     fun `exportAllTransactions writes a metadata row and every transaction`() = runTest {
         coEvery { repository.getTransactions() } returns flowOf(listOf(tx(id = 1L, comment = "Groceries")))
         coEvery { repository.getArchivedBudgets() } returns flowOf(emptyList())
+        coEvery { repository.getPaidRecurrentOccurrences() } returns flowOf(emptySet())
         coEvery { repository.getBudgetSettingsSync() } returns settings()
         coEvery { settingsRepository.getSettings() } returns UserSettings.DEFAULT
 

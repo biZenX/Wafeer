@@ -13,6 +13,9 @@ interface PaidRecurrentOccurrenceDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun markPaid(entity: PaidRecurrentOccurrenceEntity)
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertAll(entities: List<PaidRecurrentOccurrenceEntity>)
+
     @Query("SELECT * FROM paid_recurrent_occurrences")
     fun getAllPaidOccurrences(): Flow<List<PaidRecurrentOccurrenceEntity>>
 
@@ -21,4 +24,7 @@ interface PaidRecurrentOccurrenceDao {
 
     @Query("DELETE FROM paid_recurrent_occurrences WHERE transactionId = :transactionId")
     suspend fun deleteAllForTransaction(transactionId: Long)
+
+    @Query("DELETE FROM paid_recurrent_occurrences")
+    suspend fun deleteAll()
 }

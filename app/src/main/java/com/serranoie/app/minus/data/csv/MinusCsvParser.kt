@@ -4,7 +4,9 @@ import com.serranoie.app.minus.domain.model.ArchivedBudget
 import com.serranoie.app.minus.domain.model.BudgetPeriod
 import com.serranoie.app.minus.domain.model.BudgetSettings
 import com.serranoie.app.minus.domain.model.BudgetSplitMode
+import com.serranoie.app.minus.domain.model.PaidRecurrentOccurrence
 import com.serranoie.app.minus.domain.model.RecurrentFrequency
+import com.serranoie.app.minus.domain.model.RecurrentOccurrenceStatus
 import com.serranoie.app.minus.domain.model.RemainingBudgetStrategy
 import org.apache.commons.csv.CSVFormat
 import java.io.InputStream
@@ -24,6 +26,7 @@ class MinusCsvParser {
         val errors = mutableListOf<String>()
         val rows = mutableListOf<CsvTransactionRow>()
         val archivedBudgets = mutableListOf<ArchivedBudget>()
+        val paidOccurrences = mutableListOf<PaidRecurrentOccurrence>()
         var metadata: CsvBackupMetadata? = null
 
         val format = CSVFormat.DEFAULT.builder()
@@ -53,6 +56,13 @@ class MinusCsvParser {
                     return@forEachIndexed
                 }
 
+                if (dateRaw == MinusCsvContract.MARKER_PAID_OCCURRENCE) {
+                    runCatching { parsePaidOccurrence(raw) }
+                        .onSuccess { paidOccurrences.add(it) }
+                        .onFailure { throwable -> errors.add("Line $lineNo paid occurrence discarded: ${throwable.message}") }
+                    return@forEachIndexed
+                }
+
                 runCatching {
                     val row = parseRecord(raw)
                     if (row.amount <= BigDecimal.ZERO) {
@@ -73,6 +83,7 @@ class MinusCsvParser {
             rows = rows,
             metadata = metadata,
             archivedBudgets = archivedBudgets,
+            paidOccurrences = paidOccurrences,
             errors = errors
         )
     }
@@ -149,6 +160,18 @@ class MinusCsvParser {
             currencyCode = currencyCode,
             periodType = periodType,
             createdAt = createdAt
+        )
+    }
+
+    private fun parsePaidOccurrence(raw: Map<String, String>): PaidRecurrentOccurrence {
+        val transactionId = raw.valueOf(MinusCsvContract.COL_ID).toLong()
+        val status = RecurrentOccurrenceStatus.valueOf(raw.valueOf(MinusCsvContract.COL_BUDGET_PERIOD))
+        val occurrenceDate = LocalDate.parse(raw.valueOf(MinusCsvContract.COL_BUDGET_START_DATE), dateFormatter)
+
+        return PaidRecurrentOccurrence(
+            transactionId = transactionId,
+            occurrenceDate = occurrenceDate,
+            status = status
         )
     }
 

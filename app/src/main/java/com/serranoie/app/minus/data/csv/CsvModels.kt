@@ -2,6 +2,7 @@ package com.serranoie.app.minus.data.csv
 
 import com.serranoie.app.minus.domain.model.ArchivedBudget
 import com.serranoie.app.minus.domain.model.BudgetSettings
+import com.serranoie.app.minus.domain.model.PaidRecurrentOccurrence
 import com.serranoie.app.minus.domain.model.RecurrentFrequency
 import com.serranoie.app.minus.domain.model.Transaction
 import java.math.BigDecimal
@@ -34,6 +35,7 @@ data class CsvImportPayload(
     val rows: List<CsvTransactionRow>,
     val metadata: CsvBackupMetadata?,
     val archivedBudgets: List<ArchivedBudget>,
+    val paidOccurrences: List<PaidRecurrentOccurrence>,
     val errors: List<String>,
 )
 

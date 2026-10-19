@@ -37,6 +37,7 @@ class MinusCsvService @Inject constructor(
     suspend fun exportAllTransactions(outputStream: OutputStream) {
         val transactions = repository.getTransactions().first()
         val archivedBudgets = repository.getArchivedBudgets().first()
+        val paidOccurrences = repository.getPaidRecurrentOccurrences().first()
         val settings = repository.getBudgetSettingsSync()
         val userSettings = settingsRepository.getSettings()
         val metadata = settings?.let {
@@ -46,7 +47,7 @@ class MinusCsvService @Inject constructor(
                 currentPeriodId = userSettings.currentPeriodId,
             )
         }
-        exporter.export(transactions, archivedBudgets, metadata, outputStream)
+        exporter.export(transactions, archivedBudgets, metadata, paidOccurrences, outputStream)
     }
 
     suspend fun hasNoLocalData(): Boolean {
@@ -54,7 +55,10 @@ class MinusCsvService @Inject constructor(
                 repository.getRecentTransactions(1).isEmpty()
     }
 
-    suspend fun importTransactions(inputStream: InputStream): CsvImportResult {
+    suspend fun importTransactions(
+        inputStream: InputStream,
+        allowIncompleteFullRestore: Boolean = false,
+    ): CsvImportResult {
         val payload = parser.parse(inputStream)
         val rows = payload.rows
 
@@ -70,14 +74,34 @@ class MinusCsvService @Inject constructor(
         val fresh = rows.filter { it.id == 0L }
             .map { it.toDomainTransaction(categoryId = categoryIdsByComment[it.comment.trim()]) }
 
-        if (reusable.isNotEmpty()) {
-            repository.upsertTransactions(reusable)
-        }
-
-        fresh.forEach { repository.addTransaction(it.copy(id = 0L)) }
-
-        if (payload.archivedBudgets.isNotEmpty()) {
-            repository.upsertArchivedBudgets(payload.archivedBudgets)
+        if (payload.metadata != null) {
+            if (payload.errors.isNotEmpty() && !allowIncompleteFullRestore) {
+                return CsvImportResult(
+                    imported = 0,
+                    discarded = payload.errors.size,
+                    errors = payload.errors,
+                )
+            }
+            repository.replaceAllTransactions(
+                transactions = reusable + fresh.map { it.copy(id = 0L) },
+                paidOccurrences = payload.paidOccurrences
+            )
+            repository.replaceAllArchivedBudgets(payload.archivedBudgets)
+        } else {
+            if (reusable.isNotEmpty()) {
+                repository.upsertTransactions(reusable)
+            }
+            fresh.forEach { repository.addTransaction(it.copy(id = 0L)) }
+            if (payload.archivedBudgets.isNotEmpty()) {
+                repository.upsertArchivedBudgets(payload.archivedBudgets)
+            }
+            payload.paidOccurrences.forEach { occurrence ->
+                repository.markRecurrentOccurrencePaid(
+                    occurrence.transactionId,
+                    occurrence.occurrenceDate,
+                    occurrence.status,
+                )
+            }
         }
 
         payload.metadata?.let { metadata ->

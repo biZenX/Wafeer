@@ -2,6 +2,7 @@ package com.serranoie.app.minus.data.csv
 
 import com.serranoie.app.minus.domain.model.ArchivedBudget
 import com.serranoie.app.minus.domain.model.Transaction
+import com.serranoie.app.minus.domain.model.PaidRecurrentOccurrence
 import org.apache.commons.csv.CSVFormat
 import org.apache.commons.csv.CSVPrinter
 import java.io.OutputStream
@@ -18,6 +19,7 @@ class MinusCsvExporter {
         transactions: List<Transaction>,
         archivedBudgets: List<ArchivedBudget>,
         metadata: CsvBackupMetadata?,
+        paidOccurrences: Set<PaidRecurrentOccurrence>,
         outputStream: OutputStream,
     ) {
         val format = CSVFormat.DEFAULT.builder()
@@ -78,6 +80,37 @@ class MinusCsvExporter {
                         archive.startDate.format(dateFormatter),
                         archive.endDate.format(dateFormatter),
                         archive.currencyCode,
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                    )
+                }
+
+                paidOccurrences.forEach { occurrence ->
+                    printer.printRecord(
+                        MinusCsvContract.MARKER_PAID_OCCURRENCE,
+                        "", // amount
+                        "", // category
+                        "", // extra_note
+                        "", // is_recurrent
+                        "", // frequency
+                        "", // end_date
+                        "", // sub_day
+                        occurrence.transactionId.toString(), // id
+                        "", // is_credit
+                        "", // is_credit_paid
+                        "", // period_id
+                        "", // created_at
+                        "", // budget_total
+                        occurrence.status.name, // budget_period (reused for status)
+                        occurrence.occurrenceDate.format(dateFormatter), // budget_start_date (reused for date)
+                        "", // budget_end_date
+                        "", // currency_code
                         "",
                         "",
                         "",

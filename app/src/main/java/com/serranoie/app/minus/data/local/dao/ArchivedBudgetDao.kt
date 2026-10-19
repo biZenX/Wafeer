@@ -24,4 +24,7 @@ interface ArchivedBudgetDao {
 
     @Query("DELETE FROM archived_budgets WHERE periodId = :periodId")
     suspend fun deleteById(periodId: Long)
+
+    @Query("DELETE FROM archived_budgets")
+    suspend fun deleteAll()
 }
