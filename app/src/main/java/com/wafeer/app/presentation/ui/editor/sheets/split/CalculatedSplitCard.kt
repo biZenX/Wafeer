@@ -88,7 +88,14 @@ fun CalculatedSplitCard(
                 stringResource(R.string.budget_split_period_daily),
             )
         }
+
+        BudgetSplitMode.FULL_PERIOD -> {
+            stringResource(
+                R.string.split_mode_full_period_desc
+            )
+        }
     }
+
 
     val cardModifier = modifier
         .fillMaxWidth()

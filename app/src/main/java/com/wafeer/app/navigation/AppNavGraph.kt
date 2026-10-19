@@ -164,6 +164,9 @@ fun AppNavGraph(
                 onNavigateToAppearance = {
                     navController.navigate(Screen.Appearance.route)
                 },
+                onNavigateToCategoryManagement = {
+                    navController.navigate(Screen.CategoryManagement.route)
+                },
                 onNavigateToFeatureLab = {
                     navController.navigate(Screen.FeatureLab.route)
                 },
@@ -172,6 +175,13 @@ fun AppNavGraph(
                 },
             )
         }
+
+        composable(Screen.CategoryManagement.route) {
+            com.wafeer.app.presentation.ui.settings.categories.CategoryManagementScreen(
+                onBack = { navController.popBackStack() }
+            )
+        }
+
 
         composable(Screen.FeatureLab.route) {
             val viewModel: SettingsViewModel = hiltViewModel()

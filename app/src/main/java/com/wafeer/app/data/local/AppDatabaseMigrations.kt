@@ -220,4 +220,37 @@ object AppDatabaseMigrations {
             )
         }
     }
+
+    val MIGRATION_22_23: Migration = object : Migration(22, 23) {
+        override fun migrate(db: SupportSQLiteDatabase) {
+            // Expand category table
+            db.execSQL("ALTER TABLE category ADD COLUMN parentId INTEGER DEFAULT NULL")
+            db.execSQL("ALTER TABLE category ADD COLUMN nameResKey TEXT DEFAULT NULL")
+            db.execSQL("ALTER TABLE category ADD COLUMN iconName TEXT DEFAULT NULL")
+            db.execSQL("CREATE INDEX IF NOT EXISTS `index_category_parentId` ON category(`parentId`)")
+
+            // Create category_budgets table
+            db.execSQL(
+                """
+                CREATE TABLE IF NOT EXISTS `category_budgets` (
+                    `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                    `categoryId` INTEGER NOT NULL,
+                    `allocatedAmount` TEXT NOT NULL,
+                    `periodId` INTEGER DEFAULT NULL,
+                    `isRecurring` INTEGER NOT NULL DEFAULT 1,
+                    `alertThresholdPercent` INTEGER DEFAULT NULL,
+                    `createdAt` INTEGER NOT NULL,
+                    FOREIGN KEY(`categoryId`) REFERENCES `category`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE
+                )
+                """.trimIndent()
+            )
+            db.execSQL(
+                "CREATE INDEX IF NOT EXISTS `index_category_budgets_categoryId` ON `category_budgets` (`categoryId`)"
+            )
+            db.execSQL(
+                "CREATE UNIQUE INDEX IF NOT EXISTS `index_category_budgets_categoryId_periodId` ON `category_budgets` (`categoryId`, `periodId`)"
+            )
+        }
+    }
 }
+

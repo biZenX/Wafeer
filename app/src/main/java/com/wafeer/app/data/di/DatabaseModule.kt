@@ -58,6 +58,7 @@ object DatabaseModule {
             .addMigrations(AppDatabaseMigrations.MIGRATION_19_20)
             .addMigrations(AppDatabaseMigrations.MIGRATION_20_21)
             .addMigrations(AppDatabaseMigrations.MIGRATION_21_22)
+            .addMigrations(AppDatabaseMigrations.MIGRATION_22_23)
             .build()
     }
 
@@ -82,9 +83,15 @@ object DatabaseModule {
     }
 
     @Provides
+    fun provideCategoryBudgetDao(database: AppDatabase): com.wafeer.app.data.local.dao.CategoryBudgetDao {
+        return database.categoryBudgetDao()
+    }
+
+    @Provides
     fun provideQueuedTransactionDao(database: AppDatabase): QueuedTransactionDao {
         return database.queuedTransactionDao()
     }
+
 
     @Provides
     fun providePaidRecurrentOccurrenceDao(database: AppDatabase): PaidRecurrentOccurrenceDao {

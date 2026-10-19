@@ -170,7 +170,18 @@ internal fun buildBudgetFormula(request: BudgetFormulaRequest): List<FormulaRow>
             }
             add(FormulaRow(FormulaCaption.SPREAD_OVER_LEFT, terms, metrics.periodBudget))
         }
+
+        BudgetSplitMode.FULL_PERIOD -> {
+            add(
+                FormulaRow(
+                    FormulaCaption.REMAINING_BUDGET,
+                    amountOp(state.totalBudget, "−", metrics.spentInPeriod),
+                    state.totalBudget.subtract(metrics.spentInPeriod)
+                )
+            )
+        }
     }
+
 
     val next = metrics.nextPeriodAllocation
     if (next == null) {

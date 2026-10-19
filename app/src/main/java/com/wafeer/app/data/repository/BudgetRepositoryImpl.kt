@@ -181,7 +181,10 @@ class BudgetRepositoryImpl @Inject constructor(
         isHidden = this.isHidden,
         usageCount = this.usageCount,
         lastUsedAt = this.lastUsedAt,
-        createdAt = this.createdAt
+        createdAt = this.createdAt,
+        parentId = this.parentId,
+        nameResKey = this.nameResKey,
+        iconName = this.iconName
     )
 
     private fun Category.toEntity(): CategoryEntity = CategoryEntity(
@@ -190,8 +193,12 @@ class BudgetRepositoryImpl @Inject constructor(
         isHidden = this.isHidden,
         usageCount = this.usageCount,
         lastUsedAt = this.lastUsedAt,
-        createdAt = this.createdAt
+        createdAt = this.createdAt,
+        parentId = this.parentId,
+        nameResKey = this.nameResKey,
+        iconName = this.iconName
     )
+
 
     private fun ArchivedBudgetEntity.toDomain(): ArchivedBudget = ArchivedBudget(
         periodId = this.periodId,

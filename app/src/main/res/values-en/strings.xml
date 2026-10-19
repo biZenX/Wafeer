@@ -788,6 +788,32 @@
     <string name="split_mode_carry_over_desc">Unspent money from today carries over to tomorrow\'s budget and accumulates automatically.</string>
     <string name="split_mode_ask_me">Ask Me Daily</string>
     <string name="split_mode_ask_me_desc">Choose every day what to do with yesterday\'s surplus: spread across remaining days or add to today.</string>
+    <string name="split_mode_full_period">Full Period Allocation</string>
+    <string name="split_mode_full_period_desc">Single total budget pool for the entire period without daily breakdown; track spending freely.</string>
+
+    <string name="category_select_icon_title">Select Category Icon</string>
+    <string name="category_search_icon_hint">Search icons (e.g. milk, gas, kids)...</string>
+    <string name="category_icon_group_food">Food &amp; Groceries</string>
+    <string name="category_icon_group_transport">Transport &amp; Fuel</string>
+    <string name="category_icon_group_family">Family &amp; Kids</string>
+    <string name="category_icon_group_bills">Bills &amp; Utilities</string>
+    <string name="category_icon_group_health">Health &amp; Wellness</string>
+    <string name="category_icon_group_shopping">Shopping &amp; Leisure</string>
+    <string name="categories_management_title">Category &amp; Item Management</string>
+    <string name="categories_management_subtitle">Organize categories, sub-items, and set budget caps</string>
+    <string name="category_add_parent">Add Main Category</string>
+    <string name="category_add_child">Add Sub-Item</string>
+    <string name="category_parent_label">Main Category (Parent)</string>
+    <string name="category_name_label">Item or Category Name</string>
+    <string name="category_budget_cap_label">Budget Cap (Optional)</string>
+    <string name="category_alert_threshold_label">Alert threshold before depletion</string>
+    <string name="category_children_count">%1$d sub-items</string>
+    <string name="category_cap_reached_alert">Alert: %1$s budget cap reached or approaching limit!</string>
+    <string name="search">Search</string>
+    <string name="all">All</string>
+
+
+
     <string name="leftover_choice_spread_desc">Distribute the entire unspent surplus across remaining days.</string>
     <string name="leftover_choice_carry_desc">Add the entire surplus to today\'s balance only.</string>
     <string name="leftover_choice_spread_outcome">%1$s for upcoming days</string>

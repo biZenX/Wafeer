@@ -20,10 +20,12 @@ fun SettingsScreen(
     onNavigateToBugReport: () -> Unit,
     onNavigateToChangelog: () -> Unit = {},
     onNavigateToAppearance: () -> Unit = {},
+    onNavigateToCategoryManagement: () -> Unit = {},
     onNavigateToFeatureLab: () -> Unit = {},
     onNavigateBack: () -> Unit,
     viewModel: SettingsViewModel = hiltViewModel(),
 ) {
+
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val pendingUpdate by viewModel.pendingUpdate.collectAsStateWithLifecycle()
     val downloadState by viewModel.updateDownloadState.collectAsStateWithLifecycle()
@@ -151,7 +153,9 @@ fun SettingsScreen(
         onBugReportClick = viewModel::onBugReportClick,
         onNavigateToChangelog = onNavigateToChangelog,
         onNavigateToAppearance = onNavigateToAppearance,
+        onNavigateToCategoryManagement = onNavigateToCategoryManagement,
         isCheckingUpdate = isCheckingUpdate,
+
         onCheckForUpdates = viewModel::checkForUpdates,
         onBack = viewModel::onBack,
     )

@@ -177,10 +177,12 @@ fun Settings(
     onBugReportClick: () -> Unit = {},
     onNavigateToChangelog: () -> Unit = {},
     onNavigateToAppearance: () -> Unit = {},
+    onNavigateToCategoryManagement: () -> Unit = {},
     isCheckingUpdate: Boolean = false,
     onCheckForUpdates: () -> Unit = {},
     onBack: () -> Unit = {},
 ) {
+
     var showRecurrentPaymentsViewModeDialog by remember { mutableStateOf(false) }
     var showAboutDialog by remember { mutableStateOf(false) }
     var showNotificationTimePicker by remember { mutableStateOf(false) }
@@ -323,7 +325,7 @@ fun Settings(
                             showWidgetsSheet = true
                             view.weakHapticFeedback()
                         },
-                        position = PaddedListItemPosition.Last,
+                        position = PaddedListItemPosition.Middle,
                         modifier = Modifier.testTag("SettingsWidgetsItem")
                     ) {
                         SettingsLeadingIcon(icon = Icons.Default.Widgets)
@@ -340,7 +342,44 @@ fun Settings(
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
                     }
+
+                    CustomPaddedListItem(
+                        onClick = {
+                            onNavigateToCategoryManagement()
+                            view.weakHapticFeedback()
+                        },
+                        position = PaddedListItemPosition.Last,
+                        modifier = Modifier.testTag("SettingsCategoryManagementItem")
+                    ) {
+                        SettingsLeadingIcon(icon = Icons.Filled.Sell)
+                        Spacer(modifier = Modifier.width(16.dp))
+
+
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                text = stringResource(R.string.categories_management_title),
+                                style = MaterialTheme.typography.bodyMediumEmphasized,
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                            Text(
+                                text = stringResource(R.string.categories_management_subtitle),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
+
                 }
             }
 

@@ -73,11 +73,14 @@ internal fun calculateBudgetMetrics(
         BudgetSplitMode.STATIC -> staticRemaining
 
         BudgetSplitMode.CARRY_OVER, BudgetSplitMode.ASK_ME -> state.carryOverRemaining(period, draftSpend)
+
+        BudgetSplitMode.FULL_PERIOD -> state.totalBudget.subtract(spentInPeriod).coerceAtLeast(BigDecimal.ZERO)
     }
     val blockBudget = when (splitMode) {
         BudgetSplitMode.STATIC -> periodBudget
         BudgetSplitMode.DYNAMIC -> dynamicAllocation
         BudgetSplitMode.CARRY_OVER, BudgetSplitMode.ASK_ME -> periodRemaining.add(periodSpent)
+        BudgetSplitMode.FULL_PERIOD -> state.totalBudget
     }
 
     val isOverBudget = state.isOverBudget || (hasDraft && spentInPeriod > state.totalBudget)
@@ -89,6 +92,8 @@ internal fun calculateBudgetMetrics(
         }
 
         BudgetSplitMode.STATIC, BudgetSplitMode.CARRY_OVER, BudgetSplitMode.ASK_ME -> periodRemaining.signum() == -1
+
+        BudgetSplitMode.FULL_PERIOD -> spentInPeriod > state.totalBudget
     }
 
     val progressBudget = if (splitMode.carriesLeftover) blockBudget else periodBudget
@@ -99,7 +104,7 @@ internal fun calculateBudgetMetrics(
     } else 0f
 
     val nextPeriodAllocation = when (splitMode) {
-        BudgetSplitMode.STATIC -> null
+        BudgetSplitMode.STATIC, BudgetSplitMode.FULL_PERIOD -> null
         BudgetSplitMode.DYNAMIC -> state.nextAllocationFor(period, draftSpend)
         BudgetSplitMode.CARRY_OVER, BudgetSplitMode.ASK_ME -> state.carryOverNext(period, draftSpend)
     }?.takeIf { isOverSubPeriod && !isOverBudget && it.signum() == 1 }
@@ -132,6 +137,8 @@ internal fun resolveExhaustedMessage(
     }
 
     return when (splitMode) {
+        BudgetSplitMode.FULL_PERIOD -> null
+
         BudgetSplitMode.STATIC, BudgetSplitMode.CARRY_OVER, BudgetSplitMode.ASK_ME -> {
             if (period == BudgetPeriod.DAILY || isExhausted(period)) return null
 
@@ -143,6 +150,7 @@ internal fun resolveExhaustedMessage(
 
             when (labels.size) {
                 1 -> stringResource(R.string.budget_pill_exhausted_single, labels[0])
+
                 2 -> stringResource(R.string.budget_pill_exhausted_double, labels[0], labels[1])
                 3 -> stringResource(
                     R.string.budget_pill_exhausted_triple, labels[0], labels[1], labels[2]

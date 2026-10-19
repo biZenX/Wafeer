@@ -158,6 +158,7 @@ internal fun BudgetBehaviourContent(
             BehaviourOptionGroup(
                 title = stringResource(R.string.split_mode_label),
                 options = listOf(
+                    BudgetSplitMode.FULL_PERIOD,
                     BudgetSplitMode.DYNAMIC,
                     BudgetSplitMode.CARRY_OVER,
                     BudgetSplitMode.ASK_ME,
@@ -173,6 +174,7 @@ internal fun BudgetBehaviourContent(
                             BudgetSplitMode.DYNAMIC -> R.string.split_mode_dynamic
                             BudgetSplitMode.CARRY_OVER -> R.string.split_mode_carry_over
                             BudgetSplitMode.ASK_ME -> R.string.split_mode_ask_me
+                            BudgetSplitMode.FULL_PERIOD -> R.string.split_mode_full_period
                         }
                     )
                 },
@@ -183,9 +185,11 @@ internal fun BudgetBehaviourContent(
                             BudgetSplitMode.DYNAMIC -> R.string.split_mode_dynamic_desc
                             BudgetSplitMode.CARRY_OVER -> R.string.split_mode_carry_over_desc
                             BudgetSplitMode.ASK_ME -> R.string.split_mode_ask_me_desc
+                            BudgetSplitMode.FULL_PERIOD -> R.string.split_mode_full_period_desc
                         }
                     )
                 },
+
                 paddingValues = PaddingValues(start = 16.dp, end = 16.dp, top = 4.dp, bottom = 16.dp),
             )
         }

@@ -140,6 +140,8 @@ class BudgetStateCalculator @Inject constructor() {
 
                 BudgetSplitMode.ASK_ME -> leftovers?.rate?.setScale(2, RoundingMode.HALF_UP) ?: BigDecimal.ZERO
 
+                BudgetSplitMode.FULL_PERIOD -> remainingBudget
+
                 BudgetSplitMode.STATIC, BudgetSplitMode.CARRY_OVER -> {
                     if (originalTotalDays > 0) {
                         splitBudget.divide(
@@ -153,6 +155,7 @@ class BudgetStateCalculator @Inject constructor() {
                 }
             }
         }
+
 
         val totalSpentThisWeek = calculateSpentInSubPeriod(
             activeTransactions + unpaidRecurringCharges, settings.startDate, currentDate, 7

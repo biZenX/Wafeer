@@ -202,8 +202,10 @@ fun BudgetFormulaContent(request: BudgetFormulaRequest, modifier: Modifier = Mod
             BudgetSplitMode.DYNAMIC -> R.string.budget_formula_mode_dynamic
             BudgetSplitMode.CARRY_OVER -> R.string.budget_formula_mode_carry_over
             BudgetSplitMode.ASK_ME -> R.string.budget_formula_mode_ask_me
+            BudgetSplitMode.FULL_PERIOD -> R.string.split_mode_full_period
         }
     )
+
 
     Column(
         modifier = modifier

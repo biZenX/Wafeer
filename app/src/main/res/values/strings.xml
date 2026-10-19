@@ -694,6 +694,32 @@
     <string name="split_mode_carry_over_desc">ما لا تنفقه في يومك يُضاف لميزانية اليوم التالي ويتراكم تلقائياً.</string>
     <string name="split_mode_ask_me">سؤالي يومياً</string>
     <string name="split_mode_ask_me_desc">تقرر كل يوم ما تفعله بفائض الأمس: توزيعه على باقي الأيام أو إضافته لليوم.</string>
+    <string name="split_mode_full_period">احتساب على كامل الفترة</string>
+    <string name="split_mode_full_period_desc">رصيد مالي واحد لكامل الفترة دون تقسيم يومي؛ تتابع الصرف بحرية حتى نهاية الفترة.</string>
+
+    <string name="category_select_icon_title">اختر أيقونة التصنيف</string>
+    <string name="category_search_icon_hint">ابحث عن أيقونة (مثلاً: لبن، بنزين، أولاد)...</string>
+    <string name="category_icon_group_food">أطعمة ومشتريات</string>
+    <string name="category_icon_group_transport">مواصلات ووقود</string>
+    <string name="category_icon_group_family">العائلة والأولاد</string>
+    <string name="category_icon_group_bills">فواتير والتزامات</string>
+    <string name="category_icon_group_health">صحة ورياضة</string>
+    <string name="category_icon_group_shopping">تسوق وترفيه</string>
+    <string name="categories_management_title">إدارة البنود والتصنيفات</string>
+    <string name="categories_management_subtitle">تنظيم التصنيفات، البنود الفرعية، وتحديد الأسقف المالية</string>
+    <string name="category_add_parent">إضافة تصنيف رئيسي</string>
+    <string name="category_add_child">إضافة بند فرعي</string>
+    <string name="category_parent_label">التصنيف الرئيسي (الأب)</string>
+    <string name="category_name_label">اسم البند أو التصنيف</string>
+    <string name="category_budget_cap_label">سقف الميزانية (اختياري)</string>
+    <string name="category_alert_threshold_label">نسبة التنبيه قبل النفاد</string>
+    <string name="category_children_count">%1$d بنود فرعية</string>
+    <string name="category_cap_reached_alert">تنبيه: اقترب أو انتهى سقف ميزانية %1$s!</string>
+    <string name="search">بحث</string>
+    <string name="all">الكل</string>
+
+
+
     <string name="leftover_choice_spread_desc">توزيع كامل الفائض غير المستخدم على باقي الأيام.</string>
     <string name="leftover_choice_carry_desc">إضافة كامل الفائض إلى رصيد اليوم فقط.</string>
     <string name="leftover_choice_spread_outcome">%1$s للأيام القادمة</string>
