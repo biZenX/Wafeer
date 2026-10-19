@@ -147,16 +147,21 @@ class BudgetTransactionHandler @Inject constructor(
         isCredit: Boolean = false,
         fallbackComment: String,
     ): Boolean {
-        val amount = pendingAmount ?: return false
         val rawComment = pendingComment.trim()
         val now = LocalDateTime.now()
 
         return try {
+            if (pendingAmount == null) return false
+
             val finalComment = rawComment.ifEmpty { fallbackComment }
             val activePeriodId = resolveActivePeriodId()
             val transactionDate = resolveRecurrentTransactionDate(
                 frequency = frequency, subscriptionDay = subscriptionDay, now = now
             )
+
+            if (transactionDate.toLocalDate().isAfter(endDate)) {
+                return false
+            }
 
             val categoryId: Long? = if (finalComment.isNotBlank()) {
                 budgetRepository.findOrCreateCategory(finalComment.trim()).id
@@ -165,7 +170,7 @@ class BudgetTransactionHandler @Inject constructor(
             }
 
             val transaction = Transaction.create(
-                amount = amount,
+                amount = pendingAmount,
                 comment = finalComment,
                 date = transactionDate,
                 periodId = activePeriodId,

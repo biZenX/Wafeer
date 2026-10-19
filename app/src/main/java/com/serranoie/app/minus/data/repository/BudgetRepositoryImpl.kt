@@ -272,11 +272,22 @@ class BudgetRepositoryImpl @Inject constructor(
         transactionDao.insertAllOrReplace(entities)
     }
 
-    override suspend fun replaceAllTransactions(transactions: List<Transaction>) {
+    override suspend fun replaceAllTransactions(
+        transactions: List<Transaction>,
+        paidOccurrences: List<PaidRecurrentOccurrence>
+    ) {
         appDatabase.withTransaction {
             transactionDao.deleteAll()
             paidRecurrentOccurrenceDao.deleteAll()
             transactionDao.insertAllOrReplace(transactions.map { it.toEntity() })
+            val occurrenceEntities = paidOccurrences.map {
+                PaidRecurrentOccurrenceEntity(
+                    transactionId = it.transactionId,
+                    occurrenceDateEpochDay = it.occurrenceDate.toEpochDay(),
+                    status = it.status.name,
+                )
+            }
+            paidRecurrentOccurrenceDao.insertAll(occurrenceEntities)
         }
     }
 
@@ -437,6 +448,13 @@ class BudgetRepositoryImpl @Inject constructor(
     override suspend fun upsertArchivedBudgets(archivedBudgets: List<ArchivedBudget>) {
         val entities = archivedBudgets.map { it.toEntity() }
         archivedBudgetDao.insertAll(entities)
+    }
+
+    override suspend fun replaceAllArchivedBudgets(archivedBudgets: List<ArchivedBudget>) {
+        appDatabase.withTransaction {
+            archivedBudgetDao.deleteAll()
+            archivedBudgetDao.insertAll(archivedBudgets.map { it.toEntity() })
+        }
     }
 
     override suspend fun archiveCurrentPeriod(
