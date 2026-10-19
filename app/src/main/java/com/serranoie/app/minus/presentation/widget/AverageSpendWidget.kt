@@ -104,7 +104,7 @@ class AverageSpendWidget : GlanceAppWidget() {
         Box(
             modifier = GlanceModifier
                 .fillMaxSize()
-                .background(GlanceTheme.colors.surface)
+                .widgetBackground(GlanceTheme.colors.surface)
                 .clickable(actionRunCallback<OpenAppAction>())
                 .padding(8.dp),
             contentAlignment = Alignment.Center,

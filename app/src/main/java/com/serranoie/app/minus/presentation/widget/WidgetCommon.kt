@@ -11,6 +11,9 @@ import androidx.glance.GlanceTheme
 import androidx.glance.Image
 import androidx.glance.ImageProvider
 import androidx.glance.action.clickable
+import androidx.glance.appwidget.appWidgetBackground
+import androidx.glance.appwidget.cornerRadius
+import androidx.glance.background
 import androidx.glance.appwidget.action.actionRunCallback
 import androidx.glance.layout.Alignment
 import androidx.glance.layout.Box
@@ -19,7 +22,13 @@ import androidx.glance.layout.fillMaxSize
 import androidx.glance.layout.size
 import androidx.glance.preview.ExperimentalGlancePreviewApi
 import androidx.glance.preview.Preview
+import androidx.glance.unit.ColorProvider
 import com.serranoie.app.minus.R
+
+internal fun GlanceModifier.widgetBackground(color: ColorProvider): GlanceModifier =
+    appWidgetBackground()
+        .cornerRadius(android.R.dimen.system_app_widget_background_radius)
+        .background(color)
 
 @Composable
 internal fun AddExpenseButton(

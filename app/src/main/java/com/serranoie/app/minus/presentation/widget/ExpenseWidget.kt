@@ -132,7 +132,7 @@ class ExpenseWidget : GlanceAppWidget() {
         Box(
             modifier = GlanceModifier
                 .fillMaxSize()
-                .background(GlanceTheme.colors.surface)
+                .widgetBackground(GlanceTheme.colors.surface)
                 .clickable(actionRunCallback<OpenAppAction>())
                 .padding(horizontal = paddingH, vertical = paddingV)
         ) {

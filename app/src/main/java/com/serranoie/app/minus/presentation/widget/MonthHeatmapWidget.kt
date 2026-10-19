@@ -247,7 +247,7 @@ class MonthHeatmapWidget : GlanceAppWidget() {
             modifier =
                 GlanceModifier
                     .fillMaxSize()
-                    .background(GlanceTheme.colors.surface)
+                    .widgetBackground(GlanceTheme.colors.surface)
                     .clickable(actionRunCallback<OpenAppAction>())
                     .padding(8.dp),
         ) {
@@ -341,7 +341,7 @@ private fun MonthHeatmapContentPreview() {
 
     GlanceTheme {
         Box(
-            modifier = GlanceModifier.fillMaxSize().background(GlanceTheme.colors.surface),
+            modifier = GlanceModifier.fillMaxSize().widgetBackground(GlanceTheme.colors.surface),
         ) {
             MonthHeatmapContent(
                 monthStart = ym,
