@@ -95,6 +95,13 @@ class MinusCsvService @Inject constructor(
             if (payload.archivedBudgets.isNotEmpty()) {
                 repository.upsertArchivedBudgets(payload.archivedBudgets)
             }
+            payload.paidOccurrences.forEach { occurrence ->
+                repository.markRecurrentOccurrencePaid(
+                    occurrence.transactionId,
+                    occurrence.occurrenceDate,
+                    occurrence.status,
+                )
+            }
         }
 
         payload.metadata?.let { metadata ->

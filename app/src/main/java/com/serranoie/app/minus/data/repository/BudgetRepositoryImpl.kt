@@ -279,10 +279,21 @@ class BudgetRepositoryImpl @Inject constructor(
         appDatabase.withTransaction {
             transactionDao.deleteAll()
             paidRecurrentOccurrenceDao.deleteAll()
-            transactionDao.insertAllOrReplace(transactions.map { it.toEntity() })
+            val (fresh, reusable) = transactions.partition { it.id == 0L }
+            transactionDao.insertAllOrReplace(reusable.map { it.toEntity() })
+            val restoredIds = reusable.associate { it.id to it.id }.toMutableMap()
+            fresh.forEach { transaction ->
+                val generatedId = transactionDao.insertOrReplace(transaction.toEntity())
+                // Multiple fresh rows share id 0, so an occurrence cannot identify one of them.
+                if (fresh.size == 1) restoredIds[0L] = generatedId
+            }
             val occurrenceEntities = paidOccurrences.map {
+                val transactionId = requireNotNull(restoredIds[it.transactionId]) {
+                    "Paid occurrence references a missing or ambiguous transaction: ${it.transactionId}"
+                }
+                require(transactionId > 0L) { "Paid occurrence requires a persisted transaction ID" }
                 PaidRecurrentOccurrenceEntity(
-                    transactionId = it.transactionId,
+                    transactionId = transactionId,
                     occurrenceDateEpochDay = it.occurrenceDate.toEpochDay(),
                     status = it.status.name,
                 )

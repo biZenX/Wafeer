@@ -5,9 +5,12 @@ import com.serranoie.app.minus.domain.model.ArchivedBudget
 import com.serranoie.app.minus.domain.model.BudgetPeriod
 import com.serranoie.app.minus.domain.model.BudgetSettings
 import com.serranoie.app.minus.domain.model.BudgetSplitMode
+import com.serranoie.app.minus.domain.model.PaidRecurrentOccurrence
 import com.serranoie.app.minus.domain.model.RecurrentFrequency
+import com.serranoie.app.minus.domain.model.RecurrentOccurrenceStatus
 import com.serranoie.app.minus.domain.model.RemainingBudgetStrategy
 import com.serranoie.app.minus.domain.model.Transaction
+import org.apache.commons.csv.CSVFormat
 import org.junit.Test
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
@@ -26,7 +29,7 @@ class MinusCsvRoundTripTest {
         metadata: CsvBackupMetadata? = null,
     ): CsvImportPayload {
         val out = ByteArrayOutputStream()
-        exporter.export(transactions, archived, metadata, out)
+        exporter.export(transactions, archived, metadata, emptySet(), out)
         return parser.parse(ByteArrayInputStream(out.toByteArray()))
     }
 
@@ -61,12 +64,30 @@ class MinusCsvRoundTripTest {
     @Test
     fun `the header names the category and extra note columns, not comment`() {
         val out = ByteArrayOutputStream()
-        exporter.export(listOf(tx()), emptyList(), null, out)
+        exporter.export(listOf(tx()), emptyList(), null, emptySet(), out)
 
         val header = out.toString(Charsets.UTF_8.name()).lineSequence().first()
 
         assertThat(header).startsWith("date,amount,category,extra_note,")
         assertThat(header.split(",")).containsNoneOf("comment", "note")
+    }
+
+    @Test
+    fun `paid occurrence records match the header width and preserve their fields`() {
+        val occurrence = PaidRecurrentOccurrence(
+            42L, LocalDate.of(2026, 3, 10), RecurrentOccurrenceStatus.SKIPPED
+        )
+        val out = ByteArrayOutputStream()
+        exporter.export(emptyList(), emptyList(), null, setOf(occurrence), out)
+
+        CSVFormat.DEFAULT.parse(out.toString(Charsets.UTF_8.name()).reader()).use { csv ->
+            val records = csv.records
+            assertThat(records[0].size()).isEqualTo(MinusCsvContract.HEADERS.size)
+            assertThat(records[1].size()).isEqualTo(26)
+        }
+        val parsed = parser.parse(ByteArrayInputStream(out.toByteArray())).paidOccurrences.single()
+        assertThat(parsed).isEqualTo(occurrence)
+        assertThat(parsed.status).isEqualTo(RecurrentOccurrenceStatus.SKIPPED)
     }
 
     @Test
