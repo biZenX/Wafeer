@@ -1,0 +1,5 @@
+- feat: Visual Overspend Alerts: Contextual status indicator for spending threshold notifications.
+- feat: Smart Currency Recognition: Support shared currency symbols in expense notification scanner.
+- improve: Normalized Widget Corners: Consistent corner radius across all OEM launchers and Android skins.
+- fix: Recurrent Occurrence Persistence: Preserve paid and skipped statuses across full CSV backups and restores.
+- fix: Resolve recurrent charge dates accurately and restore contrast mode preferences on startup.
