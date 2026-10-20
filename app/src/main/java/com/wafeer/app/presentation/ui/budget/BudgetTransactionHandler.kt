@@ -179,6 +179,10 @@ class BudgetTransactionHandler @Inject constructor(
                 frequency = frequency, subscriptionDay = subscriptionDay, now = now
             )
 
+            if (transactionDate.toLocalDate().isAfter(endDate)) {
+                return false
+            }
+
             val categoryId: Long? = if (finalComment.isNotBlank()) {
                 budgetRepository.findOrCreateCategory(finalComment.trim()).id
             } else {
@@ -217,8 +221,17 @@ class BudgetTransactionHandler @Inject constructor(
             return now
         }
 
-        val targetDay = subscriptionDay.coerceIn(1, now.toLocalDate().lengthOfMonth())
-        return now.withDayOfMonth(targetDay)
+        val today = now.toLocalDate()
+        val targetDayInCurrentMonth = subscriptionDay.coerceIn(1, today.lengthOfMonth())
+        val thisMonthDate = today.withDayOfMonth(targetDayInCurrentMonth)
+        val firstCharge = if (thisMonthDate.isBefore(today)) {
+            val nextMonth = today.plusMonths(1)
+            val targetDayInNextMonth = subscriptionDay.coerceIn(1, nextMonth.lengthOfMonth())
+            nextMonth.withDayOfMonth(targetDayInNextMonth)
+        } else {
+            thisMonthDate
+        }
+        return LocalDateTime.of(firstCharge, now.toLocalTime())
     }
 
     suspend fun deleteTransaction(transaction: Transaction): Result<Unit> {

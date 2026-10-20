@@ -280,6 +280,36 @@ class BudgetRepositoryImpl @Inject constructor(
         transactionDao.insertAllOrReplace(entities)
     }
 
+    override suspend fun replaceAllTransactions(
+        transactions: List<Transaction>,
+        paidOccurrences: List<PaidRecurrentOccurrence>
+    ) {
+        appDatabase.withTransaction {
+            transactionDao.deleteAll()
+            paidRecurrentOccurrenceDao.deleteAll()
+            val (fresh, reusable) = transactions.partition { it.id == 0L }
+            transactionDao.insertAllOrReplace(reusable.map { it.toEntity() })
+            val restoredIds = reusable.associate { it.id to it.id }.toMutableMap()
+            fresh.forEach { transaction ->
+                val generatedId = transactionDao.insertOrReplace(transaction.toEntity())
+                // Multiple fresh rows share id 0, so an occurrence cannot identify one of them.
+                if (fresh.size == 1) restoredIds[0L] = generatedId
+            }
+            val occurrenceEntities = paidOccurrences.map {
+                val transactionId = requireNotNull(restoredIds[it.transactionId]) {
+                    "Paid occurrence references a missing or ambiguous transaction: ${it.transactionId}"
+                }
+                require(transactionId > 0L) { "Paid occurrence requires a persisted transaction ID" }
+                PaidRecurrentOccurrenceEntity(
+                    transactionId = transactionId,
+                    occurrenceDateEpochDay = it.occurrenceDate.toEpochDay(),
+                    status = it.status.name,
+                )
+            }
+            paidRecurrentOccurrenceDao.insertAll(occurrenceEntities)
+        }
+    }
+
     override suspend fun existsTransactionByClientGeneratedId(clientGeneratedId: String): Boolean {
         return transactionDao.existsByClientGeneratedId(clientGeneratedId)
     }
@@ -437,6 +467,13 @@ class BudgetRepositoryImpl @Inject constructor(
     override suspend fun upsertArchivedBudgets(archivedBudgets: List<ArchivedBudget>) {
         val entities = archivedBudgets.map { it.toEntity() }
         archivedBudgetDao.insertAll(entities)
+    }
+
+    override suspend fun replaceAllArchivedBudgets(archivedBudgets: List<ArchivedBudget>) {
+        appDatabase.withTransaction {
+            archivedBudgetDao.deleteAll()
+            archivedBudgetDao.insertAll(archivedBudgets.map { it.toEntity() })
+        }
     }
 
     override suspend fun archiveCurrentPeriod(

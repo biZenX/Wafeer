@@ -2,6 +2,7 @@ package com.wafeer.app.data.csv
 
 import com.wafeer.app.domain.model.ArchivedBudget
 import com.wafeer.app.domain.model.BudgetSettings
+import com.wafeer.app.domain.model.PaidRecurrentOccurrence
 import com.wafeer.app.domain.model.RecurrentFrequency
 import com.wafeer.app.domain.model.Transaction
 import java.math.BigDecimal
@@ -33,6 +34,7 @@ data class CsvImportPayload(
     val rows: List<CsvTransactionRow>,
     val metadata: CsvBackupMetadata?,
     val archivedBudgets: List<ArchivedBudget>,
+    val paidOccurrences: List<PaidRecurrentOccurrence> = emptyList(),
     val errors: List<String>,
 )
 

@@ -21,6 +21,7 @@ object WafeerCsvContract {
 
     const val MARKER_META = "__META__"
     const val MARKER_ARCHIVED = "__ARCHIVED__"
+    const val MARKER_PAID_OCCURRENCE = "__PAID_OCCURRENCE__"
 
     const val COL_BUDGET_TOTAL = "budget_total"
     const val COL_BUDGET_PERIOD = "budget_period"

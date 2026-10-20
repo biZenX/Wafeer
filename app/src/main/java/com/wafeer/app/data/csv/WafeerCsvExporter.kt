@@ -1,6 +1,7 @@
 package com.wafeer.app.data.csv
 
 import com.wafeer.app.domain.model.ArchivedBudget
+import com.wafeer.app.domain.model.PaidRecurrentOccurrence
 import com.wafeer.app.domain.model.Transaction
 import org.apache.commons.csv.CSVFormat
 import org.apache.commons.csv.CSVPrinter
@@ -18,6 +19,14 @@ class WafeerCsvExporter {
         transactions: List<Transaction>,
         archivedBudgets: List<ArchivedBudget>,
         metadata: CsvBackupMetadata?,
+        outputStream: OutputStream,
+    ) = export(transactions, archivedBudgets, metadata, emptySet(), outputStream)
+
+    fun export(
+        transactions: List<Transaction>,
+        archivedBudgets: List<ArchivedBudget>,
+        metadata: CsvBackupMetadata?,
+        paidOccurrences: Set<PaidRecurrentOccurrence> = emptySet(),
         outputStream: OutputStream,
     ) {
         val format = CSVFormat.DEFAULT.builder()
@@ -55,6 +64,37 @@ class WafeerCsvExporter {
                         meta.currentPeriodId.toString(),
                         s.creditCardCutoffDay?.toString().orEmpty(),
                         s.splitMode.name,
+                    )
+                }
+
+                paidOccurrences.forEach { occurrence ->
+                    printer.printRecord(
+                        WafeerCsvContract.MARKER_PAID_OCCURRENCE,
+                        "", // amount
+                        "", // category
+                        "", // extra_note
+                        "", // is_recurrent
+                        "", // frequency
+                        "", // end_date
+                        "", // sub_day
+                        occurrence.transactionId.toString(), // id
+                        "", // is_credit
+                        "", // is_credit_paid
+                        "", // period_id
+                        "", // created_at
+                        "", // budget_total
+                        occurrence.status.name, // budget_period (reused for status)
+                        occurrence.occurrenceDate.format(dateFormatter), // budget_start_date (reused for date)
+                        "", // budget_end_date
+                        "", // currency_code
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
+                        "",
                     )
                 }
 

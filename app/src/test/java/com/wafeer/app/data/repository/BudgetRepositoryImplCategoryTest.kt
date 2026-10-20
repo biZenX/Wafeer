@@ -47,6 +47,32 @@ class BudgetRepositoryImplCategoryTest {
             rows.removeAll { it.id == id }
         }
 
+        override fun getActiveParentCategories(): Flow<List<CategoryEntity>> =
+            flowOf(rows.filter { !it.isHidden && it.parentId == null })
+
+        override fun getChildrenForParent(parentId: Long): Flow<List<CategoryEntity>> =
+            flowOf(rows.filter { !it.isHidden && it.parentId == parentId })
+
+        override suspend fun setCategoryAndChildrenHidden(categoryId: Long, isHidden: Boolean) {
+            val index = rows.indexOfFirst { it.id == categoryId }
+            if (index >= 0) rows[index] = rows[index].copy(isHidden = isHidden)
+            rows.indices.forEach { i ->
+                if (rows[i].parentId == categoryId) {
+                    rows[i] = rows[i].copy(isHidden = isHidden)
+                }
+            }
+        }
+
+        override suspend fun updateCategoryIcon(id: Long, iconName: String?) {
+            val index = rows.indexOfFirst { it.id == id }
+            if (index >= 0) rows[index] = rows[index].copy(iconName = iconName)
+        }
+
+        override suspend fun updateParentId(id: Long, parentId: Long?) {
+            val index = rows.indexOfFirst { it.id == id }
+            if (index >= 0) rows[index] = rows[index].copy(parentId = parentId)
+        }
+
         private fun replace(name: String, transform: (CategoryEntity) -> CategoryEntity) {
             val index = rows.indexOfFirst { it.name == name }
             if (index >= 0) rows[index] = transform(rows[index])

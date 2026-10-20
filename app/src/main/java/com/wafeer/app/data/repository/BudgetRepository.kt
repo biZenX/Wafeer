@@ -32,6 +32,11 @@ interface BudgetRepository {
 
     suspend fun upsertTransactions(transactions: List<Transaction>)
 
+    suspend fun replaceAllTransactions(
+        transactions: List<Transaction>,
+        paidOccurrences: List<PaidRecurrentOccurrence>
+    )
+
     suspend fun existsTransactionByClientGeneratedId(clientGeneratedId: String): Boolean
 
     suspend fun getRecentTransactions(limit: Int): List<Transaction>
@@ -83,6 +88,8 @@ interface BudgetRepository {
     fun getArchivedBudgets(): Flow<List<ArchivedBudget>>
 
     suspend fun upsertArchivedBudgets(archivedBudgets: List<ArchivedBudget>)
+
+    suspend fun replaceAllArchivedBudgets(archivedBudgets: List<ArchivedBudget>)
 
     suspend fun archiveCurrentPeriod(
         periodId: Long,

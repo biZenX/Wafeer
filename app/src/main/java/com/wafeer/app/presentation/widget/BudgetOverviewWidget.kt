@@ -91,7 +91,7 @@ class BudgetOverviewWidget : GlanceAppWidget() {
         daysCountFormat: (Int) -> String = { count -> "$count days" },
     ) {
         Column(
-            modifier = GlanceModifier.fillMaxSize().cornerRadius(24.dp).background(GlanceTheme.colors.surface)
+            modifier = GlanceModifier.fillMaxSize().widgetBackground(GlanceTheme.colors.surface)
                 .clickable(actionRunCallback<OpenAppAction>())
                 .padding(horizontal = 16.dp, vertical = 2.dp),
             verticalAlignment = Alignment.CenterVertically,

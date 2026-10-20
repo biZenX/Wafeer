@@ -4,7 +4,9 @@ import com.wafeer.app.domain.model.ArchivedBudget
 import com.wafeer.app.domain.model.BudgetPeriod
 import com.wafeer.app.domain.model.BudgetSettings
 import com.wafeer.app.domain.model.BudgetSplitMode
+import com.wafeer.app.domain.model.PaidRecurrentOccurrence
 import com.wafeer.app.domain.model.RecurrentFrequency
+import com.wafeer.app.domain.model.RecurrentOccurrenceStatus
 import com.wafeer.app.domain.model.RemainingBudgetStrategy
 import org.apache.commons.csv.CSVFormat
 import java.io.InputStream
@@ -24,6 +26,7 @@ class WafeerCsvParser {
         val errors = mutableListOf<String>()
         val rows = mutableListOf<CsvTransactionRow>()
         val archivedBudgets = mutableListOf<ArchivedBudget>()
+        val paidOccurrences = mutableListOf<PaidRecurrentOccurrence>()
         var metadata: CsvBackupMetadata? = null
 
         val format = CSVFormat.DEFAULT.builder()
@@ -53,6 +56,13 @@ class WafeerCsvParser {
                     return@forEachIndexed
                 }
 
+                if (dateRaw == WafeerCsvContract.MARKER_PAID_OCCURRENCE) {
+                    runCatching { parsePaidOccurrence(raw) }
+                        .onSuccess { paidOccurrences.add(it) }
+                        .onFailure { throwable -> errors.add("Line $lineNo paid occurrence discarded: ${throwable.message}") }
+                    return@forEachIndexed
+                }
+
                 runCatching {
                     val row = parseRecord(raw)
                     if (row.amount <= BigDecimal.ZERO) {
@@ -73,6 +83,7 @@ class WafeerCsvParser {
             rows = rows,
             metadata = metadata,
             archivedBudgets = archivedBudgets,
+            paidOccurrences = paidOccurrences,
             errors = errors
         )
     }
@@ -148,6 +159,18 @@ class WafeerCsvParser {
             currencyCode = currencyCode,
             periodType = periodType,
             createdAt = createdAt
+        )
+    }
+
+    private fun parsePaidOccurrence(raw: Map<String, String>): PaidRecurrentOccurrence {
+        val transactionId = raw.valueOf(WafeerCsvContract.COL_ID).toLong()
+        val status = RecurrentOccurrenceStatus.valueOf(raw.valueOf(WafeerCsvContract.COL_BUDGET_PERIOD))
+        val occurrenceDate = LocalDate.parse(raw.valueOf(WafeerCsvContract.COL_BUDGET_START_DATE), dateFormatter)
+
+        return PaidRecurrentOccurrence(
+            transactionId = transactionId,
+            occurrenceDate = occurrenceDate,
+            status = status
         )
     }
 

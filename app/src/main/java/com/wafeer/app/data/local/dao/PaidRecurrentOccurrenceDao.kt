@@ -19,6 +19,12 @@ interface PaidRecurrentOccurrenceDao {
     @Query("SELECT occurrenceDateEpochDay FROM paid_recurrent_occurrences WHERE transactionId = :transactionId")
     suspend fun getPaidOccurrenceDatesFor(transactionId: Long): List<Long>
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertAll(entities: List<PaidRecurrentOccurrenceEntity>)
+
     @Query("DELETE FROM paid_recurrent_occurrences WHERE transactionId = :transactionId")
     suspend fun deleteAllForTransaction(transactionId: Long)
+
+    @Query("DELETE FROM paid_recurrent_occurrences")
+    suspend fun deleteAll()
 }

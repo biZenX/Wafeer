@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.os.LocaleListCompat
 import com.wafeer.app.domain.model.UserSettings
 import com.wafeer.app.presentation.appColorScheme
+import com.wafeer.app.presentation.appContrast
 import com.wafeer.app.presentation.appTheme
 import com.wafeer.app.presentation.appTypography
 import com.wafeer.app.presentation.isRoundedFontEnabled
@@ -23,6 +24,7 @@ class ThemeManager @Inject constructor() {
         context.isRoundedFontEnabled = settings.isRoundedFontEnabled
         context.isAmoledEnabled = settings.isAmoledEnabled
         context.appColorScheme = settings.colorScheme
+        context.appContrast = settings.contrastMode
         context.dynamicColorEnabled = settings.dynamicColorEnabled
 
         applyLocale(settings.language)

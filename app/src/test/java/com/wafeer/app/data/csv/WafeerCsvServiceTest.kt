@@ -46,6 +46,7 @@ class WafeerCsvServiceTest {
         coEvery { repository.upsertTransactions(capture(upsertedTransactions)) } just Runs
         coEvery { repository.addTransaction(capture(addedTransactions)) } returns 1L
         coEvery { repository.upsertArchivedBudgets(capture(upsertedArchives)) } just Runs
+        coEvery { repository.getPaidRecurrentOccurrences() } returns flowOf(emptySet())
     }
 
     private fun csvOf(

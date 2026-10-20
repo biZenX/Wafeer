@@ -37,9 +37,17 @@ import androidx.glance.preview.ExperimentalGlancePreviewApi
 import androidx.glance.preview.Preview
 import androidx.glance.text.FontWeight
 import androidx.glance.text.TextAlign
+import androidx.glance.appwidget.appWidgetBackground
+import androidx.glance.appwidget.cornerRadius
+import androidx.glance.background
 import androidx.glance.unit.ColorProvider
 import com.wafeer.app.R
 import kotlin.math.ceil
+
+internal fun GlanceModifier.widgetBackground(color: ColorProvider): GlanceModifier =
+    appWidgetBackground()
+        .cornerRadius(android.R.dimen.system_app_widget_background_radius)
+        .background(color)
 
 @Composable
 internal fun AddExpenseButton(

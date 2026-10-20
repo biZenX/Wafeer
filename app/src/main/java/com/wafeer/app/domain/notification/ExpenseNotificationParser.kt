@@ -14,23 +14,10 @@ object ExpenseNotificationParser {
         """[+\-]?\d{1,3}(?:[.,\u00A0 ]\d{3})+(?:[.,]\d{1,2})?|[+\-]?\d+(?:[.,]\d{1,2})?"""
     )
 
-    /**
-     * Symbols that more than one supported currency uses, such as "$" for USD, MXN, ARS, COP and
-     * CLP. Seeing one of these says nothing about which currency the amount is in, so they are not
-     * accepted as evidence on their own.
-     */
-    private val SHARED_SYMBOLS: Set<String> by lazy {
-        SupportedCurrency.ALL
-            .groupingBy { it.canonicalSymbol.trim().lowercase() }
-            .eachCount()
-            .filterValues { it > 1 }
-            .keys
-    }
-
     fun parse(
         text: String,
         currencyCode: String,
-        denyWords: List<String>,
+        denyWords: List<String> = emptyList(),
     ): BigDecimal? {
         if (text.isBlank()) return null
         val haystack = text.lowercase()
@@ -59,23 +46,23 @@ object ExpenseNotificationParser {
         return null
     }
 
-    /**
-     * Where in [haystack] the configured currency is spelled out. The ISO code always counts, but
-     * only as a whole code, so "usdx" or "busd" is not evidence of USD. The symbol counts only when
-     * a single supported currency uses it.
-     */
     private fun evidenceRanges(haystack: String, currencyCode: String): List<IntRange> {
         val code = currencyCode.trim().lowercase()
         val ranges = mutableListOf<IntRange>()
         if (code.isNotEmpty()) ranges += occurrencesOf(haystack, code)
 
+        val namesOtherCurrency = SupportedCurrency.ALL.any {
+            val other = it.code.lowercase()
+            other != code && occurrencesOf(haystack, other).isNotEmpty()
+        }
+
         val supported = SupportedCurrency.findByCode(currencyCode)
         val canonicalSymbol = supported?.canonicalSymbol?.trim()?.lowercase()
-        if (!canonicalSymbol.isNullOrEmpty() && canonicalSymbol != code && canonicalSymbol !in SHARED_SYMBOLS) {
+        if (!canonicalSymbol.isNullOrEmpty() && canonicalSymbol != code && !namesOtherCurrency) {
             ranges += occurrencesOf(haystack, canonicalSymbol)
         }
         val localizedSymbol = supported?.symbol?.trim()?.lowercase()
-        if (!localizedSymbol.isNullOrEmpty() && localizedSymbol != code && localizedSymbol != canonicalSymbol && localizedSymbol !in SHARED_SYMBOLS) {
+        if (!localizedSymbol.isNullOrEmpty() && localizedSymbol != code && localizedSymbol != canonicalSymbol && !namesOtherCurrency) {
             ranges += occurrencesOf(haystack, localizedSymbol)
         }
         return ranges

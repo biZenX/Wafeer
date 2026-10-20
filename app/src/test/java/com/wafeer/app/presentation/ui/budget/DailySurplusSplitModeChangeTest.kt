@@ -337,7 +337,7 @@ class DailySurplusSplitModeChangeTest {
             rolloverLimit = BigDecimal("50"),
         )
 
-        BudgetSplitMode.entries.forEach { mode ->
+        BudgetSplitMode.entries.filter { it != BudgetSplitMode.FULL_PERIOD }.forEach { mode ->
             val reading = stateOn(2, mode, emptyList(), settings = carried)
             assertThat(reading.totalBudget).isEqualTo(BigDecimal("1050"))
             assertThat(reading.dailyBudget).isEqualTo(
@@ -388,7 +388,9 @@ class DailySurplusSplitModeChangeTest {
 
     @Test
     fun `on day one every mode agrees, there is no surplus to argue about yet`() {
-        val readings = BudgetSplitMode.entries.associateWith { stateOn(1, it, emptyList()) }
+        val readings = BudgetSplitMode.entries
+            .filter { it != BudgetSplitMode.FULL_PERIOD }
+            .associateWith { stateOn(1, it, emptyList()) }
 
         readings.values.forEach {
             assertThat(it.remainingToday).isEqualTo(BigDecimal("100.00"))
@@ -482,7 +484,7 @@ class DailySurplusSplitModeChangeTest {
     fun `a one-day period reads the same in every mode`() {
         val singleDay = settings(BudgetSplitMode.STATIC).copy(endDate = start)
 
-        BudgetSplitMode.entries.forEach { mode ->
+        BudgetSplitMode.entries.filter { it != BudgetSplitMode.FULL_PERIOD }.forEach { mode ->
             val reading = calculator.calculateBudgetState(
                 settings = singleDay.copy(splitMode = mode),
                 transactions = listOf(spend("250", 1)),

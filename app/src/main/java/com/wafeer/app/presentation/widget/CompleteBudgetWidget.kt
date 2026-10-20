@@ -99,8 +99,7 @@ class CompleteBudgetWidget : GlanceAppWidget() {
         Column(
             modifier = GlanceModifier
                 .fillMaxSize()
-                .cornerRadius(24.dp)
-                .background(GlanceTheme.colors.surface)
+                .widgetBackground(GlanceTheme.colors.surface)
                 .clickable(actionRunCallback<OpenAppAction>())
                 .padding(horizontal = 16.dp, vertical = 12.dp),
             verticalAlignment = Alignment.CenterVertically,

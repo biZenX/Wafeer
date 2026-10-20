@@ -23,7 +23,7 @@ function wrapper(svgText) {
   return `<!DOCTYPE html><html><head><meta charset="utf8"><style>
     html,body{margin:0;padding:0;width:100%;height:100%;background:#080c0b;overflow:hidden}
     body{display:grid;place-items:center}
-    svg{width:250px;height:auto}
+    svg{width:230px;height:auto}
   </style></head><body>${svgText}</body></html>`;
 }
 
@@ -32,7 +32,7 @@ for (const [name] of STATES) mkdirSync(path.join(FRAMES, name), { recursive: tru
 mkdirSync(path.join(FRAMES, 'sizzle'), { recursive: true });
 
 const browser = await chromium.launch({ executablePath: '/usr/bin/google-chrome', args: ['--no-sandbox'] });
-const page = await browser.newPage({ viewport: { width: 320, height: 420 } });
+const page = await browser.newPage({ viewport: { width: 340, height: 480 } });
 const allFrames = [];
 
 for (const [name, file] of STATES) {
@@ -62,5 +62,5 @@ for (const [name] of STATES) {
 
 /* MP4 عريض للعرض — كل الحالات بالترتيب */
 const sizzleList = STATES.map(([n]) => path.join(FRAMES, n)).join(':');
-execSync(`ffmpeg -y -loglevel error ${STATES.map(([n]) => `-i "${path.join(FRAMES, n)}/%03d.png"`).join(' ')} -filter_complex "${STATES.map((_, i) => `[${i}:v]fps=${FPS},scale=320:420,setsar=1,format=yuv420p[v${i}]`).join(';')};${STATES.map((_, i) => `[v${i}]`).join('')}concat=n=${STATES.length}:v=1:a=0" -c:v libopenh264 -b:v 2M -pix_fmt yuv420p -movflags +faststart "${HERE}/preview/wafeer-logo-states.mp4"`);
+execSync(`ffmpeg -y -loglevel error ${STATES.map(([n]) => `-i "${path.join(FRAMES, n)}/%03d.png"`).join(' ')} -filter_complex "${STATES.map((_, i) => `[${i}:v]fps=${FPS},scale=340:480,setsar=1,format=yuv420p[v${i}]`).join(';')};${STATES.map((_, i) => `[v${i}]`).join('')}concat=n=${STATES.length}:v=1:a=0" -c:v libopenh264 -b:v 2M -pix_fmt yuv420p -movflags +faststart "${HERE}/preview/wafeer-logo-states.mp4"`);
 console.log('MP4 done');

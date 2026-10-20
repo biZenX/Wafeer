@@ -182,10 +182,14 @@ class NotificationHelper @Inject constructor(
             .bigText(message)
             .setSummaryText(tag)
 
+        val mascotBitmap = runCatching {
+            android.graphics.BitmapFactory.decodeResource(context.resources, R.drawable.ic_mascot_crack)
+        }.getOrNull()
+
         val isAr = com.wafeer.app.presentation.util.LocaleHelper.isArabic()
-        val notification = NotificationCompat.Builder(context, channelId)
+        val notificationBuilder = NotificationCompat.Builder(context, channelId)
             .setSmallIcon(R.drawable.ic_notification)
-            .setColor(0xFFA3CD51.toInt())
+            .setColor(0xFF48FEBD.toInt())
             .setContentTitle(title)
             .setContentText(message)
             .setSubText(tag)
@@ -206,10 +210,14 @@ class NotificationHelper @Inject constructor(
                 if (isAr) "عرض الميزانية" else "View Budget",
                 mainPendingIntent
             )
-            .build()
 
+        if (mascotBitmap != null) {
+            notificationBuilder.setLargeIcon(mascotBitmap)
+        }
+
+        val notification = notificationBuilder.build()
         managerCompat.notify(notificationId, notification)
-        logcat { "Rich notification ($notificationId) sent successfully via $channelId" }
+        logcat { "Rich notification ($notificationId) sent successfully with mascot via $channelId" }
         return true
     }
 
