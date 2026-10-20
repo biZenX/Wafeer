@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>وفير — انشطار الوعاء وسقوط العملة بفيزياء الجاذبية ثلاثية الأبعاد</title>
+<style>
+  :root {
+    --bg: #080c0b;
+    --teal: #48FEBD;
+    --mint: #AFF5A7;
+    --dark-fissure: #02120e;
+    --anim-speed: 1;
+  }
+  html, body {
+    margin: 0; padding: 0; width: 100%; height: 100%;
+    background: var(--bg);
+    display: flex; justify-content: center; align-items: center;
+    overflow: hidden;
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+  .stage-box {
+    width: 320px; height: 380px;
+    position: relative;
+    display: flex; flex-direction: column;
+    justify-content: center; align-items: center;
+    perspective: 800px;
+  }
+  svg {
+    width: 100%; height: 320px;
+    overflow: visible;
+    filter: drop-shadow(0 0 16px rgba(72, 254, 189, 0.25));
+    transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+
+  /* ===== Camera Shockwave at Fracture ===== */
+  .camera-rig {
+    transform-origin: 96px 150px;
+    animation: camShake 3.8s linear infinite;
+  }
+  @keyframes camShake {
+    0%, 14.5% { transform: translate(0, 0) rotate(0deg); }
+    15% { transform: translate(-3.2px, 2.2px) rotate(-0.6deg); }
+    15.6% { transform: translate(3px, -2px) rotate(0.55deg); }
+    16.3% { transform: translate(-2.4px, 1.6px) rotate(-0.45deg); }
+    17.2% { transform: translate(1.8px, -1.2px) rotate(0.35deg); }
+    18.5% { transform: translate(-1px, 0.7px) rotate(-0.2deg); }
+    20% { transform: translate(0.5px, -0.3px) rotate(0.1deg); }
+    22%, 31.5% { transform: translate(0, 0) rotate(0deg); }
+    /* Secondary small shake on Coin Bounce 1 */
+    32% { transform: translate(-1.6px, 1.2px) rotate(-0.3deg); }
+    32.8% { transform: translate(1.4px, -1px) rotate(0.25deg); }
+    34% { transform: translate(-0.6px, 0.4px) rotate(-0.1deg); }
+    36%, 100% { transform: translate(0, 0) rotate(0deg); }
+  }
+
+  /* ===== Left & Right Splitting Pot Halves with Impulse Recoil ===== */
+  .half-left {
+    transform-origin: 20px 236px;
+    animation: leftRecoil 3.8s cubic-bezier(0.2, 0.8, 0.2, 1) infinite;
+  }
+  .half-right {
+    transform-origin: 168px 236px;
+    animation: rightRecoil 3.8s cubic-bezier(0.2, 0.8, 0.2, 1) infinite;
+  }
+
+  @keyframes leftRecoil {
+    0%, 14% {
+      transform: translate(0, 0) rotate(0deg);
+    }
+    14.4% {
+      /* Anticipatory groan compression */
+      transform: translate(0.8px, 1px) scale(1.02, 0.98);
+    }
+    /* Impulse Kickback! */
+    18% {
+      transform: translate(-30px, 12px) rotate(-24deg);
+    }
+    22% {
+      /* Ground bounce */
+      transform: translate(-26px, 8px) rotate(-19deg);
+    }
+    27% {
+      transform: translate(-29px, 11px) rotate(-22.5deg);
+    }
+    32%, 85% {
+      transform: translate(-28px, 10px) rotate(-21deg);
+    }
+    /* Magnetic Reassembly */
+    92% {
+      transform: translate(-4px, 1px) rotate(-3deg);
+    }
+    100% {
+      transform: translate(0, 0) rotate(0deg);
+    }
+  }
+
+  @keyframes rightRecoil {
+    0%, 14% {
+      transform: translate(0, 0) rotate(0deg);
+    }
+    14.4% {
+      transform: translate(-0.8px, 1px) scale(1.02, 0.98);
+    }
+    /* Impulse Kickback! */
+    18% {
+      transform: translate(32px, 14px) rotate(26deg);
+    }
+    22% {
+      /* Ground bounce */
+      transform: translate(27px, 9px) rotate(20.5deg);
+    }
+    27% {
+      transform: translate(31px, 13px) rotate(24.5deg);
+    }
+    32%, 85% {
+      transform: translate(30px, 12px) rotate(23deg);
+    }
+    /* Magnetic Reassembly */
+    92% {
+      transform: translate(4px, 1px) rotate(3deg);
+    }
+    100% {
+      transform: translate(0, 0) rotate(0deg);
+    }
+  }
+
+  /* Hollow Void / Chasm Opening */
+  .fracture-chasm {
+    fill: #02120e;
+    opacity: 0;
+    animation: chasmOpen 3.8s cubic-bezier(0.2, 0.8, 0.2, 1) infinite;
+  }
+  @keyframes chasmOpen {
+    0%, 14% { opacity: 0; transform: scaleY(0.2); }
+    18%, 85% { opacity: 0.95; transform: scaleY(1); }
+    92%, 100% { opacity: 0; transform: scaleY(0.2); }
+  }
+
+  /* Pre-crack Stress Seam (creeping right before split) */
+  .precrack-line {
+    stroke: #02120e; stroke-width: 2.8; stroke-linecap: round; stroke-linejoin: round;
+    stroke-dasharray: 120;
+    animation: precrackCreep 3.8s ease-in-out infinite;
+  }
+  @keyframes precrackCreep {
+    0% { stroke-dashoffset: 120; opacity: 0; }
+    8% { stroke-dashoffset: 60; opacity: 0.7; }
+    14% { stroke-dashoffset: 0; opacity: 1; stroke-width: 3.8; }
+    15%, 100% { opacity: 0; }
+  }
+
+  /* ===== 3D Coin Dropping with Gravity Physics & Bounces ===== */
+  .coin-physics-rig {
+    transform-origin: 96px 40px;
+    perspective: 600px;
+    transform-style: preserve-3d;
+    animation: coinGravityDrop 3.8s cubic-bezier(0.1, 0, 0.2, 1) infinite;
+  }
+
+  @keyframes coinGravityDrop {
+    /* 0 - 14.5%: Suspended on top, anxious trembling */
+    0%, 12% {
+      transform: perspective(600px) translateY(0) rotateX(0deg) rotateY(0deg) rotateZ(0deg) scale(1, 1);
+    }
+    14% {
+      transform: perspective(600px) translateY(-2px) rotateX(8deg) rotateY(-6deg) rotateZ(-2deg) scale(1.02, 0.98);
+    }
+    /* 14.5% - 17%: Coyote-time hang delay while support collapses underneath */
+    16% {
+      transform: perspective(600px) translateY(2px) rotateX(15deg) rotateY(-12deg) rotateZ(-4deg) scale(1, 1);
+    }
+    /* 17% - 32%: Downward gravity acceleration + wild 3D tumbling */
+    24% {
+      transform: perspective(600px) translateY(78px) rotateX(160deg) rotateY(260deg) rotateZ(35deg) scale(1, 1);
+    }
+    31.5% {
+      /* Just prior to ground impact */
+      transform: perspective(600px) translateY(172px) rotateX(320deg) rotateY(540deg) rotateZ(65deg) scale(1, 1);
+    }
+    /* 32%: BOUNCE 1 - Impact with ground squash */
+    32.5% {
+      transform: perspective(600px) translateY(176px) rotateX(340deg) rotateY(560deg) rotateZ(70deg) scale(1.32, 0.68);
+    }
+    /* 33% - 41%: REBOUND 1 - launches up to 55% height */
+    37% {
+      transform: perspective(600px) translateY(96px) rotateX(460deg) rotateY(780deg) rotateZ(110deg) scale(1, 1);
+    }
+    43% {
+      /* Approaching ground for Bounce 2 */
+      transform: perspective(600px) translateY(168px) rotateX(560deg) rotateY(960deg) rotateZ(140deg) scale(1, 1);
+    }
+    /* 44%: BOUNCE 2 - Second floor impact */
+    44.5% {
+      transform: perspective(600px) translateY(176px) rotateX(580deg) rotateY(990deg) rotateZ(145deg) scale(1.18, 0.82);
+    }
+    /* 45% - 53%: REBOUND 2 - launches up to 20% height */
+    49% {
+      transform: perspective(600px) translateY(142px) rotateX(640deg) rotateY(1090deg) rotateZ(165deg) scale(1, 1);
+    }
+    /* 54% - 62%: Settling (Euler's Disk roll on rim) */
+    54% {
+      transform: perspective(600px) translateY(176px) rotateX(700deg) rotateY(1180deg) rotateZ(180deg) scale(1.08, 0.92);
+    }
+    58% {
+      transform: perspective(600px) translateY(174px) rotateX(76deg) rotateY(40deg) rotateZ(195deg) scale(1, 1);
+    }
+    63%, 85% {
+      /* At rest, lying tilted flat on the floor next to shards */
+      transform: perspective(600px) translateY(174px) rotateX(78deg) rotateY(12deg) rotateZ(205deg) scale(1, 1);
+    }
+    /* 86% - 100%: Magnetic levitation back to intact pot */
+    93% {
+      transform: perspective(600px) translateY(45px) rotateX(25deg) rotateY(-8deg) rotateZ(35deg) scale(1, 1);
+    }
+    100% {
+      transform: perspective(600px) translateY(0) rotateX(0deg) rotateY(0deg) rotateZ(0deg) scale(1, 1);
+    }
+  }
+
+  /* Ground Impact Rings (Shockwaves) */
+  .bounce-shockwave {
+    fill: none;
+    stroke: var(--teal);
+    stroke-width: 2.2;
+    transform-origin: 96px 222px;
+    opacity: 0;
+    animation: shockPulse 3.8s ease-out infinite;
+  }
+  @keyframes shockPulse {
+    0%, 31.8% { opacity: 0; transform: scale(0.1); }
+    32.5% { opacity: 0.9; transform: scale(0.8); stroke-width: 3; }
+    37% { opacity: 0; transform: scale(2.2); stroke-width: 0.5; }
+    44% { opacity: 0.6; transform: scale(0.6); stroke-width: 2; }
+    48% { opacity: 0; transform: scale(1.6); stroke-width: 0.5; }
+    52%, 100% { opacity: 0; }
+  }
+
+  /* Ground Floor Shadow */
+  .floor-shadow {
+    fill: rgba(2, 18, 14, 0.65);
+    transform-origin: 96px 228px;
+    animation: shadowDynamic 3.8s cubic-bezier(0.1, 0, 0.2, 1) infinite;
+  }
+  @keyframes shadowDynamic {
+    0%, 14% { transform: scale(1, 1); opacity: 0.25; }
+    31.5% { transform: scale(1.4, 1.2); opacity: 0.7; }
+    37% { transform: scale(0.6, 0.5); opacity: 0.2; }
+    44.5% { transform: scale(1.2, 1.1); opacity: 0.6; }
+    49% { transform: scale(0.8, 0.7); opacity: 0.3; }
+    58%, 85% { transform: scale(1.3, 1.15); opacity: 0.8; }
+    100% { transform: scale(1, 1); opacity: 0.25; }
+  }
+
+  /* Flying Ceramic Chunks */
+  .chunk {
+    transform-origin: center;
+    transform-box: fill-box;
+    opacity: 0;
+    animation: chunkEject 3.8s cubic-bezier(0.15, 0.85, 0.25, 1) infinite;
+  }
+  @keyframes chunkEject {
+    0%, 14.5% { opacity: 0; transform: translate(0, 0) scale(0.3); }
+    16% { opacity: 1; transform: translate(calc(var(--cx) * 0.4px), calc(var(--cy) * 0.4px)) rotate(45deg); }
+    28% { opacity: 1; transform: translate(calc(var(--cx) * 1px), calc(var(--cy) * 1px + 12px)) rotate(var(--crot)); }
+    40%, 85% { opacity: 0.85; transform: translate(calc(var(--cx) * 1.1px), calc(var(--cy) * 1px + 22px)) rotate(var(--crot)); }
+    92%, 100% { opacity: 0; transform: translate(0, 0); }
+  }
+
+  /* Interactive HUD */
+  .hud-panel {
+    position: absolute; bottom: 8px;
+    display: flex; gap: 8px; align-items: center;
+    background: rgba(14, 20, 19, 0.78);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(72, 254, 189, 0.2);
+    border-radius: 999px;
+    padding: 5px 14px;
+    font-size: 11.5px;
+    color: var(--mint);
+    z-index: 10;
+  }
+  .hud-btn {
+    appearance: none; border: 1px solid rgba(72, 254, 189, 0.35);
+    background: rgba(72, 254, 189, 0.12);
+    color: #fff; font-size: 11px; font-weight: 600;
+    padding: 3px 10px; border-radius: 999px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .hud-btn:hover {
+    background: var(--teal);
+    color: #08110e;
+    box-shadow: 0 0 10px rgba(72, 254, 189, 0.5);
+  }
+  .hud-tag {
+    opacity: 0.75;
+    font-size: 10.5px;
+    direction: ltr;
+  }
+</style>
+</head>
+<body>
+
+<div class="stage-box" id="stageBox">
+  <svg id="svgRoot" xmlns="http://www.w3.org/2000/svg" viewBox="-25 0 230 250" fill="none">
+    <defs>
+      <linearGradient id="potGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#AFF5A7" />
+        <stop offset="100%" stop-color="#48FEBD" />
+      </linearGradient>
+      <linearGradient id="coinGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#5AC17A" />
+        <stop offset="100%" stop-color="#388E3C" />
+      </linearGradient>
+
+      <!-- Accurate ClipPath Halves cutting through the natural fracture line -->
+      <clipPath id="leftHalf" clipPathUnits="userSpaceOnUse">
+        <path d="M -30,50 L 96,120 L 87,144 L 99,158 L 83,178 L 97,196 L 85,210 L 98,224 L 88,255 L -30,255 Z" />
+      </clipPath>
+      <clipPath id="rightHalf" clipPathUnits="userSpaceOnUse">
+        <path d="M 220,50 L 96,120 L 87,144 L 99,158 L 83,178 L 97,196 L 85,210 L 98,224 L 88,255 L 220,255 Z" />
+      </clipPath>
+    </defs>
+
+    <g class="camera-rig" id="cameraRig">
+      <!-- Ground Floor Shadow -->
+      <ellipse class="floor-shadow" cx="96" cy="232" rx="42" ry="7" />
+      <!-- Ground Impact Shockwave -->
+      <ellipse class="bounce-shockwave" cx="96" cy="222" rx="34" ry="6" />
+
+      <!-- Hollow Internal Cavity Void Behind Fracture -->
+      <path class="fracture-chasm" d="M 96,122 L 68,142 L 65,224 L 126,224 L 124,142 Z" />
+
+      <!-- ===== LEFT HALF OF POT (with recoil kickback) ===== -->
+      <g class="half-left" id="halfLeft" clip-path="url(#leftHalf)">
+        <path fill="url(#potGrad)" fill-rule="evenodd" d="M 56.5,79.715 C 27.539,83.72 13.425,100.025 26.262,114.646 C 29.892,118.78 29.225,121.152 22.131,129.349 C -2.127,157.377 -3.641,194.866 18.566,217.611 C 21.555,220.673 24,223.304 24,223.459 C 24,223.613 21.188,224.293 17.75,224.969 C 9.958,226.501 8,227.529 8,230.086 C 8,239.466 91.486,242.125 127.5,233.892 C 152.705,228.129 167.929,214.123 172.489,192.5 C 177.102,170.628 170.017,147.544 152.756,128.199 C 146.179,120.828 144.356,116.779 146.728,114.811 C 151.39,110.946 152.288,101.36 148.51,95.8 C 143.653,88.652 121.438,81.133 117.327,85.245 C 114.791,87.781 116.876,89.414 126.472,92.406 C 143.39,97.681 146.132,105.895 133.164,112.453 C 119.319,119.455 62.629,120.024 42.139,113.366 C 21.299,106.595 30.54,91.901 58.5,87.353 C 69.511,85.562 72,84.599 72,82.128 C 72,79.128 66.703,78.304 56.5,79.715 M 72.978,91.113 C 55.999,92.482 45.764,96.615 47.586,101.365 C 50.657,109.366 107.039,111.719 121.128,104.434 C 135.618,96.941 105.168,88.517 72.978,91.113 M 36.944,125.135 C 36.206,126.916 33.531,130.877 30.999,133.937 C 28.467,136.997 25.043,141.525 23.39,144 C 3.864,173.243 13.254,212.289 42.298,222.617 C 67.567,231.602 121.034,230.186 140.997,220.002 C 168.539,205.951 170.47,163.878 144.913,134.648 C 141.65,130.915 138.274,126.497 137.412,124.829 C 136.208,122.501 135.339,121.915 133.672,122.305 C 116.431,126.343 93.813,128.339 75.671,127.425 C 65.287,126.902 43.553,123.917 39.889,122.511 C 38.74,122.07 37.905,122.814 36.944,125.135 M 131.667,144.667 C 130.059,146.275 131.273,150.136 134.651,154.155 C 138.701,158.975 142.354,166.526 143.402,172.242 C 144.215,176.68 148.007,178.421 150.792,175.636 C 154.204,172.225 148.362,155.619 141.046,147.928 C 137.543,144.245 133.495,142.838 131.667,144.667 M 66.2,163.2 C 61.444,167.956 70.499,177 80.018,177 C 89.032,177 97.48,167.88 92.8,163.2 C 91.004,161.404 90.428,161.646 86.117,166 C 80.621,171.551 75.695,171.179 72.485,164.97 C 70.886,161.879 68.261,161.139 66.2,163.2" />
+        <path fill="#48FEBD" opacity="0.15" d="M 39.614,38.529 C 37.443,40.7 38.607,42.818 45.261,48.811 C 51.586,54.509 52.133,54.725 54.429,52.429 C 57.019,49.838 56.773,49.395 48.739,42.176 C 42.432,36.509 41.862,36.281 39.614,38.529" />
+      </g>
+
+      <!-- ===== RIGHT HALF OF POT (with recoil kickback) ===== -->
+      <g class="half-right" id="halfRight" clip-path="url(#rightHalf)">
+        <path fill="url(#potGrad)" fill-rule="evenodd" d="M 56.5,79.715 C 27.539,83.72 13.425,100.025 26.262,114.646 C 29.892,118.78 29.225,121.152 22.131,129.349 C -2.127,157.377 -3.641,194.866 18.566,217.611 C 21.555,220.673 24,223.304 24,223.459 C 24,223.613 21.188,224.293 17.75,224.969 C 9.958,226.501 8,227.529 8,230.086 C 8,239.466 91.486,242.125 127.5,233.892 C 152.705,228.129 167.929,214.123 172.489,192.5 C 177.102,170.628 170.017,147.544 152.756,128.199 C 146.179,120.828 144.356,116.779 146.728,114.811 C 151.39,110.946 152.288,101.36 148.51,95.8 C 143.653,88.652 121.438,81.133 117.327,85.245 C 114.791,87.781 116.876,89.414 126.472,92.406 C 143.39,97.681 146.132,105.895 133.164,112.453 C 119.319,119.455 62.629,120.024 42.139,113.366 C 21.299,106.595 30.54,91.901 58.5,87.353 C 69.511,85.562 72,84.599 72,82.128 C 72,79.128 66.703,78.304 56.5,79.715 M 72.978,91.113 C 55.999,92.482 45.764,96.615 47.586,101.365 C 50.657,109.366 107.039,111.719 121.128,104.434 C 135.618,96.941 105.168,88.517 72.978,91.113 M 36.944,125.135 C 36.206,126.916 33.531,130.877 30.999,133.937 C 28.467,136.997 25.043,141.525 23.39,144 C 3.864,173.243 13.254,212.289 42.298,222.617 C 67.567,231.602 121.034,230.186 140.997,220.002 C 168.539,205.951 170.47,163.878 144.913,134.648 C 141.65,130.915 138.274,126.497 137.412,124.829 C 136.208,122.501 135.339,121.915 133.672,122.305 C 116.431,126.343 93.813,128.339 75.671,127.425 C 65.287,126.902 43.553,123.917 39.889,122.511 C 38.74,122.07 37.905,122.814 36.944,125.135 M 131.667,144.667 C 130.059,146.275 131.273,150.136 134.651,154.155 C 138.701,158.975 142.354,166.526 143.402,172.242 C 144.215,176.68 148.007,178.421 150.792,175.636 C 154.204,172.225 148.362,155.619 141.046,147.928 C 137.543,144.245 133.495,142.838 131.667,144.667 M 66.2,163.2 C 61.444,167.956 70.499,177 80.018,177 C 89.032,177 97.48,167.88 92.8,163.2 C 91.004,161.404 90.428,161.646 86.117,166 C 80.621,171.551 75.695,171.179 72.485,164.97 C 70.886,161.879 68.261,161.139 66.2,163.2" />
+        <path fill="#48FEBD" opacity="0.15" d="M 138.92,10.92 C 132.456,17.384 131.305,21.187 135.628,21.804 C 138.347,22.191 149.5,10.81 149.5,7.647 C 149.5,3.18 145.389,4.451 138.92,10.92 M 148.09,37.818 C 141.428,39.566 139.205,41.485 140.359,44.492 C 141.084,46.383 141.192,46.377 153.5,43.721 C 158.577,42.625 159.552,42.065 159.837,40.076 C 160.459,35.748 157.875,35.251 148.09,37.818" />
+      </g>
+
+      <!-- Pre-crack stress line -->
+      <path class="precrack-line" d="M 96,120 L 87,144 L 99,158 L 83,178 L 97,196 L 85,210 L 98,224" fill="none" />
+
+      <!-- Ceramic Chunks Bursting Away -->
+      <polygon class="chunk" style="--cx: -54; --cy: -28; --crot: -280deg;" points="96,150 91,146 95,142" fill="#AFF5A7" />
+      <polygon class="chunk" style="--cx: 60; --cy: -32; --crot: 310deg;" points="96,150 102,147 99,155" fill="#48FEBD" />
+      <polygon class="chunk" style="--cx: -65; --cy: 14; --crot: -190deg;" points="85,185 80,188 84,192" fill="#AFF5A7" />
+      <polygon class="chunk" style="--cx: 58; --cy: 18; --crot: 240deg;" points="97,196 102,194 99,202" fill="#48FEBD" />
+
+      <!-- ===== 3D COIN WITH GRAVITY TUMBLE & 2 BOUNCES ===== -->
+      <g class="coin-physics-rig" id="coinRig">
+        <path fill="url(#coinGrad)" d="M 86.433,15.71 C 82.264,19.879 81.008,27.739 83.032,37 C 84.043,41.623 87.712,50.549 89.497,52.723 C 90.048,53.395 91.85,55.697 93.5,57.837 C 96.83,62.156 101.52,65.591 105.428,66.571 C 107.478,67.086 108.59,66.58 110.944,64.06 C 118.492,55.98 115.06,36.312 103.729,22.703 C 97.433,15.141 90.005,12.138 86.433,15.71 Z" />
+        <path fill="#48FEBD" fill-rule="evenodd" d="M 81.332,6.497 C 72.794,10.688 69.577,14.206 67.383,21.756 C 61.007,43.687 81.417,78.842 100.603,78.978 C 105.216,79.011 116.925,74.446 120.147,71.359 C 131.894,60.105 126.835,29.23 110.529,12.661 C 100.605,2.577 92.714,0.911 81.332,6.497 M 83.09,12.265 C 71.748,18.079 75.084,46.867 88.877,62.209 C 108.236,83.74 126.491,63.317 114.426,33.625 C 107.591,16.806 93.273,7.045 83.09,12.265" />
+      </g>
+    </g>
+  </svg>
+
+  <!-- Interactive Telemetry HUD -->
+  <div class="hud-panel">
+    <button class="hud-btn" id="btnShatter">💥 كسر فوري</button>
+    <button class="hud-btn" id="btnSlow">⏱️ حركة بطيئة</button>
+    <span class="hud-tag">gravity drop · 2 bounces · 3D roll</span>
+  </div>
+</div>
+
+<script>
+  const stageBox = document.getElementById('stageBox');
+  const svgRoot = document.getElementById('svgRoot');
+  const coinRig = document.getElementById('coinRig');
+  const halfLeft = document.getElementById('halfLeft');
+  const halfRight = document.getElementById('halfRight');
+  const cameraRig = document.getElementById('cameraRig');
+  const btnShatter = document.getElementById('btnShatter');
+  const btnSlow = document.getElementById('btnSlow');
+
+  let isSlow = false;
+
+  // Interactive 3D Camera Tilt
+  stageBox.addEventListener('mousemove', (e) => {
+    const rect = stageBox.getBoundingClientRect();
+    const x = (e.clientX - rect.left) / rect.width - 0.5;
+    const y = (e.clientY - rect.top) / rect.height - 0.5;
+    svgRoot.style.transform = `rotateY(${x * 24}deg) rotateX(${-y * 24}deg)`;
+  });
+  stageBox.addEventListener('mouseleave', () => {
+    svgRoot.style.transform = 'rotateY(0deg) rotateX(0deg)';
+  });
+
+  // Slow Motion Toggle
+  btnSlow.addEventListener('click', (e) => {
+    e.stopPropagation();
+    isSlow = !isSlow;
+    const dur = isSlow ? '10s' : '3.8s';
+    halfLeft.style.animationDuration = dur;
+    halfRight.style.animationDuration = dur;
+    coinRig.style.animationDuration = dur;
+    cameraRig.style.animationDuration = dur;
+    btnSlow.textContent = isSlow ? '⚡ سرعة عادية' : '⏱️ حركة بطيئة';
+  });
+
+  // Instant Shatter Trigger
+  function triggerInstantShatter() {
+    // Reset animation phase immediately by re-triggering class
+    halfLeft.style.animation = 'none';
+    halfRight.style.animation = 'none';
+    coinRig.style.animation = 'none';
+    cameraRig.style.animation = 'none';
+    void halfLeft.offsetWidth; // force reflow
+    const dur = isSlow ? '10s' : '3.8s';
+    halfLeft.style.animation = `leftRecoil ${dur} cubic-bezier(0.2, 0.8, 0.2, 1) infinite`;
+    halfRight.style.animation = `rightRecoil ${dur} cubic-bezier(0.2, 0.8, 0.2, 1) infinite`;
+    coinRig.style.animation = `coinGravityDrop ${dur} cubic-bezier(0.1, 0, 0.2, 1) infinite`;
+    cameraRig.style.animation = `camShake ${dur} linear infinite`;
+  }
+
+  btnShatter.addEventListener('click', (e) => {
+    e.stopPropagation();
+    triggerInstantShatter();
+  });
+  stageBox.addEventListener('click', triggerInstantShatter);
+</script>
+</body>
+</html>

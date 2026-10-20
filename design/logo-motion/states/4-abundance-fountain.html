@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>وفير — نافورة الوفرة والخير (ثلاثية الأبعاد بمسارات قذف واقعية)</title>
+<style>
+  :root {
+    --bg: #080c0b;
+    --teal: #48FEBD;
+    --mint: #AFF5A7;
+    --wind-x: 0px;
+  }
+  html, body {
+    margin: 0; padding: 0; width: 100%; height: 100%;
+    background: var(--bg);
+    display: flex; justify-content: center; align-items: center;
+    overflow: hidden;
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+  .stage-box {
+    width: 320px; height: 380px;
+    position: relative;
+    display: flex; flex-direction: column;
+    justify-content: center; align-items: center;
+    perspective: 800px;
+  }
+  svg {
+    width: 100%; height: 340px;
+    overflow: visible;
+    transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+
+  /* ===== Radiant Abundance Aura ===== */
+  .glow-aura {
+    filter: drop-shadow(0 0 18px rgba(72, 254, 189, 0.55)) drop-shadow(0 0 45px rgba(72, 254, 189, 0.22));
+    animation: auraBreath 2.4s ease-in-out infinite alternate;
+  }
+  @keyframes auraBreath {
+    0% {
+      filter: drop-shadow(0 0 14px rgba(72, 254, 189, 0.45)) drop-shadow(0 0 35px rgba(72, 254, 189, 0.18));
+    }
+    100% {
+      filter: drop-shadow(0 0 24px rgba(72, 254, 189, 0.75)) drop-shadow(0 0 55px rgba(175, 245, 167, 0.35));
+    }
+  }
+
+  /* Joyful Pot Pump (Launching rhythm) */
+  .pot-joy {
+    transform-origin: 88px 236px;
+    animation: potPump 1.2s ease-in-out infinite;
+  }
+  @keyframes potPump {
+    0%, 100% { transform: translateY(0) scale(1, 1); }
+    35% { transform: translateY(-3.5px) scale(0.985, 1.02); }
+    70% { transform: translateY(1.2px) scale(1.015, 0.985); }
+  }
+
+  /* Master Crown Coin Dance */
+  .crown-coin {
+    transform-origin: 96px 40px;
+    animation: crownCelebrate 1.2s ease-in-out infinite;
+  }
+  @keyframes crownCelebrate {
+    0%, 100% { transform: perspective(400px) translateY(0) rotateY(0deg) rotateZ(0deg); }
+    30% { transform: perspective(400px) translateY(-5px) rotateY(-18deg) rotateZ(-3deg); }
+    65% { transform: perspective(400px) translateY(1.5px) rotateY(18deg) rotateZ(3deg); }
+  }
+
+  /* ===== 3D Fountain Coins (Parabolic Trajectories & Spatial Tumbling) ===== */
+  .fountain-coin-wrap {
+    transform-origin: 0 0;
+    opacity: 0;
+    pointer-events: none;
+    animation: parabolicFountain 1.5s cubic-bezier(0.2, 0.7, 0.4, 1) infinite;
+  }
+
+  /* Realistic Projectile Motion with 3D Coin Tumbling:
+     --vx: lateral dispersion distance
+     --vy: upward ejection apex height
+     --rx: 3D X rotation
+     --ry: 3D Y tumbling (face-to-edge coin flip)
+  */
+  @keyframes parabolicFountain {
+    0% {
+      transform: translate(92px, 105px) scale(0.2) rotateX(0deg) rotateY(0deg) rotateZ(0deg);
+      opacity: 0;
+    }
+    12% {
+      opacity: 1;
+      transform: translate(calc(92px + var(--vx) * 0.25px + var(--wind-x) * 0.2), calc(105px - var(--vy) * 0.55px)) scale(0.7) rotateX(calc(var(--rx) * 0.25)) rotateY(calc(var(--ry) * 0.25)) rotateZ(calc(var(--rz) * 0.25));
+    }
+    /* Apex of the fountain trajectory (Zero vertical velocity, hang-time gleam) */
+    45% {
+      opacity: 1;
+      transform: translate(calc(92px + var(--vx) * 0.75px + var(--wind-x) * 0.75), calc(105px - var(--vy) * 1px)) scale(0.85) rotateX(calc(var(--rx) * 0.55)) rotateY(calc(var(--ry) * 0.55)) rotateZ(calc(var(--rz) * 0.55));
+    }
+    /* Gravitational descent acceleration */
+    80% {
+      opacity: 0.95;
+      transform: translate(calc(92px + var(--vx) * 1.2px + var(--wind-x) * 1.2), calc(105px - var(--vy) * 0.1px + 35px)) scale(0.68) rotateX(calc(var(--rx) * 0.88)) rotateY(calc(var(--ry) * 0.88)) rotateZ(calc(var(--rz) * 0.88));
+    }
+    96% {
+      opacity: 0.2;
+      transform: translate(calc(92px + var(--vx) * 1.38px + var(--wind-x) * 1.38), calc(105px + 95px)) scale(0.4) rotateX(var(--rx)) rotateY(var(--ry)) rotateZ(var(--rz));
+    }
+    100% {
+      opacity: 0;
+      transform: translate(calc(92px + var(--vx) * 1.4px + var(--wind-x) * 1.4), calc(105px + 105px)) scale(0.2) rotateX(var(--rx)) rotateY(var(--ry)) rotateZ(var(--rz));
+    }
+  }
+
+  /* Gleaming Starburst Sparkles */
+  .gleam-star {
+    transform-origin: center;
+    transform-box: fill-box;
+    opacity: 0;
+    animation: gleamPop 1.8s ease-in-out infinite;
+  }
+  @keyframes gleamPop {
+    0%, 100% { opacity: 0; transform: scale(0.2) rotate(0deg); }
+    45% { opacity: 1; transform: scale(1.3) rotate(90deg); filter: drop-shadow(0 0 6px #AFF5A7); }
+    60% { opacity: 0; transform: scale(0.4) rotate(180deg); }
+  }
+
+  /* Rising Effervescent Energy Motes */
+  .mote {
+    fill: #48FEBD;
+    opacity: 0;
+    animation: moteAscend 2.2s ease-out infinite;
+  }
+  @keyframes moteAscend {
+    0% { opacity: 0; transform: translate(0, 0) scale(0.5); }
+    20% { opacity: 0.8; }
+    80% { opacity: 0.6; }
+    100% { opacity: 0; transform: translate(var(--mx), -110px) scale(1.4); }
+  }
+
+  /* Interactive HUD */
+  .hud-panel {
+    position: absolute; bottom: 8px;
+    display: flex; gap: 8px; align-items: center;
+    background: rgba(14, 20, 19, 0.78);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(72, 254, 189, 0.2);
+    border-radius: 999px;
+    padding: 5px 14px;
+    font-size: 11.5px;
+    color: var(--mint);
+    z-index: 10;
+  }
+  .hud-btn {
+    appearance: none; border: 1px solid rgba(72, 254, 189, 0.35);
+    background: rgba(72, 254, 189, 0.12);
+    color: #fff; font-size: 11px; font-weight: 600;
+    padding: 3px 10px; border-radius: 999px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .hud-btn:hover {
+    background: var(--teal);
+    color: #08110e;
+    box-shadow: 0 0 10px rgba(72, 254, 189, 0.5);
+  }
+  .hud-tag {
+    opacity: 0.75;
+    font-size: 10.5px;
+    direction: ltr;
+  }
+</style>
+</head>
+<body>
+
+<div class="stage-box" id="stageBox">
+  <svg id="svgRoot" xmlns="http://www.w3.org/2000/svg" viewBox="-25 -20 240 280" fill="none">
+    <defs>
+      <linearGradient id="potGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#AFF5A7" />
+        <stop offset="100%" stop-color="#48FEBD" />
+      </linearGradient>
+      <linearGradient id="coinGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#5AC17A" />
+        <stop offset="100%" stop-color="#388E3C" />
+      </linearGradient>
+
+      <!-- Reusable Authentic 3D Micro-Coin Prototype Centered at (0, 0) -->
+      <g id="miniCoin">
+        <g transform="translate(-96, -40) scale(0.38)">
+          <!-- Coin Core -->
+          <path fill="url(#coinGrad)" d="M 86.433,15.71 C 82.264,19.879 81.008,27.739 83.032,37 C 84.043,41.623 87.712,50.549 89.497,52.723 C 90.048,53.395 91.85,55.697 93.5,57.837 C 96.83,62.156 101.52,65.591 105.428,66.571 C 107.478,67.086 108.59,66.58 110.944,64.06 C 118.492,55.98 115.06,36.312 103.729,22.703 C 97.433,15.141 90.005,12.138 86.433,15.71 Z" />
+          <!-- Embossed Emerald Rim -->
+          <path fill="#48FEBD" fill-rule="evenodd" d="M 81.332,6.497 C 72.794,10.688 69.577,14.206 67.383,21.756 C 61.007,43.687 81.417,78.842 100.603,78.978 C 105.216,79.011 116.925,74.446 120.147,71.359 C 131.894,60.105 126.835,29.23 110.529,12.661 C 100.605,2.577 92.714,0.911 81.332,6.497 M 83.09,12.265 C 71.748,18.079 75.084,46.867 88.877,62.209 C 108.236,83.74 126.491,63.317 114.426,33.625 C 107.591,16.806 93.273,7.045 83.09,12.265" />
+        </g>
+      </g>
+    </defs>
+
+    <!-- ===== Ambient Effervescent Motes ===== -->
+    <circle class="mote" cx="80" cy="115" r="1.6" style="--mx: -25px; animation-delay: 0s;" />
+    <circle class="mote" cx="95" cy="110" r="2.0" style="--mx: 15px; animation-delay: -0.6s;" />
+    <circle class="mote" cx="108" cy="118" r="1.4" style="--mx: 32px; animation-delay: -1.2s;" />
+    <circle class="mote" cx="88" cy="112" r="1.8" style="--mx: -10px; animation-delay: -1.7s;" />
+
+    <!-- ===== BACK FOUNTAIN COINS (Behind Pot Rim) ===== -->
+    <!-- Arc 1: Far Left High -->
+    <g class="fountain-coin-wrap" style="--vx: -78; --vy: 98; --rx: 480deg; --ry: 720deg; --rz: 160deg; animation-delay: 0s;">
+      <use href="#miniCoin" />
+    </g>
+    <!-- Arc 2: Center Rocket Apex -->
+    <g class="fountain-coin-wrap" style="--vx: 6; --vy: 115; --rx: 640deg; --ry: 980deg; --rz: 45deg; animation-delay: -0.25s;">
+      <use href="#miniCoin" />
+    </g>
+    <!-- Arc 3: Far Right High -->
+    <g class="fountain-coin-wrap" style="--vx: 82; --vy: 92; --rx: 520deg; --ry: 740deg; --rz: -180deg; animation-delay: -0.5s;">
+      <use href="#miniCoin" />
+    </g>
+    <!-- Arc 4: Mid Left -->
+    <g class="fountain-coin-wrap" style="--vx: -48; --vy: 105; --rx: 440deg; --ry: 680deg; --rz: 90deg; animation-delay: -0.75s;">
+      <use href="#miniCoin" />
+    </g>
+    <!-- Arc 5: Mid Right -->
+    <g class="fountain-coin-wrap" style="--vx: 54; --vy: 102; --rx: 460deg; --ry: -700deg; --rz: -90deg; animation-delay: -1.0s;">
+      <use href="#miniCoin" />
+    </g>
+
+    <!-- ===== THE RADIANT POT OF ABUNDANCE ===== -->
+    <g class="glow-aura">
+      <g class="pot-joy" id="potJoy">
+        <!-- Master Crown Coin Dancing on Top -->
+        <g class="crown-coin">
+          <path fill="url(#coinGrad)" d="M 86.433,15.71 C 82.264,19.879 81.008,27.739 83.032,37 C 84.043,41.623 87.712,50.549 89.497,52.723 C 90.048,53.395 91.85,55.697 93.5,57.837 C 96.83,62.156 101.52,65.591 105.428,66.571 C 107.478,67.086 108.59,66.58 110.944,64.06 C 118.492,55.98 115.06,36.312 103.729,22.703 C 97.433,15.141 90.005,12.138 86.433,15.71 Z" />
+          <path fill="#48FEBD" fill-rule="evenodd" d="M 81.332,6.497 C 72.794,10.688 69.577,14.206 67.383,21.756 C 61.007,43.687 81.417,78.842 100.603,78.978 C 105.216,79.011 116.925,74.446 120.147,71.359 C 131.894,60.105 126.835,29.23 110.529,12.661 C 100.605,2.577 92.714,0.911 81.332,6.497 M 83.09,12.265 C 71.748,18.079 75.084,46.867 88.877,62.209 C 108.236,83.74 126.491,63.317 114.426,33.625 C 107.591,16.806 93.273,7.045 83.09,12.265" />
+        </g>
+
+        <!-- Pot Body -->
+        <path fill="url(#potGrad)" fill-rule="evenodd" d="M 56.5,79.715 C 27.539,83.72 13.425,100.025 26.262,114.646 C 29.892,118.78 29.225,121.152 22.131,129.349 C -2.127,157.377 -3.641,194.866 18.566,217.611 C 21.555,220.673 24,223.304 24,223.459 C 24,223.613 21.188,224.293 17.75,224.969 C 9.958,226.501 8,227.529 8,230.086 C 8,239.466 91.486,242.125 127.5,233.892 C 152.705,228.129 167.929,214.123 172.489,192.5 C 177.102,170.628 170.017,147.544 152.756,128.199 C 146.179,120.828 144.356,116.779 146.728,114.811 C 151.39,110.946 152.288,101.36 148.51,95.8 C 143.653,88.652 121.438,81.133 117.327,85.245 C 114.791,87.781 116.876,89.414 126.472,92.406 C 143.39,97.681 146.132,105.895 133.164,112.453 C 119.319,119.455 62.629,120.024 42.139,113.366 C 21.299,106.595 30.54,91.901 58.5,87.353 C 69.511,85.562 72,84.599 72,82.128 C 72,79.128 66.703,78.304 56.5,79.715 M 72.978,91.113 C 55.999,92.482 45.764,96.615 47.586,101.365 C 50.657,109.366 107.039,111.719 121.128,104.434 C 135.618,96.941 105.168,88.517 72.978,91.113 M 36.944,125.135 C 36.206,126.916 33.531,130.877 30.999,133.937 C 28.467,136.997 25.043,141.525 23.39,144 C 3.864,173.243 13.254,212.289 42.298,222.617 C 67.567,231.602 121.034,230.186 140.997,220.002 C 168.539,205.951 170.47,163.878 144.913,134.648 C 141.65,130.915 138.274,126.497 137.412,124.829 C 136.208,122.501 135.339,121.915 133.672,122.305 C 116.431,126.343 93.813,128.339 75.671,127.425 C 65.287,126.902 43.553,123.917 39.889,122.511 C 38.74,122.07 37.905,122.814 36.944,125.135 M 131.667,144.667 C 130.059,146.275 131.273,150.136 134.651,154.155 C 138.701,158.975 142.354,166.526 143.402,172.242 C 144.215,176.68 148.007,178.421 150.792,175.636 C 154.204,172.225 148.362,155.619 141.046,147.928 C 137.543,144.245 133.495,142.838 131.667,144.667 M 66.2,163.2 C 61.444,167.956 70.499,177 80.018,177 C 89.032,177 97.48,167.88 92.8,163.2 C 91.004,161.404 90.428,161.646 86.117,166 C 80.621,171.551 75.695,171.179 72.485,164.97 C 70.886,161.879 68.261,161.139 66.2,163.2" />
+
+        <!-- Official Joy Sparkles -->
+        <path fill="#48FEBD" fill-rule="evenodd" d="M 138.92,10.92 C 132.456,17.384 131.305,21.187 135.628,21.804 C 138.347,22.191 149.5,10.81 149.5,7.647 C 149.5,3.18 145.389,4.451 138.92,10.92 M 148.09,37.818 C 141.428,39.566 139.205,41.485 140.359,44.492 C 141.084,46.383 141.192,46.377 153.5,43.721 C 158.577,42.625 159.552,42.065 159.837,40.076 C 160.459,35.748 157.875,35.251 148.09,37.818 M 39.614,38.529 C 37.443,40.7 38.607,42.818 45.261,48.811 C 51.586,54.509 52.133,54.725 54.429,52.429 C 57.019,49.838 56.773,49.395 48.739,42.176 C 42.432,36.509 41.862,36.281 39.614,38.529" />
+      </g>
+    </g>
+
+    <!-- ===== FOREGROUND FOUNTAIN COINS (In Front of Pot) ===== -->
+    <!-- Arc 6: High Center-Left -->
+    <g class="fountain-coin-wrap" style="--vx: -24; --vy: 112; --rx: 540deg; --ry: 780deg; --rz: 40deg; animation-delay: -1.25s;">
+      <use href="#miniCoin" />
+    </g>
+    <!-- Arc 7: High Center-Right -->
+    <g class="fountain-coin-wrap" style="--vx: 26; --vy: 114; --rx: -560deg; --ry: 820deg; --rz: -45deg; animation-delay: -0.15s;">
+      <use href="#miniCoin" />
+    </g>
+    <!-- Arc 8: Forward Cascade Left -->
+    <g class="fountain-coin-wrap" style="--vx: -36; --vy: 88; --rx: 400deg; --ry: 600deg; --rz: 70deg; animation-delay: -0.4s;">
+      <use href="#miniCoin" />
+    </g>
+    <!-- Arc 9: Forward Cascade Right -->
+    <g class="fountain-coin-wrap" style="--vx: 38; --vy: 86; --rx: -420deg; --ry: -620deg; --rz: -70deg; animation-delay: -0.65s;">
+      <use href="#miniCoin" />
+    </g>
+    <!-- Arc 10: Splash Far Left -->
+    <g class="fountain-coin-wrap" style="--vx: -64; --vy: 72; --rx: 360deg; --ry: 540deg; --rz: 110deg; animation-delay: -0.9s;">
+      <use href="#miniCoin" />
+    </g>
+    <!-- Arc 11: Splash Far Right -->
+    <g class="fountain-coin-wrap" style="--vx: 68; --vy: 70; --rx: -380deg; --ry: -560deg; --rz: -110deg; animation-delay: -1.15s;">
+      <use href="#miniCoin" />
+    </g>
+
+    <!-- ===== GLEAMING STARBURSTS AT APICES ===== -->
+    <!-- Sparkle Left Apex -->
+    <path class="gleam-star" style="animation-delay: -0.2s;" fill="#AFF5A7" d="M 68, -12 L 70, -22 L 72, -12 L 82, -10 L 72, -8 L 70, 2 L 68, -8 L 58, -10 Z" />
+    <!-- Sparkle Center Apex -->
+    <path class="gleam-star" style="animation-delay: -0.7s;" fill="#FFFFFF" d="M 96, -25 L 98, -38 L 100, -25 L 113, -23 L 100, -21 L 98, -8 L 96, -21 L 83, -23 Z" />
+    <!-- Sparkle Right Apex -->
+    <path class="gleam-star" style="animation-delay: -1.1s;" fill="#AFF5A7" d="M 124, -10 L 126, -20 L 128, -10 L 138, -8 L 128, -6 L 126, 4 L 124, -6 L 114, -8 Z" />
+    <!-- Sparkle Mouth Rim -->
+    <path class="gleam-star" style="animation-delay: -1.5s;" fill="#48FEBD" d="M 92, 104 L 94, 96 L 96, 104 L 104, 106 L 96, 108 L 94, 116 L 92, 108 L 84, 106 Z" />
+  </svg>
+
+  <!-- Interactive Telemetry HUD -->
+  <div class="hud-panel">
+    <button class="hud-btn" id="btnJackpot">🪙 دفعة الوفرة</button>
+    <span class="hud-tag">11 coins/stream · parabolic 3D flight</span>
+  </div>
+</div>
+
+<script>
+  const stageBox = document.getElementById('stageBox');
+  const svgRoot = document.getElementById('svgRoot');
+  const btnJackpot = document.getElementById('btnJackpot');
+
+  // Mouse wind and 3D camera deflection
+  stageBox.addEventListener('mousemove', (e) => {
+    const rect = stageBox.getBoundingClientRect();
+    const x = (e.clientX - rect.left) / rect.width - 0.5;
+    const y = (e.clientY - rect.top) / rect.height - 0.5;
+    svgRoot.style.transform = `rotateY(${x * 20}deg) rotateX(${-y * 20}deg)`;
+    document.documentElement.style.setProperty('--wind-x', `${x * 40}px`);
+  });
+  stageBox.addEventListener('mouseleave', () => {
+    svgRoot.style.transform = 'rotateY(0deg) rotateX(0deg)';
+    document.documentElement.style.setProperty('--wind-x', '0px');
+  });
+
+  // Jackpot Mega Coin Burst
+  function triggerJackpotBurst() {
+    svgRoot.style.transform = 'scale(1.08) translateY(-4px)';
+    const coins = document.querySelectorAll('.fountain-coin-wrap');
+    coins.forEach((c) => {
+      c.style.animation = 'none';
+      void c.offsetWidth;
+      c.style.animation = 'parabolicFountain 0.9s cubic-bezier(0.1, 0.8, 0.3, 1) infinite';
+    });
+    setTimeout(() => {
+      svgRoot.style.transform = 'scale(1) translateY(0)';
+      coins.forEach((c) => {
+        c.style.animation = '';
+      });
+    }, 1800);
+  }
+
+  btnJackpot.addEventListener('click', (e) => {
+    e.stopPropagation();
+    triggerJackpotBurst();
+  });
+  stageBox.addEventListener('click', triggerJackpotBurst);
+</script>
+</body>
+</html>

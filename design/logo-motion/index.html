@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>وفير — الرمز بطل الحركة · 5 حالات تفاعلية ثلاثية الأبعاد</title>
+<style>
+  :root{
+    --bg:#080c0b;
+    --surface:#0e1413;
+    --surface-2:#121a18;
+    --line:rgba(72,254,189,.14);
+    --ink:#F4F9F7;
+    --sub:#8FA8A0;
+    --teal:#48FEBD;          /* الأخضر الزمردي الكهربائي الرسمي — ثابت في كل الحالات */
+    --mint:#AFF5A7;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; min-height:100vh;
+    background:
+      radial-gradient(900px 520px at 70% -10%, rgba(72,254,189,.06), transparent 60%),
+      radial-gradient(700px 500px at 10% 110%, rgba(175,245,167,.05), transparent 60%),
+      var(--bg);
+    color:var(--ink);
+    font-family:"Segoe UI", system-ui, Tahoma, sans-serif;
+  }
+  header{padding:44px 32px 6px; max-width:960px; margin-inline:auto}
+  h1{font-size:24px; font-weight:700; margin:0 0 8px}
+  .lede{color:var(--sub); font-size:14px; line-height:2; margin:0}
+  .lede b{color:var(--teal); font-weight:600}
+
+  .stage-wrap{max-width:960px; margin:26px auto 8px; padding:0 32px}
+  .statebar{display:flex; gap:8px; margin-bottom:16px; flex-wrap:wrap}
+  .statebar button{
+    appearance:none; border:1px solid var(--line); background:var(--surface); color:var(--sub);
+    font:inherit; font-size:13.5px; padding:10px 18px; border-radius:999px; cursor:pointer;
+    transition:all .25s;
+  }
+  .statebar button:hover{color:var(--ink); border-color:rgba(72,254,189,.35)}
+  .statebar button[aria-selected="true"]{
+    color:#08110e; font-weight:700; background:var(--teal); border-color:var(--teal);
+    box-shadow: 0 0 16px rgba(72, 254, 189, 0.35);
+  }
+
+  .stage{
+    display:grid; grid-template-columns:minmax(300px,380px) 1fr;
+    background:var(--surface); border:1px solid var(--line); border-radius:26px; overflow:hidden;
+  }
+  .glyph-col{
+    position:relative; display:flex; align-items:center; justify-content:center;
+    flex-direction:column; padding:24px 16px;
+    background:radial-gradient(420px 380px at 50% 42%, rgba(72,254,189,.07), transparent 70%);
+  }
+
+  /* Interactive High-Physics HTML Embed Container */
+  .frame-wrap{
+    width:100%; max-width:340px; height:390px;
+    position:relative; border-radius:18px; overflow:hidden;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .frame-wrap iframe{
+    width:100%; height:100%; border:none; background:transparent; display:block;
+  }
+
+  .mode-switch{
+    display:flex; gap:6px; margin-top:10px; width:100%; justify-content:space-between; align-items:center;
+  }
+  .mode-pill{
+    font-size:11px; padding:4px 10px; border-radius:999px;
+    border:1px solid var(--line); background:var(--surface-2); color:var(--sub);
+    cursor:pointer; transition:all .2s; text-decoration:none; display:inline-flex; align-items:center; gap:4px;
+  }
+  .mode-pill:hover{ color:var(--ink); border-color:var(--teal); }
+  .mode-pill.active{ background:rgba(72,254,189,.15); color:var(--teal); border-color:var(--teal); font-weight:600; }
+
+  .spec-col{border-inline-start:1px solid var(--line); padding:30px 34px; display:flex; flex-direction:column; gap:14px}
+  .spec{display:none}
+  .spec.on{display:flex; flex-direction:column; gap:12px}
+  .spec h2{font-size:17.5px; margin:0; color:var(--teal)}
+  .spec p{font-size:13.5px; line-height:2.05; color:var(--sub); margin:0}
+  .spec p b{color:var(--ink); font-weight:600}
+  .motion{display:flex; gap:8px; flex-wrap:wrap; font-size:11.5px; color:var(--sub); font-variant-numeric:tabular-nums}
+  .motion span{background:var(--surface-2); border:1px solid var(--line); border-radius:8px; padding:5px 11px; direction:ltr}
+
+  .meter{margin-top:auto; height:4px; border-radius:3px; background:rgba(255,255,255,.07); position:relative; overflow:visible}
+  .meter i{position:absolute; inset-inline-start:0; top:0; bottom:0; border-radius:3px;
+    background:linear-gradient(90deg,var(--teal),var(--mint)); transition:width .6s ease}
+  .meter s{position:absolute; top:-3px; bottom:-3px; width:1.5px; background:rgba(255,255,255,.28)}
+  .pct{font-size:12px; color:var(--sub); margin-top:6px}
+  .pct b{color:var(--teal); direction:ltr; unicode-bidi:embed}
+
+  footer{max-width:960px; margin:22px auto 50px; padding:0 32px; color:var(--sub); font-size:12px; line-height:2}
+  footer b{color:var(--ink)}
+  @media (max-width:760px){
+    .stage{grid-template-columns:1fr}
+    .spec-col{border-inline-start:none; border-top:1px solid var(--line)}
+  }
+  @media (prefers-reduced-motion:reduce){ *{animation:none !important} }
+</style>
+</head>
+<body data-state="over100">
+<header>
+  <h1>وفير — الشعار نفسه هو البطل ثلاثي الأبعاد 🎭</h1>
+  <p class="lede">على طريقة <b>Duolingo</b> ومحركات الألعاب الفيزيائية: الوعاء والعملة (شعار وفير الرسمي <b>wafeer-logo.svg</b> — نفس المسارات تماماً) يعيشان دراما الميزانية بفيزياء منظور واقعية (Perspective 3D)، ترنح جيروسكوبي، انشطار اندفاعي، وشظايا قذفية. اللون ثابت: الأخضر الزمردي الكهربائي <b>#48FEBD</b> في كل الحالات.</p>
+</header>
+
+<div class="stage-wrap">
+  <div class="statebar" role="tablist">
+    <button aria-selected="true"  data-go="over100">🪰 الفقر — الفلوس خلصت</button>
+    <button aria-selected="false" data-go="crack">🩹 الصرف الزائد 50–75%</button>
+    <button aria-selected="false" data-go="shatter">💔 تجاوز السقف — الكسر</button>
+    <button aria-selected="false" data-go="abundance">✨ الوفرة والخير</button>
+    <button aria-selected="false" data-go="pace">🏃 وتيرة صرف سريعة</button>
+  </div>
+
+  <div class="stage">
+    <div class="glyph-col">
+      <!-- High-Physics Interactive Embed Frame -->
+      <div class="frame-wrap">
+        <iframe id="glyph-frame" src="states/1-broke-flies.html" title="حالة شعار وفير ثلاثية الأبعاد"></iframe>
+      </div>
+
+      <div class="mode-switch">
+        <div style="display:flex; gap:6px;">
+          <span class="mode-pill active" id="btnModeHtml">🌟 فيزياء 3D تفاعلية</span>
+          <span class="mode-pill" id="btnModeSvg">⚡ SVG خفيف</span>
+        </div>
+        <a id="open-testbed" href="states/1-broke-flies.html" target="_blank" class="mode-pill">↗ شاشة كاملة</a>
+      </div>
+
+      <div class="meter" style="margin-top:20px; width:100%">
+        <i id="fill"></i>
+        <s style="inset-inline-start:60%"></s>
+        <s style="inset-inline-start:84%"></s>
+      </div>
+      <div class="pct" id="pct"></div>
+    </div>
+
+    <div class="spec-col">
+      <div class="spec on" data-state="over100">
+        <h2>الفقر (100%) — «مفيش ولا مليم!»</h2>
+        <p>الخزنة خاوية على عروشها: <b>ذباب يطير من جوف الوعاء</b> ويحوم بمسارات فوضوية، بأجنحة ترفرف بسرعة واقعية فائقة (40 هرتز). العملة تتأرجح في منظور ثلاثي الأبعاد (rotateY 65°) كأنها تتدلى حزناً على الفراغ. الوعاء يتنفس انكماشاً، والرسالة فورية: الرصيد صفر!</p>
+        <div class="motion">
+          <span>Coin 3D Tumble · rotateY ±65°</span>
+          <span>40Hz Rapid Flutter Wings</span>
+          <span>Emergent Chaotic Fly Paths ×3</span>
+          <span>Interactive Swarm Scatter</span>
+        </div>
+      </div>
+
+      <div class="spec" data-state="crack">
+        <h2>الصرف الزائد (50%–75%) — الشرخ الواقعي والشظايا</h2>
+        <p>المادة تصرخ تحت الضغط: <b>شرخ خشن وعميق يمزق جسم الوعاء</b> ويتشعب ديناميكياً مع وميض إجهاد زمردي، وتتطاير منه <b>شظايا خزفية بمسارات قذف باليستية</b>. العملة ترتعش رعباً بذبذبة منظور 3D عالية التردد (22Hz) مع إمالة حادة للأمام ولحظة ارتداد صدمي عند تمزق الخزف.</p>
+        <div class="motion">
+          <span>Coin Anxious Shiver · 22Hz 3D Tilt</span>
+          <span>Dynamic Fracture Rip + Lateral Branches</span>
+          <span>Ballistic Micro-Shards ×11</span>
+          <span>Pot Elastic Recoil ±0.9°</span>
+        </div>
+      </div>
+
+      <div class="spec" data-state="shatter">
+        <h2>تجاوز السقف — «انشطر نصين» والجاذبية الأرضية 💔</h2>
+        <p>السقف انكسر تماماً: <b>الوعاء ينشطر بقوة ارتدادية عنيفة (Impulse Recoil)</b> إلى نصفين ينفصلان بزاوية −24° و+26° مع ارتداد أرضي وغبار تصادم. العملة تفقد دعامتها بعد لحظة تعليق (Coyote-time) وتسقط في <b>جاذبية حرة مع دوران وتدحرج 3D كامل وترتد نطّتين على الأرض</b> قبل أن تستقر في استسلام درامي.</p>
+        <div class="motion">
+          <span>Impulse Split Halves · −24° / +26°</span>
+          <span>3D Freefall + 2 Floor Bounces</span>
+          <span>Squash & Stretch Ground Contact</span>
+          <span>Euler's Disk Rolling Settle</span>
+        </div>
+      </div>
+
+      <div class="spec" data-state="abundance">
+        <h2>الوفرة والخير العالي — نافورة نقدية ثلاثية الأبعاد ✨</h2>
+        <p>الخزنة المليانة تنبض بالفرح: <b>تيار مستمر من العملات الذهبية الزمردية (12 عملة)</b> يثور من فم الوعاء بمسارات مقذوفة وانعدام وزن، تدور في الفضاء ثلاثي الأبعاد (rotateY/rotateX 720°) كاشفة عن حوافها المعدنية المنقوشة. بريقات نجوم وفير تتلألأ في قمم الأقواس، والوعاء يضخ نوراً واحتفالاً.</p>
+        <div class="motion">
+          <span>Continuous 12-Coin Eruption</span>
+          <span>True Parabolic 3D Projectile Curves</span>
+          <span>Edge-on Specular Coin Flips</span>
+          <span>Apex Starburst Gleams + Joy Pump</span>
+        </div>
+      </div>
+
+      <div class="spec" data-state="pace">
+        <h2>وتيرة صرف سريعة — الركض المائل والترنح الجيروسكوبي 🏃</h2>
+        <p>الصرف أسرع بكثير من المخطط: <b>الوعاء نفسه يركض مائلاً للأمام بزاوية 21°</b> مع اهتزاز خطوات متلاحقة (18Hz) وخطوط سرعة هوائية تمزق الرياح. العملة تتزحلق نحو الهاوية وتكاد تسقط، متشبثة بالوعاء عبر <b>ترنح جيروسكوبي ثلاثي الأبعاد (Gyroscopic Nutation)</b> وقطرات عرق تتطاير في تيار الهواء العاكس.</p>
+        <div class="motion">
+          <span>Sprint Tilt 21° + 18Hz Footfall Jitter</span>
+          <span>3D Gyroscopic Coin Nutation</span>
+          <span>Slipstream Wind Streaks</span>
+          <span>Near-Spill Edge Slide & Recovery</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <b>المصدر الكامل ومحركات الحركة:</b> جميع الحالات الخمسة متوفرة كإطارات اختبار تفاعلية متكاملة في <span dir="ltr">design/logo-motion/states/*.html</span> مع فيزياء المنظور ثلاثية الأبعاد وواجهة تحكم فورية، بالإضافة إلى ملفات <span dir="ltr">*.svg</span> المستقلة للمتجهات الصامتة.
+</footer>
+
+<script>
+const states = {
+  over100:   { html:'states/1-broke-flies.html',        svg:'states/1-broke-flies.svg',        fill:8,  pct:'السقف مستنزف 100% — رصيد الصفر',        label:' wallet drained · zero balance' },
+  crack:     { html:'states/2-overspend-crack.html',    svg:'states/2-overspend-crack.svg',    fill:62, pct:'صرف زائد — استُهلك 62% من سقف الدورة',   label:' 62% used' },
+  shatter:   { html:'states/3-broken-halves.html',      svg:'states/3-broken-halves.svg',      fill:100,pct:'تجاوز السقف — 104% من سقف الدورة',       label:' 104% — exceeded' },
+  abundance: { html:'states/4-abundance-fountain.html', svg:'states/4-abundance-fountain.svg', fill:28, pct:'وفرة — استُهلك 28% فقط، فائض مريح',      label:' 28% used · surplus' },
+  pace:      { html:'states/5-pace-tilt.html',          svg:'states/5-pace-tilt.svg',          fill:55, pct:'وتيرة سريعة — 55% والوتيرة ×1.6',       label:' 55% · pace ×1.6' }
+};
+
+let currentKey = 'over100';
+let currentMode = 'html'; // 'html' or 'svg'
+
+const glyphFrame = document.getElementById('glyph-frame');
+const fill = document.getElementById('fill');
+const pct = document.getElementById('pct');
+const openTestbed = document.getElementById('open-testbed');
+const btnModeHtml = document.getElementById('btnModeHtml');
+const btnModeSvg = document.getElementById('btnModeSvg');
+
+function renderState(key) {
+  currentKey = key;
+  const s = states[key];
+  document.querySelectorAll('.statebar button').forEach(x => x.setAttribute('aria-selected', x.dataset.go === key));
+  document.querySelectorAll('.spec').forEach(x => x.classList.toggle('on', x.dataset.state === key));
+  fill.style.width = s.fill + '%';
+  pct.innerHTML = '<b>' + s.label + '</b> — ' + s.pct;
+
+  const targetFile = currentMode === 'html' ? s.html : s.svg;
+  glyphFrame.src = targetFile;
+  openTestbed.href = s.html;
+}
+
+document.querySelectorAll('.statebar button').forEach(b => {
+  b.addEventListener('click', () => {
+    renderState(b.dataset.go);
+  });
+});
+
+btnModeHtml.addEventListener('click', () => {
+  currentMode = 'html';
+  btnModeHtml.classList.add('active');
+  btnModeSvg.classList.remove('active');
+  renderState(currentKey);
+});
+
+btnModeSvg.addEventListener('click', () => {
+  currentMode = 'svg';
+  btnModeSvg.classList.add('active');
+  btnModeHtml.classList.remove('active');
+  renderState(currentKey);
+});
+
+// Initial render
+renderState('over100');
+</script>
+</body>
+</html>

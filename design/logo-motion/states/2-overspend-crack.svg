@@ -1,0 +1,403 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-10 0 195 245" style="overflow:visible" fill="none">
+<!-- ═══════════════════════════════════════════════════════════════════════
+     وفير — الحالة 2: الصرف الزائد (50%–75%) — «الشرخ الكبير»
+     ─────────────────────────────────────────────────────────────────────
+     الطبقات المتداخلة (nested groups → التحويلات تتراكب فعلياً):
+       .stress      → إجهاد بطيء (شهيق/انقباض + تمايل)         3.6s
+       .tremor      → رعشة عالية التردد تلاشى أُسّياً            3.6s
+       .coin-lean   → ميل ثلاثي الأبعاد (perspective+rotateY/X)  3.6s
+       .coin-shiver → رعشة عصبية سريعة 6.7Hz داخل الميل          0.15s
+     الشقّان يتفتّحان من نقطة الأصل (98,158) صعوداً وهبوطاً = كسر حيّ.
+     اللون: #48FEBD بالضبط (لون الوعاء الرسمي) — لا تغيير في لون الشعار.
+     ═══════════════════════════════════════════════════════════════════════ -->
+<defs>
+  <linearGradient id="coinGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+    <stop offset="0%" stop-color="#5AC17A"/>
+    <stop offset="100%" stop-color="#388E3C"/>
+  </linearGradient>
+  <radialGradient id="snapGlow">
+    <stop offset="0%"  stop-color="#EAFFF6" stop-opacity=".9"/>
+    <stop offset="45%" stop-color="#48FEBD" stop-opacity=".4"/>
+    <stop offset="100%" stop-color="#48FEBD" stop-opacity="0"/>
+  </radialGradient>
+  <!-- توهج ثابت الإحداثيات: يبقى ضمن الإطار مهما تحرّكت الشظايا -->
+  <filter id="emGlow" filterUnits="userSpaceOnUse" x="-40" y="-40" width="290" height="330">
+    <feGaussianBlur stdDeviation="1.5" result="b"/>
+    <feMerge>
+      <feMergeNode in="b"/><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/>
+    </feMerge>
+  </filter>
+</defs>
+
+<style>
+  .wafeer-coin-fill   { fill: url(#coinGrad); }
+  .wafeer-coin-stroke { fill: #48FEBD; }
+  .wafeer-pot         { fill: #48FEBD; filter: drop-shadow(0 0 5px rgba(72,254,189,.35)); }
+  .wafeer-sparkles    { fill: #48FEBD; opacity:.35; transform-box: view-box; transform-origin: 96px 26px;
+                        animation: sparkDread 3.6s ease-in-out infinite; }
+  @keyframes sparkDread{
+    0%,100% { opacity:.4;  transform: scale(1)    rotate(0deg); }
+    24.6%   { opacity:.08; transform: scale(.93)  rotate(-4deg); }  /* البريق ينطفئ لحظة الانفجار */
+    34%     { opacity:.22; transform: scale(1.03) rotate(2deg); }
+    76.5%   { opacity:.1;  transform: scale(.95)  rotate(-2deg); }
+    84%     { opacity:.38; transform: scale(1.02) rotate(1deg); }
+  }
+
+  /* ══════════════ 1. الإجهاد البطيء — نَفَس الوعاء تحت ضغط ══════════════ */
+  .stress{
+    transform-box: view-box; transform-origin: 88px 232px;
+    animation: potStress 3.6s cubic-bezier(.4,0,.3,1) infinite;
+  }
+  @keyframes potStress{
+    0%    { transform: translateY(0)      scale(1,1)       rotate(0deg); }
+    10%   { transform: translateY(-.7px)  scale(1.014,.99)  rotate(-.3deg); }  /* شهيق قلق */
+    18%   { transform: translateY(-.3px)  scale(1.005,.996) rotate(.18deg); }
+    23%   { transform: translateY(.4px)   scale(.997,1.004) rotate(.24deg); }
+    24.6% { transform: translateY(1.1px)  scale(.988,1.014) rotate(.45deg); }  /* ارتجافة SNAP */
+    26.5% { transform: translateY(-.9px)  scale(1.012,.99)  rotate(-.4deg); }
+    29%   { transform: translateY(.6px)   scale(.994,1.007) rotate(.3deg); }
+    34%   { transform: translateY(-.4px)  scale(1.008,.993) rotate(-.22deg); }
+    42%   { transform: translateY(.3px)   scale(.997,1.004) rotate(.16deg); }
+    52%   { transform: translateY(-.5px)  scale(1.011,.991) rotate(-.26deg); }  /* موجة قلق II */
+    56%   { transform: translateY(.4px)   scale(.996,1.005) rotate(.22deg); }
+    64%   { transform: translateY(-.2px)  scale(1.004,.997) rotate(-.12deg); }
+    74%   { transform: translateY(.3px)   scale(.998,1.003) rotate(.14deg); }
+    84%   { transform: translateY(-.6px)  scale(1.01,.991)  rotate(-.28deg); }  /* آخر رجفة قبل الشفاء */
+    88%   { transform: translateY(.3px)   scale(.996,1.005) rotate(.2deg); }
+    94%   { transform: translateY(-.2px)  scale(1.004,.997) rotate(-.1deg); }
+    100%  { transform: translateY(0)      scale(1,1)       rotate(0deg); }
+  }
+
+  /* ══════════════ 2. الرعشة — تلاشي أُسّي بعد كل انفجار ══════════════ */
+  .tremor{
+    transform-box: view-box; transform-origin: 88px 232px;
+    animation: potTremor 3.6s linear infinite;
+  }
+  @keyframes potTremor{
+    0%,21%    { transform: translate(0,0) rotate(0deg); }
+    22%       { transform: translate(-.8px,.35px) rotate(-.2deg); }
+    23%       { transform: translate(.9px,-.4px) rotate(.22deg); }
+    24%       { transform: translate(-1.2px,.6px) rotate(-.32deg); }
+    24.6%     { transform: translate(1.4px,-.7px) rotate(.4deg); }   /* ذروة الانفجار */
+    25.2%     { transform: translate(-1.5px,.8px) rotate(-.42deg); }
+    25.8%     { transform: translate(1.3px,-.6px) rotate(.34deg); }
+    26.5%     { transform: translate(-1.1px,.5px) rotate(-.28deg); }
+    27.4%     { transform: translate(.9px,-.45px) rotate(.23deg); }
+    28.4%     { transform: translate(-.75px,.35px) rotate(-.19deg); }
+    29.6%     { transform: translate(.6px,-.3px) rotate(.15deg); }
+    31%       { transform: translate(-.5px,.25px) rotate(-.12deg); }
+    32.6%     { transform: translate(.4px,-.2px) rotate(.1deg); }
+    34.4%     { transform: translate(-.32px,.16px) rotate(-.08deg); }
+    36.4%     { transform: translate(.26px,-.13px) rotate(.06deg); }
+    38.6%     { transform: translate(-.2px,.1px) rotate(-.05deg); }
+    41%       { transform: translate(.14px,-.07px) rotate(.035deg); }
+    44%,47%   { transform: translate(0,0) rotate(0deg); }
+    48.5%     { transform: translate(.35px,-.18px) rotate(.09deg); }   /* قلق II */
+    49.2%     { transform: translate(-.42px,.22px) rotate(-.11deg); }
+    49.9%     { transform: translate(.46px,-.23px) rotate(.12deg); }
+    50.6%     { transform: translate(-.4px,.2px) rotate(-.1deg); }
+    51.4%     { transform: translate(.3px,-.15px) rotate(.08deg); }
+    52.3%     { transform: translate(-.22px,.11px) rotate(-.055deg); }
+    53.4%     { transform: translate(.14px,-.07px) rotate(.035deg); }
+    55%,60%   { transform: translate(0,0) rotate(0deg); }
+    61%       { transform: translate(.28px,-.14px) rotate(.07deg); }   /* قلق III */
+    61.6%     { transform: translate(-.34px,.17px) rotate(-.09deg); }
+    62.2%     { transform: translate(.38px,-.19px) rotate(.1deg); }
+    62.8%     { transform: translate(-.32px,.16px) rotate(-.08deg); }
+    63.6%     { transform: translate(.24px,-.12px) rotate(.06deg); }
+    64.6%     { transform: translate(-.16px,.08px) rotate(-.04deg); }
+    66%,75%   { transform: translate(0,0) rotate(0deg); }
+    76%       { transform: translate(.4px,-.2px) rotate(.1deg); }     /* قلق IV — قبل الشفاء */
+    76.6%     { transform: translate(-.48px,.24px) rotate(-.13deg); }
+    77.2%     { transform: translate(.52px,-.26px) rotate(.14deg); }
+    77.8%     { transform: translate(-.44px,.22px) rotate(-.11deg); }
+    78.6%     { transform: translate(.32px,-.16px) rotate(.08deg); }
+    79.6%     { transform: translate(-.2px,.1px) rotate(-.05deg); }
+    81%,100%  { transform: translate(0,0) rotate(0deg); }
+  }
+
+  /* ══════════════ 3. العملة — ميل 3D بطيء + رعشة سريعة ══════════════ */
+  .coin-lean{
+    transform-box: view-box; transform-origin: 96px 40px;
+    animation: coinLean 3.6s cubic-bezier(.4,0,.3,1) infinite;
+  }
+  @keyframes coinLean{
+    0%    { transform: perspective(260px) rotateY(0deg)    rotateX(0deg)   rotateZ(0deg); }
+    12%   { transform: perspective(260px) rotateY(-9deg)   rotateX(4deg)   rotateZ(-1.6deg); }
+    20%   { transform: perspective(260px) rotateY(7deg)    rotateX(-3deg)  rotateZ(1.2deg); }
+    24.6% { transform: perspective(260px) rotateY(-17deg)  rotateX(8deg)   rotateZ(-3.4deg); } /* ارتجافة SNAP */
+    26.4% { transform: perspective(260px) rotateY(13deg)   rotateX(-6deg)  rotateZ(2.8deg); }
+    30%   { transform: perspective(260px) rotateY(-6deg)   rotateX(3deg)   rotateZ(-1.2deg); }
+    38%   { transform: perspective(260px) rotateY(8deg)    rotateX(-3.5deg) rotateZ(1.6deg); }
+    48%   { transform: perspective(260px) rotateY(-9deg)   rotateX(4.5deg) rotateZ(-1.8deg); }
+    58%   { transform: perspective(260px) rotateY(7deg)    rotateX(-3deg)  rotateZ(1.4deg); }
+    68%   { transform: perspective(260px) rotateY(-5deg)   rotateX(2.5deg) rotateZ(-1deg); }
+    78%   { transform: perspective(260px) rotateY(4deg)    rotateX(-2deg)  rotateZ(.8deg); }
+    88%   { transform: perspective(260px) rotateY(-2deg)   rotateX(1deg)   rotateZ(-.4deg); }
+    100%  { transform: perspective(260px) rotateY(0deg)    rotateX(0deg)   rotateZ(0deg); }
+  }
+  /* الرعشة السريعة: 0.075s × 2 = 6.7Hz — تردد عصبي (لا يذوب في ضباب) */
+  .coin-shiver{
+    transform-box: view-box; transform-origin: 96px 40px;
+    animation: coinShiver .15s ease-in-out infinite alternate;
+  }
+  @keyframes coinShiver{
+    from { transform: perspective(260px) rotateY(-1.4deg) rotateX(.9deg)  translate(-.22px,.12px); }
+    to   { transform: perspective(260px) rotateY(1.4deg)  rotateX(-.9deg) translate(.22px,-.12px); }
+  }
+
+  /* ══════════════ 4. الشقّان — ينفجران من نقطة الأصل (98,158) ══════════════ */
+  /* طبقة التوهج: خط زمردي عريض خلف الشق ⇒ يُرى فوق التجويف المظلم */
+  .crack-glow-up, .crack-glow-dn{
+    stroke:#48FEBD; stroke-width:5.5; stroke-linecap:round; stroke-linejoin:round;
+    fill:none; opacity:0;
+  }
+  .crack-glow-up{ stroke-dasharray:36; animation: glowUp 3.6s ease-out infinite; }
+  .crack-glow-dn{ stroke-dasharray:78; animation: glowDn 3.6s ease-out infinite; }
+  @keyframes glowUp{
+    0%,21%  { stroke-dashoffset:36; opacity:0; }
+    24.6%   { stroke-dashoffset:0;  opacity:.75; }
+    27%     { stroke-dashoffset:0;  opacity:.4; }
+    34%     { stroke-dashoffset:0;  opacity:.28; }
+    49.5%   { stroke-dashoffset:0;  opacity:.6; }
+    53%     { stroke-dashoffset:0;  opacity:.3; }
+    76.5%   { stroke-dashoffset:0;  opacity:.6; }
+    81%     { stroke-dashoffset:0;  opacity:.3; }
+    86%     { stroke-dashoffset:18; opacity:.2; }
+    92%,100%{ stroke-dashoffset:36; opacity:0; }
+  }
+  @keyframes glowDn{
+    0%,22%  { stroke-dashoffset:78; opacity:0; }
+    24.8%   { stroke-dashoffset:0;  opacity:.75; }
+    27.5%   { stroke-dashoffset:0;  opacity:.4; }
+    35%     { stroke-dashoffset:0;  opacity:.28; }
+    49.5%   { stroke-dashoffset:0;  opacity:.6; }
+    53%     { stroke-dashoffset:0;  opacity:.3; }
+    76.5%   { stroke-dashoffset:0;  opacity:.6; }
+    81%     { stroke-dashoffset:0;  opacity:.3; }
+    86%     { stroke-dashoffset:34; opacity:.2; }
+    92%,100%{ stroke-dashoffset:78; opacity:0; }
+  }
+  /* الشقّ الأساسي: لُب داكن يقطع خطّ الوعاء الزمردي */
+  .crack-up{
+    stroke:#063027; stroke-width:2.6; stroke-linecap:round; stroke-linejoin:round;
+    fill:none; stroke-dasharray:36;
+    animation: crackUp 3.6s cubic-bezier(.2,.85,.3,1) infinite;
+  }
+  @keyframes crackUp{
+    0%    { stroke-dashoffset:36; stroke-width:1;   opacity:.5; }
+    18%   { stroke-dashoffset:30; stroke-width:1.2; opacity:.6; }   /* أول ترقّب */
+    21%   { stroke-dashoffset:22; stroke-width:1.4; opacity:.7; }
+    23%   { stroke-dashoffset:12; stroke-width:1.7; opacity:.8; }
+    24.6% { stroke-dashoffset:0;  stroke-width:3.4; opacity:1; }    /* SNAP */
+    25.4% { stroke-dashoffset:-3; stroke-width:3.6; opacity:1; }
+    27%   { stroke-dashoffset:0;  stroke-width:3.1; opacity:.95; }
+    46%   { stroke-dashoffset:0;  stroke-width:3.2; opacity:.95; }
+    50%   { stroke-dashoffset:-2; stroke-width:3.4; opacity:1; }    /* نبضة قلق */
+    54%   { stroke-dashoffset:0;  stroke-width:3.1; opacity:.92; }
+    74%   { stroke-dashoffset:0;  stroke-width:3.2; opacity:.92; }
+    77%   { stroke-dashoffset:-2; stroke-width:3.4; opacity:1; }
+    80%   { stroke-dashoffset:0;  stroke-width:3;   opacity:.9; }
+    86%   { stroke-dashoffset:18; stroke-width:2.2; opacity:.75; }   /* التئام */
+    92%   { stroke-dashoffset:30; stroke-width:1.4; opacity:.55; }
+    100%  { stroke-dashoffset:36; stroke-width:1;   opacity:.5; }
+  }
+  .crack-dn{
+    stroke:#063027; stroke-width:2.6; stroke-linecap:round; stroke-linejoin:round;
+    fill:none; stroke-dasharray:78;
+    animation: crackDn 3.6s cubic-bezier(.2,.85,.3,1) infinite;
+  }
+  @keyframes crackDn{
+    0%    { stroke-dashoffset:78; stroke-width:1;   opacity:.5; }
+    19%   { stroke-dashoffset:64; stroke-width:1.2; opacity:.6; }
+    22%   { stroke-dashoffset:46; stroke-width:1.5; opacity:.7; }
+    23.6% { stroke-dashoffset:24; stroke-width:1.8; opacity:.8; }
+    24.8% { stroke-dashoffset:0;  stroke-width:3.4; opacity:1; }    /* SNAP بعد العلوي بـ0.2% */
+    25.6% { stroke-dashoffset:-4; stroke-width:3.6; opacity:1; }
+    27.5% { stroke-dashoffset:0;  stroke-width:3.1; opacity:.95; }
+    46%   { stroke-dashoffset:0;  stroke-width:3.2; opacity:.95; }
+    50%   { stroke-dashoffset:-3; stroke-width:3.4; opacity:1; }
+    54%   { stroke-dashoffset:0;  stroke-width:3.1; opacity:.92; }
+    74%   { stroke-dashoffset:0;  stroke-width:3.2; opacity:.92; }
+    77%   { stroke-dashoffset:-3; stroke-width:3.4; opacity:1; }
+    80%   { stroke-dashoffset:0;  stroke-width:3;   opacity:.9; }
+    86%   { stroke-dashoffset:40; stroke-width:2.2; opacity:.75; }
+    92%   { stroke-dashoffset:64; stroke-width:1.4; opacity:.55; }
+    100%  { stroke-dashoffset:78; stroke-width:1;   opacity:.5; }
+  }
+  /* خط أبيض ساخن على حافّة الشقّ */
+  .crack-hot{
+    stroke:#EAFFF6; stroke-width:1; stroke-linecap:round; stroke-linejoin:round;
+    fill:none; opacity:0;
+  }
+  .crack-hot-up{ stroke-dasharray:36; animation: hotUp 3.6s ease-out infinite; }
+  .crack-hot-dn{ stroke-dasharray:78; animation: hotDn 3.6s ease-out infinite; }
+  @keyframes hotUp{
+    0%,23%   { opacity:0;   stroke-dashoffset:36; }
+    24.6%    { opacity:.9;  stroke-dashoffset:0; }
+    26.5%    { opacity:.45; stroke-dashoffset:-3; }
+    30%      { opacity:.18; stroke-dashoffset:0; }
+    40%,100% { opacity:0;   stroke-dashoffset:0; }
+  }
+  @keyframes hotDn{
+    0%,23.4% { opacity:0;   stroke-dashoffset:78; }
+    24.8%    { opacity:.9;  stroke-dashoffset:0; }
+    26.8%    { opacity:.45; stroke-dashoffset:-4; }
+    30.5%    { opacity:.18; stroke-dashoffset:0; }
+    41%,100% { opacity:0;   stroke-dashoffset:0; }
+  }
+  /* شرخ فرعي ينبت من الشقّ الأساسي */
+  .crack-branch{
+    stroke:#063027; stroke-width:2.1; stroke-linecap:round; fill:none;
+    stroke-dasharray:18;
+    animation: branchOpen 3.6s ease-out infinite;
+  }
+  @keyframes branchOpen{
+    0%,26%  { stroke-dashoffset:18; opacity:0; }
+    28%     { stroke-dashoffset:12; opacity:.55; }
+    32%     { stroke-dashoffset:0;  opacity:.85; }
+    60%     { stroke-dashoffset:0;  opacity:.8; }
+    76%     { stroke-dashoffset:0;  opacity:.9; }
+    80%     { stroke-dashoffset:0;  opacity:.85; }
+    86%     { stroke-dashoffset:9; opacity:.6; }
+    92%     { stroke-dashoffset:18; opacity:0; }
+    100%    { stroke-dashoffset:18; opacity:0; }
+  }
+  /* شرخ جانبي على اليسار — شاهد قلق */
+  .crack-side{
+    stroke:#063027; stroke-width:1.9; stroke-linecap:round; stroke-linejoin:round; fill:none;
+    stroke-dasharray:40;
+    animation: sideOpen 3.6s ease-out infinite;
+  }
+  @keyframes sideOpen{
+    0%,34%  { stroke-dashoffset:40; opacity:0; }
+    38%     { stroke-dashoffset:26; opacity:.4; }
+    43%     { stroke-dashoffset:0;  opacity:.7; }
+    70%     { stroke-dashoffset:0;  opacity:.65; }
+    86%     { stroke-dashoffset:20; opacity:.35; }
+    92%     { stroke-dashoffset:40; opacity:0; }
+    100%    { stroke-dashoffset:40; opacity:0; }
+  }
+
+  /* ══════════════ 5. شظايا الفخار — قذيفة حقيقية (صعود ثم سقوط) ══════════════ */
+  .shard{
+    transform-box: view-box; opacity:0;
+    animation: shardFly 3.6s cubic-bezier(.2,0,.55,.55) infinite;
+  }
+  @keyframes shardFly{
+    0%,24.4%  { opacity:0;   transform: translate(0,0) rotate(0deg) scale(.5); }
+    24.9%     { opacity:1;   transform: translate(1px,-2px) rotate(20deg) scale(1.15); }
+    29%       { opacity:1;   transform: translate(var(--x1),var(--y1)) rotate(115deg) scale(1); }
+    33%       { opacity:.95; transform: translate(var(--x2),var(--y2)) rotate(220deg) scale(.92); }
+    37.5%     { opacity:.7;  transform: translate(var(--x3),var(--y3)) rotate(272deg) scale(.78); }
+    42%       { opacity:0;   transform: translate(var(--x4),var(--y4)) rotate(312deg) scale(.6); }
+    100%      { opacity:0;   transform: translate(0,0) rotate(0deg) scale(.5); }
+  }
+  /* خطّ أثر خلف الشظية sells اتجاه الحركة */
+  .streak{ stroke:#48FEBD; stroke-width:1.6; stroke-linecap:round; opacity:0;
+           animation: streakFly 3.6s cubic-bezier(.2,0,.55,.55) infinite; }
+  @keyframes streakFly{
+    0%,24.6%  { opacity:0;   transform: translate(0,0) scaleX(0); }
+    26%       { opacity:.55; transform: translate(calc(var(--x1) * .6), calc(var(--y1) * .6)) scaleX(1); }
+    33%       { opacity:.3;  transform: translate(calc(var(--x2) * .75), calc(var(--y2) * .75)) scaleX(1.5); }
+    39%       { opacity:0;   transform: translate(calc(var(--x3) * .9), calc(var(--y3) * .9)) scaleX(2); }
+    100%      { opacity:0;   transform: translate(0,0) scaleX(0); }
+  }
+  /* شرارة دقيقة تطلع من موضع الكسر */
+  .spark{
+    fill:#EAFFF6; opacity:0;
+    transform-box: view-box; transform-origin: center;
+    animation: sparkFly 3.6s ease-out infinite;
+  }
+  @keyframes sparkFly{
+    0%,24.4%  { opacity:0;   transform: translate(0,0) scale(.2); }
+    24.8%     { opacity:1;   transform: translate(0,-1px) scale(1.2); }
+    27.5%    { opacity:.7;  transform: translate(var(--sx),var(--sy)) scale(.55); }
+    31%       { opacity:0;   transform: translate(var(--sx2),var(--sy2)) scale(.15); }
+    100%      { opacity:0;   transform: translate(0,0) scale(.2); }
+  }
+  /* ومضة الانفجار عند نقطة الكسر */
+  .snap-flash{
+    fill:url(#snapGlow); opacity:0;
+    transform-box: view-box; transform-origin: 92px 158px;
+    animation: snapFlash 3.6s ease-out infinite;
+  }
+  @keyframes snapFlash{
+    0%,24.2%  { opacity:0;   transform: scale(.25); }
+    24.6%     { opacity:.9;  transform: scale(.75); }
+    26.5%     { opacity:.38; transform: scale(1.3); }
+    30%       { opacity:0;   transform: scale(1.9); }
+    100%      { opacity:0;   transform: scale(.25); }
+  }
+</style>
+
+<!-- ═══ الوعاء الرسمي + كل أجزائه ترث الإجهاد والرعشة ═══ -->
+<g class="stress">
+  <g class="tremor">
+
+    <!-- العملة: ميل 3D + رعشة عصبية -->
+    <g class="coin-lean">
+      <g class="coin-shiver">
+        <path class="wafeer-coin-fill" d="M 86.433,15.71 C 82.264,19.879 81.008,27.739 83.032,37 C 84.043,41.623 87.712,50.549 89.497,52.723 C 90.048,53.395 91.85,55.697 93.5,57.837 C 96.83,62.156 101.52,65.591 105.428,66.571 C 107.478,67.086 108.59,66.58 110.944,64.06 C 118.492,55.98 115.06,36.312 103.729,22.703 C 97.433,15.141 90.005,12.138 86.433,15.71 Z"/>
+        <path class="wafeer-coin-stroke" fill-rule="evenodd" d="M 81.332,6.497 C 72.794,10.688 69.577,14.206 67.383,21.756 C 61.007,43.687 81.417,78.842 100.603,78.978 C 105.216,79.011 116.925,74.446 120.147,71.359 C 131.894,60.105 126.835,29.23 110.529,12.661 C 100.605,2.577 92.714,0.911 81.332,6.497 M 83.09,12.265 C 71.748,18.079 75.084,46.867 88.877,62.209 C 108.236,83.74 126.491,63.317 114.426,33.625 C 107.591,16.806 93.273,7.045 83.09,12.265"/>
+      </g>
+    </g>
+
+    <!-- جسم الوعاء الرسمي -->
+    <path class="wafeer-pot" fill-rule="evenodd" d="M 56.5,79.715 C 27.539,83.72 13.425,100.025 26.262,114.646 C 29.892,118.78 29.225,121.152 22.131,129.349 C -2.127,157.377 -3.641,194.866 18.566,217.611 C 21.555,220.673 24,223.304 24,223.459 C 24,223.613 21.188,224.293 17.75,224.969 C 9.958,226.501 8,227.529 8,230.086 C 8,239.466 91.486,242.125 127.5,233.892 C 152.705,228.129 167.929,214.123 172.489,192.5 C 177.102,170.628 170.017,147.544 152.756,128.199 C 146.179,120.828 144.356,116.779 146.728,114.811 C 151.39,110.946 152.288,101.36 148.51,95.8 C 143.653,88.652 121.438,81.133 117.327,85.245 C 114.791,87.781 116.876,89.414 126.472,92.406 C 143.39,97.681 146.132,105.895 133.164,112.453 C 119.319,119.455 62.629,120.024 42.139,113.366 C 21.299,106.595 30.54,91.901 58.5,87.353 C 69.511,85.562 72,84.599 72,82.128 C 72,79.128 66.703,78.304 56.5,79.715 M 72.978,91.113 C 55.999,92.482 45.764,96.615 47.586,101.365 C 50.657,109.366 107.039,111.719 121.128,104.434 C 135.618,96.941 105.168,88.517 72.978,91.113 M 36.944,125.135 C 36.206,126.916 33.531,130.877 30.999,133.937 C 28.467,136.997 25.043,141.525 23.39,144 C 3.864,173.243 13.254,212.289 42.298,222.617 C 67.567,231.602 121.034,230.186 140.997,220.002 C 168.539,205.951 170.47,163.878 144.913,134.648 C 141.65,130.915 138.274,126.497 137.412,124.829 C 136.208,122.501 135.339,121.915 133.672,122.305 C 116.431,126.343 93.813,128.339 75.671,127.425 C 65.287,126.902 43.553,123.917 39.889,122.511 C 38.74,122.07 37.905,122.814 36.944,125.135 M 131.667,144.667 C 130.059,146.275 131.273,150.136 134.651,154.155 C 138.701,158.975 142.354,166.526 143.402,172.242 C 144.215,176.68 148.007,178.421 150.792,175.636 C 154.204,172.225 148.362,155.619 141.046,147.928 C 137.543,144.245 133.495,142.838 131.667,144.667 M 66.2,163.2 C 61.444,167.956 70.499,177 80.018,177 C 89.032,177 97.48,167.88 92.8,163.2 C 91.004,161.404 90.428,161.646 86.117,166 C 80.621,171.551 75.695,171.179 72.485,164.97 C 70.886,161.879 68.261,161.139 66.2,163.2"/>
+
+    <!-- الشقّ: توهج زمردي ← لُب داكن ← خط أبيض ساخن -->
+    <path class="crack-glow-up" style="stroke-dasharray:36" d="M 98,158 L 88,142 L 96,127"/>
+    <path class="crack-glow-dn" style="stroke-dasharray:78" d="M 98,158 L 84,176 L 96,192 L 86,206 L 97,222"/>
+    <path class="crack-up"      d="M 98,158 L 88,142 L 96,127"/>
+    <path class="crack-dn"      d="M 98,158 L 84,176 L 96,192 L 86,206 L 97,222"/>
+    <path class="crack-hot-up"  d="M 98,158 L 88,142 L 96,127"/>
+    <path class="crack-hot-dn"  d="M 98,158 L 84,176 L 96,192 L 86,206 L 97,222"/>
+    <path class="crack-branch"  d="M 77,160 L 66,168"/>
+    <path class="crack-side"    d="M 40,150 L 34,166 L 44,182"/>
+
+    <!-- شظايا صغيرة تنطلق من خط الكسر (مع أثر حركة) -->
+    <g filter="url(#emGlow)">
+      <g class="shard" style="--x1:14px;--y1:-11px;--x2:27px;--y2:20px;--x3:30px;--y3:36px;--x4:32px;--y4:48px">
+        <path class="streak" style="--x1:14px;--y1:-11px;--x2:27px;--y2:20px;--x3:30px;--y3:36px" d="M 97,141 L 101,136"/>
+        <path d="M 97,141 l 5.6,-2.6 3.4,4 -4.4,3.3 z" fill="#48FEBD"/>
+      </g>
+      <g class="shard" style="--x1:-11px;--y1:-14px;--x2:-25px;--y2:15px;--x3:-28px;--y3:32px;--x4:-30px;--y4:44px;animation-delay:-.06s">
+        <path class="streak" style="--x1:-11px;--y1:-14px;--x2:-25px;--y2:15px;--x3:-28px;--y3:32px" d="M 89,152 L 85,148"/>
+        <path d="M 89,152 l -4.6,-3.6 3,-4.4 4.9,2.3 z" fill="#AFF5A7"/>
+      </g>
+      <g class="shard" style="--x1:16px;--y1:-16px;--x2:32px;--y2:11px;--x3:36px;--y3:26px;--x4:39px;--y4:34px;animation-delay:-.11s">
+        <path class="streak" style="--x1:16px;--y1:-16px;--x2:32px;--y2:11px;--x3:36px;--y3:26px" d="M 95,169 L 100,165"/>
+        <path d="M 95,169 l 5.6,-1.7 2.5,4.3 -4.9,2.4 z" fill="#48FEBD"/>
+      </g>
+      <g class="shard" style="--x1:-15px;--y1:-10px;--x2:-30px;--y2:18px;--x3:-33px;--y3:36px;--x4:-35px;--y4:47px;animation-delay:-.09s">
+        <path class="streak" style="--x1:-15px;--y1:-10px;--x2:-30px;--y2:18px;--x3:-33px;--y3:36px" d="M 86,183 L 82,180"/>
+        <path d="M 86,183 l -4.2,-3 2.4,-4.2 4.6,1.9 z" fill="#AFF5A7"/>
+      </g>
+      <g class="shard" style="--x1:12px;--y1:-19px;--x2:21px;--y2:5px;--x3:24px;--y3:16px;--x4:25px;--y4:22px;animation-delay:-.14s">
+        <path class="streak" style="--x1:12px;--y1:-19px;--x2:21px;--y2:5px;--x3:24px;--y3:16px" d="M 97,196 L 100,193"/>
+        <path d="M 97,196 l 4.9,-2 2.8,3.8 -4.2,3 z" fill="#48FEBD"/>
+      </g>
+      <g class="shard" style="--x1:-10px;--y1:-17px;--x2:-17px;--y2:6px;--x3:-19px;--y3:17px;--x4:-20px;--y4:24px;animation-delay:-.05s">
+        <path class="streak" style="--x1:-10px;--y1:-17px;--x2:-17px;--y2:6px;--x3:-19px;--y3:17px" d="M 88,205 L 86,202"/>
+        <path d="M 88,205 l -3.8,-2.7 2.3,-3.8 3.8,1.6 z" fill="#AFF5A7"/>
+      </g>
+    </g>
+
+    <!-- شرارات دقيقة عند موضع الكسر -->
+    <g filter="url(#emGlow)">
+      <circle class="spark" cx="93" cy="150" r="2.3" style="--sx:-5px;--sy:-14px;--sx2:-9px;--sy2:-25px"/>
+      <circle class="spark" cx="88" cy="176" r="2.1" style="--sx:6px;--sy:-16px;--sx2:11px;--sy2:-28px;animation-delay:-.05s"/>
+      <circle class="spark" cx="96" cy="206" r="1.8" style="--sx:-4px;--sy:-12px;--sx2:-7px;--sy2:-22px;animation-delay:-.02s"/>
+      <circle class="spark" cx="92" cy="158" r="2.7" style="--sx:4px;--sy:-17px;--sx2:7px;--sy2:-29px;animation-delay:-.08s"/>
+      <circle class="spark" cx="97" cy="196" r="1.9" style="--sx:-7px;--sy:-11px;--sx2:-11px;--sy2:-20px;animation-delay:-.04s"/>
+    </g>
+  </g>
+
+  <!-- ومضة الانفجار (خارج الرعشة كي لا ترتجف) -->
+  <ellipse class="snap-flash" cx="92" cy="158" rx="26" ry="30"/>
+</g>
+
+<!-- البريق الرسمي للشعار -->
+<path class="wafeer-sparkles" fill-rule="evenodd" d="M 138.92,10.92 C 132.456,17.384 131.305,21.187 135.628,21.804 C 138.347,22.191 149.5,10.81 149.5,7.647 C 149.5,3.18 145.389,4.451 138.92,10.92 M 148.09,37.818 C 141.428,39.566 139.205,41.485 140.359,44.492 C 141.084,46.383 141.192,46.377 153.5,43.721 C 158.577,42.625 159.552,42.065 159.837,40.076 C 160.459,35.748 157.875,35.251 148.09,37.818 M 39.614,38.529 C 37.443,40.7 38.607,42.818 45.261,48.811 C 51.586,54.509 52.133,54.725 54.429,52.429 C 57.019,49.838 56.773,49.395 48.739,42.176 C 42.432,36.509 41.862,36.281 39.614,38.529"/>
+</svg>

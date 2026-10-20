@@ -1,0 +1,488 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-10 0 195 245" style="overflow:visible" fill="none">
+<!-- ═══════════════════════════════════════════════════════════════════════
+     وفير — الحالة 3: تجاوز السقف — «انشطر نصين» 💔
+     ─────────────────────────────────────────────────────────────────────
+     الفيزياء الحقيقية (وحدات viewBox، ثانية):
+       g = 1040 u/s² ·  v₀ = 354 u/s (رأسياً) ·  vx = 72.7 u/s
+       مدّة الرحلة الكاملة 0.99s ⇒ الذروة عند 25.6% والارتطام عند 43.1%
+       ارتداد بمعامل restitution ≈ 0.55 ⇒ نطتان + قفزة ثالثة ثم سكون
+     ثلاثي الأبعاد الحقيقي:
+       .coin       ⇒ perspective(340px) + translate (القوس)
+       .coin-flip  ⇒ scaleX (دوران حول محور Y = العملة نفسها، آمن بلا backface)
+       .coin-tumble⇒ rotateX حقيقي (مَيْل أمامي/خلفي أثناء السقوط)
+     اللون: #48FEBD بالضبط — لا تغيير في لون الشعار الرسمي.
+     ═══════════════════════════════════════════════════════════════════════ -->
+<defs>
+  <linearGradient id="coinGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+    <stop offset="0%" stop-color="#5AC17A"/>
+    <stop offset="100%" stop-color="#388E3C"/>
+  </linearGradient>
+  <linearGradient id="sheenGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+    <stop offset="0%"   stop-color="#FFFFFF" stop-opacity="0"/>
+    <stop offset="45%"  stop-color="#EAFFF6" stop-opacity=".85"/>
+    <stop offset="55%"  stop-color="#EAFFF6" stop-opacity=".85"/>
+    <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0"/>
+  </linearGradient>
+  <clipPath id="leftHalf"  clipPathUnits="userSpaceOnUse">
+    <path d="M -24,58 L 98,121 L 86,147 L 98,160 L 82,180 L 96,194 L 84,208 L 98,222 L 90,248 L -24,248 Z"/>
+  </clipPath>
+  <clipPath id="rightHalf" clipPathUnits="userSpaceOnUse">
+    <path d="M 208,58 L 98,121 L 86,147 L 98,160 L 82,180 L 96,194 L 84,208 L 98,222 L 90,248 L 208,248 Z"/>
+  </clipPath>
+  <clipPath id="coinFaces" clipPathUnits="userSpaceOnUse">
+    <path d="M 86.433,15.71 C 82.264,19.879 81.008,27.739 83.032,37 C 84.043,41.623 87.712,50.549 89.497,52.723 C 90.048,53.395 91.85,55.697 93.5,57.837 C 96.83,62.156 101.52,65.591 105.428,66.571 C 107.478,67.086 108.59,66.58 110.944,64.06 C 118.492,55.98 115.06,36.312 103.729,22.703 C 97.433,15.141 90.005,12.138 86.433,15.71 Z M 83.09,12.265 C 71.748,18.079 75.084,46.867 88.877,62.209 C 108.236,83.74 126.491,63.317 114.426,33.625 C 107.591,16.806 93.273,7.045 83.09,12.265 Z"/>
+  </clipPath>
+</defs>
+
+<style>
+  .wafeer-coin-fill   { fill: url(#coinGrad); }
+  .wafeer-coin-stroke { fill: #48FEBD; }
+  .wafeer-pot         { fill: #48FEBD; filter: drop-shadow(0 0 5px rgba(72,254,189,.32)); }
+  .wafeer-sparkles    { fill: #48FEBD; opacity:.1; }
+
+  /* ══════════ هزّة الكاميرا: دفعة الانشطار + ارتجافة أخف عند الارتطام ══════════ */
+  .stage{
+    transform-box: view-box; transform-origin:96px 150px;
+    animation: stageShake 3.6s linear infinite;
+  }
+  @keyframes stageShake{
+    0%,14.4%  { transform: translate(0,0) rotate(0deg); }
+    14.8%     { transform: translate(-2.6px,1.8px) rotate(-.5deg); }
+    15.4%     { transform: translate(2.4px,-1.6px) rotate(.45deg); }
+    16%       { transform: translate(-2px,1.4px) rotate(-.4deg); }
+    16.8%     { transform: translate(1.7px,-1.1px) rotate(.32deg); }
+    17.6%     { transform: translate(-1.3px,.9px) rotate(-.24deg); }
+    18.6%     { transform: translate(1px,-.7px) rotate(.18deg); }
+    19.6%     { transform: translate(-.7px,.5px) rotate(-.12deg); }
+    21%       { transform: translate(.4px,-.3px) rotate(.07deg); }
+    22.6%     { transform: translate(-.2px,.15px) rotate(-.04deg); }
+    24.4%,42.6% { transform: translate(0,0) rotate(0deg); }
+    43.2%     { transform: translate(-1.6px,1.1px) rotate(-.3deg); }
+    43.9%     { transform: translate(1.4px,-.9px) rotate(.26deg); }
+    44.6%     { transform: translate(-1px,.7px) rotate(-.18deg); }
+    45.5%     { transform: translate(.7px,-.5px) rotate(.12deg); }
+    46.4%     { transform: translate(-.4px,.3px) rotate(-.07deg); }
+    47.4%     { transform: translate(.2px,-.15px) rotate(.04deg); }
+    48.4%,100%{ transform: translate(0,0) rotate(0deg); }
+  }
+
+  /* ══════════ توتر الوعاء قبل الانشطار: شهيق → انضغاط → ارتداد قاذف ══════════ */
+  .pot-body{
+    transform-box: view-box; transform-origin:96px 232px;
+    animation: potAnticipate 3.6s cubic-bezier(.3,0,.2,1) infinite;
+  }
+  @keyframes potAnticipate{
+    0%        { transform: translate(0,0) scale(1,1) rotate(0deg); }
+    6%        { transform: translate(0,.6px) scale(1.004,.996) rotate(-.15deg); }
+    9%        { transform: translate(0,.9px) scale(.998,1.004) rotate(.2deg); }
+    11.5%     { transform: translate(0,.6px) scale(1.002,.997) rotate(-.1deg); }
+    13.8%     { transform: translate(0,2.2px) scale(1.05,.955) rotate(0deg); }   /* ذروة الانضغاط */
+    15.6%     { transform: translate(0,-3px) scale(.965,1.075) rotate(0deg); }   /* الارتداد القاذف */
+    17.2%     { transform: translate(0,-.6px) scale(.99,1.02) rotate(0deg); }
+    19%,100%  { transform: translate(0,0) scale(1,1) rotate(0deg); }
+  }
+
+  /* ══════════ خط الشرخ المسبق — يزحف ويزداد سماكة مع التوتر ══════════ */
+  .precrack{
+    stroke:#063027; stroke-width:2.2; stroke-linecap:round; stroke-linejoin:round;
+    fill:none; opacity:.85; stroke-dasharray:120;
+    animation: preOpen 3.6s ease-in-out infinite;
+  }
+  @keyframes preOpen{
+    0%      { stroke-dashoffset:120; opacity:.5; stroke-width:2.2 }
+    8%      { stroke-dashoffset:74 }
+    13%     { stroke-dashoffset:0;  opacity:.95; stroke-width:3.4 }
+    18%,96% { stroke-dashoffset:0;  opacity:.7; stroke-width:3 }
+    100%    { stroke-dashoffset:120; opacity:.5; stroke-width:2.2 }
+  }
+  /* فم الانشطار: فجوة ظلّ داكنة تنفتح بين النصفين */
+  .crack-jaw{
+    fill:#063027; opacity:0;
+    animation: jawOpen 3.6s ease-in-out infinite;
+  }
+  @keyframes jawOpen{
+    0%,13.6% { opacity:0; }
+    16%      { opacity:.9; }
+    20%,96%  { opacity:.75; }
+    99%,100% { opacity:0; }
+  }
+
+  /* ══════════ النصف الأيسر: دفعة انفصال + سقوط بقصور ذاتي + ارتداد أرضي ══════════ */
+  .half-L{
+    transform-box: view-box; transform-origin:26px 232px;
+    animation: fallL 3.6s cubic-bezier(.45,0,.7,.6) infinite;
+  }
+  @keyframes fallL{
+    0%,14.4% { transform: translate(0,0) rotate(0deg); }
+    15%      { transform: translate(-2.2px,-.8px) rotate(-2.6deg); }   /* دفعة الانفصال الفورية */
+    16.2%    { transform: translate(-3.4px,-1.8px) rotate(-6deg); }
+    18.5%    { transform: rotate(-11deg) translate(-5.4px,.4px); }
+    21.5%    { transform: rotate(-16deg) translate(-8px,1.8px); }
+    25%      { transform: rotate(-19.4deg) translate(-10.6px,3.2px); }  /* الأرضية */
+    27.2%    { transform: rotate(-17.6deg) translate(-9.4px,2.8px); }    /* ارتداد الترسّ */
+    29.5%    { transform: rotate(-19.2deg) translate(-10.4px,3.1px); }
+    32%      { transform: rotate(-18deg) translate(-9.6px,2.9px); }
+    35%      { transform: rotate(-19deg) translate(-10.2px,3.1px); }
+    40%,95%  { transform: rotate(-18.4deg) translate(-9.8px,3px); }
+    98%      { transform: translate(-.3px,.4px) rotate(-.5deg); }
+    100%     { transform: translate(0,0) rotate(0deg); }
+  }
+  /* النصف الأيمن: ذراع أثقل ⇒ زاوية أكبر ودفعة أبطأ */
+  .half-R{
+    transform-box: view-box; transform-origin:162px 232px;
+    animation: fallR 3.6s cubic-bezier(.45,0,.7,.6) infinite;
+  }
+  @keyframes fallR{
+    0%,14.4% { transform: translate(0,0) rotate(0deg); }
+    15%      { transform: translate(2.4px,-1.1px) rotate(-3deg); }
+    16.4%    { transform: translate(3.8px,-2px) rotate(7deg); }
+    18.5%    { transform: rotate(12.5deg) translate(5.6px,.8px); }
+    21.5%    { transform: rotate(17.5deg) translate(8.2px,2px); }
+    25%      { transform: rotate(21deg) translate(11.6px,4.1px); }     /* الأرضية */
+    27.5%    { transform: rotate(19deg) translate(10.2px,3.4px); }
+    30%      { transform: rotate(20.8deg) translate(11.4px,4px); }
+    33%      { transform: rotate(19.4deg) translate(10.6px,3.6px); }
+    36%      { transform: rotate(20.6deg) translate(11.2px,4px); }
+    40%,95%  { transform: rotate(20deg) translate(10.9px,3.8px); }
+    98%      { transform: translate(.3px,.4px) rotate(.5deg); }
+    100%     { transform: translate(0,0) rotate(0deg); }
+  }
+
+  /* ══════════ العملة — ثلاث طبقات: القوس ⇒ الدوران-Y ⇒ التمايل-X ══════════
+     القوس: translate بدقّة حركية (dy = -354τ + 520τ² ، dx = 72.7τ) */
+  .coin{
+    transform-box: view-box; transform-origin:96px 40px;
+    perspective: 340px; perspective-origin: 96px 40px;
+    animation: coinArc 3.6s cubic-bezier(.3,0,.55,.55) infinite;
+  }
+  @keyframes coinArc{
+    0%,12.5%  { transform: perspective(340px) translate(0,0) rotate(0deg); opacity:1 }
+    14%       { transform: perspective(340px) translate(.6px,1.8px) rotate(0deg); opacity:1 }   /* تهبط مع انضغاط الوعاء */
+    15.6%     { transform: perspective(340px) translate(-2px,-9px) rotate(-6deg); opacity:1 }  /* الإطلاق */
+    18.4%     { transform: perspective(340px) translate(7.3px,-30px) rotate(-10deg); opacity:1 }
+    21.2%     { transform: perspective(340px) translate(14.5px,-50px) rotate(-8deg); opacity:1 }
+    23.4%     { transform: perspective(340px) translate(20.4px,-58.3px) rotate(-4deg); opacity:1 }
+    25.6%     { transform: perspective(340px) translate(24.7px,-60.3px) rotate(0deg); opacity:1 }  /* الذروة */
+    28.1%     { transform: perspective(340px) translate(32.7px,-54px) rotate(5deg); opacity:1 }
+    30.9%     { transform: perspective(340px) translate(40px,-37.4px) rotate(10deg); opacity:1 }
+    33.7%     { transform: perspective(340px) translate(47.3px,-10.4px) rotate(15deg); opacity:1 }
+    36.4%     { transform: perspective(340px) translate(54.5px,27px) rotate(20deg); opacity:1 }
+    39.2%     { transform: perspective(340px) translate(61.8px,74.8px) rotate(25deg); opacity:1 }
+    42%       { transform: perspective(340px) translate(69.1px,133px) rotate(29deg); opacity:1 }
+    43.1%     { transform: perspective(340px) translate(72px,159px) rotate(30deg); opacity:1 }    /* الارتطام */
+    44.2%     { transform: perspective(340px) translate(72.6px,152px) rotate(31deg); opacity:1 }
+    48.3%     { transform: perspective(340px) translate(73.6px,140.7px) rotate(33deg); opacity:1 }  /* نطة 1 — ذروتها */
+    50%       { transform: perspective(340px) translate(74px,146px) rotate(34deg); opacity:1 }
+    53.5%     { transform: perspective(340px) translate(75.6px,159px) rotate(36deg); opacity:1 }    /* ارتطام 2 */
+    55%       { transform: perspective(340px) translate(76px,157px) rotate(37deg); opacity:1 }
+    56.4%     { transform: perspective(340px) translate(76.6px,153.5px) rotate(38deg); opacity:1 }  /* نطة 2 */
+    59.2%     { transform: perspective(340px) translate(77.6px,159px) rotate(39deg); opacity:1 }    /* ارتطام 3 */
+    60.8%     { transform: perspective(340px) translate(78.2px,157.3px) rotate(40deg); opacity:1 }  /* نطة 3 */
+    62.3%     { transform: perspective(340px) translate(78.6px,159px) rotate(40deg); opacity:1 }
+    68%,92%   { transform: perspective(340px) translate(78.6px,159px) rotate(40deg); opacity:1 }    /* سكون على الأرض */
+    97%       { transform: perspective(340px) translate(30px,20px) rotate(15deg); opacity:1 }      /* عودة للإطار التالي */
+    100%      { transform: perspective(340px) translate(0,0) rotate(0deg); opacity:1 }
+  }
+  /* الدوران حول محور Y (دوران العملة على وجهها): scaleX — متطابق رياضياً مع rotateY
+     لكنه آمن 100% في المتصفحات (Chrome يتجاهل backface-visibility داخل SVG). */
+  .coin-flip{
+    transform-box: view-box; transform-origin:96px 40px;
+    animation: coinSpinY 3.6s linear infinite;
+  }
+  @keyframes coinSpinY{
+    0%,14%    { transform: scaleX(1); }
+    15.6%     { transform: scaleX(.9); }
+    18%       { transform: scaleX(.55); }
+    20.4%     { transform: scaleX(.12); }    /* الحافة */
+    22.8%     { transform: scaleX(-.6); }
+    25.6%     { transform: scaleX(-.97); }   /* الظهر كاملاً عند الذروة */
+    28.4%     { transform: scaleX(-.86); }
+    31.4%     { transform: scaleX(-.3); }
+    34.4%     { transform: scaleX(.18); }    /* حافة ثانية */
+    37.4%     { transform: scaleX(.74); }
+    40%       { transform: scaleX(.98); }
+    42%       { transform: scaleX(.46); }    /* حافة قبل الارتطام */
+    43.1%     { transform: scaleX(1); }      /* تهبط على وجهها */
+    44.4%     { transform: scaleX(.52); }
+    48.3%     { transform: scaleX(-.74); }   /* نطة 1 مع نصف دورة */
+    51%       { transform: scaleX(-.26); }
+    53.5%     { transform: scaleX(.6); }     /* نطة 2 */
+    56%       { transform: scaleX(.14); }
+    59.2%     { transform: scaleX(-.42); }   /* نطة 3 */
+    62%       { transform: scaleX(-.1); }
+    68%       { transform: scaleX(.88); }
+    74%,92%    { transform: scaleX(1); }
+    96.5%     { transform: scaleX(.4); }
+    100%      { transform: scaleX(1); }
+  }
+  /* التمايل الحقيقي على محور X — العملة تتمايل أماماً وخلفياً أثناء السقوط */
+  .coin-tumble{
+    transform-box: view-box; transform-origin:96px 40px;
+    animation: coinTumble 3.6s cubic-bezier(.4,0,.5,1) infinite;
+  }
+  @keyframes coinTumble{
+    0%,13%    { transform: rotateX(0deg); }
+    15.6%     { transform: rotateX(-8deg); }
+    19%       { transform: rotateX(14deg); }
+    22.4%     { transform: rotateX(-17deg); }
+    25.6%     { transform: rotateX(9deg); }
+    28.8%     { transform: rotateX(-12deg); }
+    32%       { transform: rotateX(8deg); }
+    35.2%     { transform: rotateX(-9deg); }
+    38.4%     { transform: rotateX(7deg); }
+    41%       { transform: rotateX(-5deg); }
+    43.1%     { transform: rotateX(0deg); }    /* ارتطام مستقر */
+    44.4%     { transform: rotateX(6deg); }    /* ارتداد مطاطي */
+    48.3%     { transform: rotateX(-4deg); }
+    53.5%     { transform: rotateX(4deg); }
+    56.4%     { transform: rotateX(-3deg); }
+    59.2%     { transform: rotateX(2deg); }
+    64%,92%   { transform: rotateX(0deg); }
+    97%       { transform: rotateX(6deg); }
+    100%      { transform: rotateX(0deg); }
+  }
+  /* الانضغاط والإطالة (squash & stretch) عند الإطلاق والارتطام */
+  .coin-squash{
+    transform-box: view-box; transform-origin:96px 74px;
+    animation: coinSquash 3.6s cubic-bezier(.4,0,.4,1) infinite;
+  }
+  @keyframes coinSquash{
+    0%,11.5%  { transform: scale(1,1); }
+    14%       { transform: scale(1.22,.78); }    /* انضغاط مع الوعاء */
+    15.6%     { transform: scale(.88,1.24); }    /* إطالة الإطلاق */
+    25.6%     { transform: scale(.96,1.06); }    /* استدارة عند الذروة */
+    41%       { transform: scale(.9,1.2); }      /* إطالة السقوط */
+    43.1%     { transform: scale(1.5,.52); }     /* سحق الارتطام */
+    44.4%     { transform: scale(1.22,.82); }    /* ارتداد مطاطي */
+    48.3%     { transform: scale(.94,1.14); }
+    53.5%     { transform: scale(1.3,.68); }
+    56.4%     { transform: scale(.95,1.1); }
+    59.2%     { transform: scale(1.18,.8); }
+    62%       { transform: scale(1.06,.92); }
+    66%       { transform: scale(.97,1.05); }
+    70%,92%   { transform: scale(1,1); }
+    95.4%     { transform: scale(.92,1.16); }
+    100%      { transform: scale(1,1); }
+  }
+  /* اللمعان المتحرك: شريط ضوء يمسح وجه العملة */
+  .coin-sheen{
+    fill:url(#sheenGrad); mix-blend-mode:soft-light; opacity:0;
+    transform-box: view-box;
+    animation: sheenSweep 3.6s linear infinite;
+  }
+  @keyframes sheenSweep{
+    0%,13%      { opacity:0; transform: translate(-26px,0) rotate(14deg); }
+    17%         { opacity:.95; }
+    21%         { opacity:.75; }
+    27%,96%     { opacity:0; transform: translate(34px,0) rotate(14deg); }
+    98%,100%    { opacity:0; transform: translate(-26px,0) rotate(14deg); }
+  }
+
+  /* ══════════ الظلّ على فوهة الوعاء — يتقلّص كلما ابتعدت العملة ══════════ */
+  .coin-mouth-shadow{
+    fill:#063027; opacity:0;
+    transform-box: view-box; transform-origin:96px 103px;
+    animation: mouthShadow 3.6s ease-in-out infinite;
+  }
+  @keyframes mouthShadow{
+    0%        { opacity:.3;  transform: scale(1,1); }
+    8%        { opacity:.26; transform: scale(.92,.94); }
+    12.5%     { opacity:.42; transform: scale(1.25,1.1); }
+    15.6%     { opacity:.18; transform: scale(.6,.55); }
+    25.6%     { opacity:.05; transform: scale(.25,.3); }
+    33.7%     { opacity:.08; transform: scale(.4,.4); }
+    43.1%,96% { opacity:0;  transform: scale(.3,.3); }
+    100%      { opacity:.3;  transform: scale(1,1); }
+  }
+  /* ══════════ الظلّ الأرضي — يتابع ارتدادات العملة ويجفّش عند كل ارتطام ══════════ */
+  .coin-ground-shadow{
+    fill:#063027; opacity:0;
+    transform-box: view-box; transform-origin:168px 236px;
+    animation: groundShadow 3.6s cubic-bezier(.4,0,.5,1) infinite;
+  }
+  @keyframes groundShadow{
+    0%,25.6%  { opacity:0;   transform: translate(0,0) scale(.2,.2); }
+    33.7%     { opacity:.15; transform: translate(0,0) scale(.5,.5); }
+    41%       { opacity:.3;  transform: translate(0,0) scale(.9,.9); }
+    43.1%     { opacity:.42; transform: translate(0,0) scale(1.28,1); }   /* انتفاخ لحظة الاصطدام */
+    44.4%     { opacity:.9;  transform: translate(0,0) scale(.96,1); }
+    48.3%     { opacity:.36; transform: translate(0,0) scale(.66,.9); }
+    53.5%     { opacity:.34; transform: translate(0,0) scale(.6,.9); }
+    56.4%     { opacity:.3;  transform: translate(0,0) scale(.55,.9); }
+    59.2%     { opacity:.26; transform: translate(0,0) scale(.62,.92); }
+    66%,96%   { opacity:.24; transform: translate(0,0) scale(.66,.92); }
+    100%      { opacity:0;   transform: translate(0,0) scale(.2,.2); }
+  }
+  /* ══════════ نفث غبار عند كل ارتطام (3 ارتطامات) ══════════ */
+  .impact{
+    fill:#48FEBD; opacity:0;
+    transform-box: fill-box; transform-origin:50% 100%;
+    animation: impactPuff 3.6s ease-out infinite;
+  }
+  @keyframes impactPuff{
+    0%,43%      { opacity:0;   transform: translateY(0) scale(.2,.2); }
+    43.2%       { opacity:.8;  transform: translateY(-1px) scale(.6,.6); }
+    45%         { opacity:.45; transform: translateY(-3px) scale(1.1,.8); }
+    48%         { opacity:.15; transform: translateY(-5px) scale(1.5,.5); }
+    52%,100%    { opacity:0;   transform: translateY(-6px) scale(1.7,.35); }
+  }
+  .impact-2{ animation: impactPuff2 3.6s ease-out infinite; }
+  @keyframes impactPuff2{
+    0%,53.4%    { opacity:0;   transform: translateY(0) scale(.2,.2); }
+    53.6%       { opacity:.7;  transform: translateY(-1px) scale(.5,.5); }
+    55%         { opacity:.4;  transform: translateY(-2.5px) scale(.95,.7); }
+    57.5%       { opacity:.12; transform: translateY(-4px) scale(1.3,.45); }
+    61%,100%    { opacity:0;   transform: translateY(-5px) scale(1.5,.3); }
+  }
+  .impact-3{ animation: impactPuff3 3.6s ease-out infinite; }
+  @keyframes impactPuff3{
+    0%,59.1%    { opacity:0;   transform: translateY(0) scale(.2,.2); }
+    59.3%       { opacity:.55; transform: translateY(-1px) scale(.4,.4); }
+    60.6%       { opacity:.3;  transform: translateY(-2px) scale(.8,.6); }
+    63%         { opacity:.08; transform: translateY(-3px) scale(1.1,.4); }
+    66%,100%    { opacity:0;   transform: translateY(-4px) scale(1.3,.25); }
+  }
+
+  /* ══════════ الفرقعة + حلقة الصدمة + الغبار + الشظايا ══════════ */
+  .flash{
+    fill:#EAFFF6; opacity:0;
+    transform-box: view-box; transform-origin:98px 121px;
+    animation: crackFlash 3.6s ease-out infinite;
+  }
+  @keyframes crackFlash{
+    0%,13.6%  { opacity:0; transform: scale(.3) rotate(0deg); }
+    14.6%     { opacity:.95; transform: scale(1) rotate(12deg); }
+    16%       { opacity:.4; transform: scale(1.7) rotate(22deg); }
+    17.6%,100%{ opacity:0; transform: scale(2.3) rotate(28deg); }
+  }
+  .ring{
+    fill:none; stroke:#48FEBD; stroke-width:2.4; opacity:0;
+    transform-box: view-box; transform-origin:98px 121px;
+    animation: shockRing 3.6s ease-out infinite;
+  }
+  @keyframes shockRing{
+    0%,14%    { opacity:0; transform: scale(.15); }
+    15.6%     { opacity:.8; transform: scale(.45); }
+    17.6%     { opacity:.45; transform: scale(.8); }
+    20.5%     { opacity:0; transform: scale(1.25); }
+    100%      { opacity:0; transform: scale(.15); }
+  }
+  .dust{
+    fill:#48FEBD; opacity:0;
+    transform-box: fill-box; transform-origin:50% 100%;
+    animation: dustPuff 3.6s ease-out infinite;
+  }
+  @keyframes dustPuff{
+    0%,15%    { opacity:0; transform: translateY(2px) scale(.2); }
+    16%       { opacity:.75; transform: translateY(-2px) scale(.55); }
+    19%       { opacity:.5; transform: translateY(-6px) scale(.85); }
+    23%       { opacity:.22; transform: translateY(-11px) scale(1.15); }
+    28%,100%  { opacity:0; transform: translateY(-15px) scale(1.4); }
+  }
+  .shard{
+    transform-box: view-box; opacity:0;
+    animation: shardFly 3.6s cubic-bezier(.25,0,.65,.6) infinite;
+  }
+  @keyframes shardFly{
+    0%,15.2%  { opacity:0; transform: translate(0,0) rotate(0deg) scale(.6); }
+    16.4%     { opacity:1; transform: translate(2px,-3px) rotate(14deg) scale(1); }
+    20%       { opacity:1; transform: translate(var(--sx1),var(--sy1)) rotate(96deg) scale(1); }
+    26%       { opacity:1; transform: translate(var(--sx2),var(--sy2)) rotate(210deg) scale(1); }
+    29.5%     { opacity:.9; transform: translate(var(--sx3),var(--sy3)) rotate(250deg) scale(.95); }
+    32.5%     { opacity:0; transform: translate(var(--sx4),var(--sy4)) rotate(272deg) scale(.85); }
+    100%      { opacity:0; transform: translate(0,0) rotate(0deg) scale(.6); }
+  }
+</style>
+
+<!-- ═══ المسرح: هزّة الكاميرا تلتفّ حول كل شيء ═══ -->
+<g class="stage">
+
+  <!-- توتر + ارتداد الوعاء (يغطّي النصفين قبل الانشطار) -->
+  <g class="pot-body">
+    <g clip-path="url(#leftHalf)">
+      <g class="half-L">
+        <path class="wafeer-pot" fill-rule="evenodd" d="M 56.5,79.715 C 27.539,83.72 13.425,100.025 26.262,114.646 C 29.892,118.78 29.225,121.152 22.131,129.349 C -2.127,157.377 -3.641,194.866 18.566,217.611 C 21.555,220.673 24,223.304 24,223.459 C 24,223.613 21.188,224.293 17.75,224.969 C 9.958,226.501 8,227.529 8,230.086 C 8,239.466 91.486,242.125 127.5,233.892 C 152.705,228.129 167.929,214.123 172.489,192.5 C 177.102,170.628 170.017,147.544 152.756,128.199 C 146.179,120.828 144.356,116.779 146.728,114.811 C 151.39,110.946 152.288,101.36 148.51,95.8 C 143.653,88.652 121.438,81.133 117.327,85.245 C 114.791,87.781 116.876,89.414 126.472,92.406 C 143.39,97.681 146.132,105.895 133.164,112.453 C 119.319,119.455 62.629,120.024 42.139,113.366 C 21.299,106.595 30.54,91.901 58.5,87.353 C 69.511,85.562 72,84.599 72,82.128 C 72,79.128 66.703,78.304 56.5,79.715 M 72.978,91.113 C 55.999,92.482 45.764,96.615 47.586,101.365 C 50.657,109.366 107.039,111.719 121.128,104.434 C 135.618,96.941 105.168,88.517 72.978,91.113 M 36.944,125.135 C 36.206,126.916 33.531,130.877 30.999,133.937 C 28.467,136.997 25.043,141.525 23.39,144 C 3.864,173.243 13.254,212.289 42.298,222.617 C 67.567,231.602 121.034,230.186 140.997,220.002 C 168.539,205.951 170.47,163.878 144.913,134.648 C 141.65,130.915 138.274,126.497 137.412,124.829 C 136.208,122.501 135.339,121.915 133.672,122.305 C 116.431,126.343 93.813,128.339 75.671,127.425 C 65.287,126.902 43.553,123.917 39.889,122.511 C 38.74,122.07 37.905,122.814 36.944,125.135 M 131.667,144.667 C 130.059,146.275 131.273,150.136 134.651,154.155 C 138.701,158.975 142.354,166.526 143.402,172.242 C 144.215,176.68 148.007,178.421 150.792,175.636 C 154.204,172.225 148.362,155.619 141.046,147.928 C 137.543,144.245 133.495,142.838 131.667,144.667 M 66.2,163.2 C 61.444,167.956 70.499,177 80.018,177 C 89.032,177 97.48,167.88 92.8,163.2 C 91.004,161.404 90.428,161.646 86.117,166 C 80.621,171.551 75.695,171.179 72.485,164.97 C 70.886,161.879 68.261,161.139 66.2,163.2"/>
+      </g>
+    </g>
+    <g clip-path="url(#rightHalf)">
+      <g class="half-R">
+        <path class="wafeer-pot" fill-rule="evenodd" d="M 56.5,79.715 C 27.539,83.72 13.425,100.025 26.262,114.646 C 29.892,118.78 29.225,121.152 22.131,129.349 C -2.127,157.377 -3.641,194.866 18.566,217.611 C 21.555,220.673 24,223.304 24,223.459 C 24,223.613 21.188,224.293 17.75,224.969 C 9.958,226.501 8,227.529 8,230.086 C 8,239.466 91.486,242.125 127.5,233.892 C 152.705,228.129 167.929,214.123 172.489,192.5 C 177.102,170.628 170.017,147.544 152.756,128.199 C 146.179,120.828 144.356,116.779 146.728,114.811 C 151.39,110.946 152.288,101.36 148.51,95.8 C 143.653,88.652 121.438,81.133 117.327,85.245 C 114.791,87.781 116.876,89.414 126.472,92.406 C 143.39,97.681 146.132,105.895 133.164,112.453 C 119.319,119.455 62.629,120.024 42.139,113.366 C 21.299,106.595 30.54,91.901 58.5,87.353 C 69.511,85.562 72,84.599 72,82.128 C 72,79.128 66.703,78.304 56.5,79.715 M 72.978,91.113 C 55.999,92.482 45.764,96.615 47.586,101.365 C 50.657,109.366 107.039,111.719 121.128,104.434 C 135.618,96.941 105.168,88.517 72.978,91.113 M 36.944,125.135 C 36.206,126.916 33.531,130.877 30.999,133.937 C 28.467,136.997 25.043,141.525 23.39,144 C 3.864,173.243 13.254,212.289 42.298,222.617 C 67.567,231.602 121.034,230.186 140.997,220.002 C 168.539,205.951 170.47,163.878 144.913,134.648 C 141.65,130.915 138.274,126.497 137.412,124.829 C 136.208,122.501 135.339,121.915 133.672,122.305 C 116.431,126.343 93.813,128.339 75.671,127.425 C 65.287,126.902 43.553,123.917 39.889,122.511 C 38.74,122.07 37.905,122.814 36.944,125.135 M 131.667,144.667 C 130.059,146.275 131.273,150.136 134.651,154.155 C 138.701,158.975 142.354,166.526 143.402,172.242 C 144.215,176.68 148.007,178.421 150.792,175.636 C 154.204,172.225 148.362,155.619 141.046,147.928 C 137.543,144.245 133.495,142.838 131.667,144.667 M 66.2,163.2 C 61.444,167.956 70.499,177 80.018,177 C 89.032,177 97.48,167.88 92.8,163.2 C 91.004,161.404 90.428,161.646 86.117,166 C 80.621,171.551 75.695,171.179 72.485,164.97 C 70.886,161.879 68.261,161.139 66.2,163.2"/>
+      </g>
+    </g>
+  </g>
+
+  <!-- فجوة الظلّ عند خط الانشطار (خلف كل شيء فوق النصفين) -->
+  <path class="crack-jaw" d="M 96,122 L 99,124 L 87,147 L 90,149 L 99,159 L 102,161 L 83,180 L 86,182 L 96,193 L 99,195 L 85,208 L 88,210 L 98,221 L 101,223 L 98,224 L 95,222 L 84,209 L 81,207 L 95,194 L 92,192 L 82,181 L 79,179 L 98,160 L 95,158 L 86,148 L 83,146 L 95,123 Z"/>
+
+  <!-- خط الشرخ قبل الانشطار -->
+  <path class="precrack" d="M 98,121 L 86,147 L 98,160 L 82,180 L 96,194 L 84,208 L 98,222"/>
+
+  <!-- فقّان غبار عند الشرخ -->
+  <g class="dust" style="animation-delay:-.02s">
+    <circle cx="90" cy="140" r="2.6"/><circle cx="94.5" cy="137.6" r="1.7"/><circle cx="87" cy="136.5" r="1.3"/>
+  </g>
+  <g class="dust" style="animation-delay:-.14s">
+    <circle cx="94" cy="192" r="2.4"/><circle cx="98.5" cy="189.6" r="1.6"/><circle cx="91.5" cy="188.5" r="1.2"/>
+  </g>
+
+  <!-- شظايا الفخار — قطع صغيرة بمسارات قذيفة -->
+  <g>
+    <g class="shard" style="--sx1:22px;--sy1:-13px;--sx2:37px;--sy2:52px;--sx3:40px;--sy3:88px;--sx4:41px;--sy4:112px">
+      <path d="M 97,136 l 3.4,-1.6 2.2,2.6 -2.9,2.1 z" fill="#48FEBD"/>
+    </g>
+    <g class="shard" style="--sx1:-16px;--sy1:-17px;--sx2:-30px;--sy2:56px;--sx3:-33px;--sy3:96px;--sx4:-34px;--sy4:118px;animation-delay:-.08s">
+      <path d="M 90,164 l -2.8,-2.4 1.9,-2.9 3.1,1.6 z" fill="#AFF5A7"/>
+    </g>
+    <g class="shard" style="--sx1:17px;--sy1:-21px;--sx2:26px;--sy2:44px;--sx3:29px;--sy3:72px;--sx4:30px;--sy4:86px;animation-delay:-.05s">
+      <path d="M 96,186 l 3,-1 1.6,2.6 -2.7,1.6 z" fill="#48FEBD"/>
+    </g>
+    <g class="shard" style="--sx1:-13px;--sy1:-24px;--sx2:-19px;--sy2:38px;--sx3:-22px;--sy3:64px;--sx4:-23px;--sy4:76px;animation-delay:-.12s">
+      <path d="M 88,202 l -2.4,-2 1.5,-2.4 2.8,1.2 z" fill="#AFF5A7"/>
+    </g>
+    <g class="shard" style="--sx1:11px;--sy1:-26px;--sx2:18px;--sy2:30px;--sx3:20px;--sy3:58px;--sx4:21px;--sy4:72px;animation-delay:-.1s">
+      <path d="M 97,210 l 2.6,-1.3 1.7,2.3 -2.4,1.8 z" fill="#48FEBD"/>
+    </g>
+    <g class="shard" style="--sx1:-9px;--sy1:-27px;--sx2:-14px;--sy2:16px;--sx3:-16px;--sy3:36px;--sx4:-17px;--sy4:46px;animation-delay:-.06s">
+      <path d="M 90,190 l -2,-1.8 1.2,-2.2 2.3,1 z" fill="#AFF5A7"/>
+    </g>
+  </g>
+
+  <!-- الفرقعة وحلقة الصدمة -->
+  <path class="flash" d="M 98,121 l 5.5,-7.5 1.2,6.8 7.8,-3.4 -4.4,5.9 7.9,1.5 -6.9,2.9 5.6,5 -7.5,-1.2 1.7,7.2 -5.9,-4.5 -1.6,7.3 -3,-6.7 -5.4,5.2 1.4,-7.3 -7.6,1.1 5.4,-5.3 -6.9,-2.4 7.7,-1.9 -4.7,-5.6 7.9,3 Z"/>
+  <ellipse class="ring" cx="98" cy="121" rx="26" ry="20"/>
+
+  <!-- ═══ طبقة العملة: القوس ⇒ الدوران-Y ⇒ التمايل-X ⇒ الانضغاط ═══ -->
+  <g class="coin">
+    <g class="coin-flip">
+      <g class="coin-tumble">
+        <g class="coin-squash">
+          <path class="wafeer-coin-fill" d="M 86.433,15.71 C 82.264,19.879 81.008,27.739 83.032,37 C 84.043,41.623 87.712,50.549 89.497,52.723 C 90.048,53.395 91.85,55.697 93.5,57.837 C 96.83,62.156 101.52,65.591 105.428,66.571 C 107.478,67.086 108.59,66.58 110.944,64.06 C 118.492,55.98 115.06,36.312 103.729,22.703 C 97.433,15.141 90.005,12.138 86.433,15.71 Z"/>
+          <g clip-path="url(#coinFaces)">
+            <rect class="coin-sheen" x="66" y="0" width="60" height="90" transform="rotate(14)"/>
+          </g>
+          <path class="wafeer-coin-stroke" fill-rule="evenodd" d="M 81.332,6.497 C 72.794,10.688 69.577,14.206 67.383,21.756 C 61.007,43.687 81.417,78.842 100.603,78.978 C 105.216,79.011 116.925,74.446 120.147,71.359 C 131.894,60.105 126.835,29.23 110.529,12.661 C 100.605,2.577 92.714,0.911 81.332,6.497 M 83.09,12.265 C 71.748,18.079 75.084,46.867 88.877,62.209 C 108.236,83.74 126.491,63.317 114.426,33.625 C 107.591,16.806 93.273,7.045 83.09,12.265"/>
+        </g>
+      </g>
+    </g>
+  </g>
+
+  <!-- الظلال + نفث الغبار عند الارتطام -->
+  <ellipse class="coin-mouth-shadow" cx="96" cy="103" rx="13" ry="3.4"/>
+  <ellipse class="coin-ground-shadow" cx="168" cy="236" rx="15" ry="3.6"/>
+  <g class="impact" style="transform-origin:168px 236px">
+    <ellipse cx="168" cy="236" rx="11" ry="2.6"/>
+    <circle cx="158" cy="233" r="1.6"/>
+    <circle cx="178" cy="233" r="1.4"/>
+  </g>
+  <g class="impact impact-2" style="transform-origin:170px 237px">
+    <ellipse cx="170" cy="237" rx="9" ry="2.2"/>
+    <circle cx="162" cy="234" r="1.3"/>
+    <circle cx="178" cy="234" r="1.1"/>
+  </g>
+  <g class="impact impact-3" style="transform-origin:171px 237px">
+    <ellipse cx="171" cy="237" rx="7" ry="1.8"/>
+  </g>
+
+  <path class="wafeer-sparkles" fill-rule="evenodd" d="M 138.92,10.92 C 132.456,17.384 131.305,21.187 135.628,21.804 C 138.347,22.191 149.5,10.81 149.5,7.647 C 149.5,3.18 145.389,4.451 138.92,10.92 M 148.09,37.818 C 141.428,39.566 139.205,41.485 140.359,44.492 C 141.084,46.383 141.192,46.377 153.5,43.721 C 158.577,42.625 159.552,42.065 159.837,40.076 C 160.459,35.748 157.875,35.251 148.09,37.818 M 39.614,38.529 C 37.443,40.7 38.607,42.818 45.261,48.811 C 51.586,54.509 52.133,54.725 54.429,52.429 C 57.019,49.838 56.773,49.395 48.739,42.176 C 42.432,36.509 41.862,36.281 39.614,38.529"/>
+</g>
+</svg>

@@ -1,0 +1,262 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-10 0 195 245" style="overflow:visible" fill="none">
+<!-- ═══════════════════════════════════════════════════════════════════════
+     وفير — الحالة 4: الوفرة والتوفير العالي — «نافورة خير» ✨
+     ─────────────────────────────────────────────────────────────────────
+     نافورة من نافذتين على حافتي فم الوعاء (يسار 54,97 · يمين 126,97)
+     حتى لا تمرّ العملات فوق العملة الأم centrally.
+     12 عملة (نسخ مصغّرة من العملة الرسمية · 26%) في 3 طبقات عمق:
+       --z = مقياس العمق (0.68 بعيد · 0.85 متوسط · 1.05–1.18 قريب)
+       --x = المدى الأفقي عند الهبوط (u) · --h = ارتفاع القمة (u)
+       --fade = نصيب الاختفاء قبل الهبوط (0.05 ترجع للوعاء · 0.95 تتناثر)
+     فيزياء القوس parabola حقيقية:  x(t) = X·t ,  y(t) = −H·4t(1−t)
+     ⇒ القمة عند t = 0.5 بالضبط والعودة بنفس التماثل (صعود بطيء · هبوط أسرع).
+     العمق الحقيقي: perspective(200px) + rotateY(360deg) كل 0.45s.
+     اللون: #48FEBD + تدرّج العملة الرسمي — البريق official.
+     ═══════════════════════════════════════════════════════════════════════ -->
+<defs>
+  <linearGradient id="coinGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+    <stop offset="0%" stop-color="#5AC17A"/>
+    <stop offset="100%" stop-color="#388E3C"/>
+  </linearGradient>
+  <!-- تدرّج أبسط للعملات الصغيرة: ألمع قليلاً فتلمع (gleam) -->
+  <linearGradient id="fcGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+    <stop offset="0%" stop-color="#EAFFF6"/>
+    <stop offset="45%" stop-color="#7BFFC4"/>
+    <stop offset="100%" stop-color="#48FEBD"/>
+  </linearGradient>
+  <radialGradient id="aura">
+    <stop offset="0%"  stop-color="#48FEBD" stop-opacity=".34"/>
+    <stop offset="55%" stop-color="#48FEBD" stop-opacity=".11"/>
+    <stop offset="100%" stop-color="#48FEBD" stop-opacity="0"/>
+  </radialGradient>
+  <!-- رمز العملة المصغّرة: نفس المسارات الرسمية بنسبة 26% -->
+  <g id="fc">
+    <g transform="scale(.26) translate(-96,-40)">
+      <path fill="url(#fcGrad)" d="M 86.433,15.71 C 82.264,19.879 81.008,27.739 83.032,37 C 84.043,41.623 87.712,50.549 89.497,52.723 C 90.048,53.395 91.85,55.697 93.5,57.837 C 96.83,62.156 101.52,65.591 105.428,66.571 C 107.478,67.086 108.59,66.58 110.944,64.06 C 118.492,55.98 115.06,36.312 103.729,22.703 C 97.433,15.141 90.005,12.138 86.433,15.71 Z"/>
+      <path class="wafeer-coin-stroke" fill-rule="evenodd" d="M 81.332,6.497 C 72.794,10.688 69.577,14.206 67.383,21.756 C 61.007,43.687 81.417,78.842 100.603,78.978 C 105.216,79.011 116.925,74.446 120.147,71.359 C 131.894,60.105 126.835,29.23 110.529,12.661 C 100.605,2.577 92.714,0.911 81.332,6.497 M 83.09,12.265 C 71.748,18.079 75.084,46.867 88.877,62.209 C 108.236,83.74 126.491,63.317 114.426,33.625 C 107.591,16.806 93.273,7.045 83.09,12.265"/>
+    </g>
+  </g>
+</defs>
+
+<style>
+  .wafeer-coin-fill   { fill: url(#coinGrad); }
+  .wafeer-coin-stroke { fill: #48FEBD; }
+  .wafeer-pot         { fill: #48FEBD; }
+  .wafeer-sparkles    { fill: #48FEBD; }
+
+  /* ══════════ هالة الوفرة — تنبض خلف الشعار ══════════ */
+  .aura{
+    transform-box: view-box; transform-origin:90px 130px;
+    animation: auraPulse 1.2s ease-in-out infinite;
+  }
+  @keyframes auraPulse{
+    0%,100% { opacity:.32; transform: scale(.92); }
+    50%     { opacity:.85; transform: scale(1.07); }
+  }
+
+  /* ══════════ توهج عام على الشعار كله ══════════ */
+  .glow{
+    transform-box: view-box; transform-origin:88px 120px;
+    animation: glowPulse 1.2s ease-in-out infinite;
+    filter: drop-shadow(0 0 5px rgba(72,254,189,.35)) drop-shadow(0 0 18px rgba(72,254,189,.2));
+  }
+  @keyframes glowPulse{
+    0%,100% { transform: scale(1);
+              filter: drop-shadow(0 0 5px rgba(72,254,189,.35)) drop-shadow(0 0 18px rgba(72,254,189,.2)); }
+    50%     { transform: scale(1.015);
+              filter: drop-shadow(0 0 10px rgba(72,254,189,.6)) drop-shadow(0 0 34px rgba(72,254,189,.35)); }
+  }
+
+  /* ══════════ البريق الرسمي — ينطّ بفرح ══════════ */
+  .sparkles{
+    transform-box: view-box; transform-origin:96px 26px;
+    animation: sparkJoy .9s ease-in-out infinite;
+  }
+  @keyframes sparkJoy{
+    0%,100% { opacity:.55; transform: scale(.9) rotate(-3deg); }
+    50%     { opacity:1;   transform: scale(1.12) rotate(3deg); }
+  }
+
+  /* ══════════ الوعاء — زفرة الخزنة المليانة ══════════ */
+  .pot{
+    transform-box: view-box; transform-origin:88px 236px;
+    animation: potJoy 1.2s ease-in-out infinite;
+  }
+  @keyframes potJoy{
+    0%,100% { transform: translateY(0) scaleY(1); }
+    40%     { transform: translateY(-2.4px) scaleY(1.014); }
+    70%     { transform: translateY(0) scaleY(1); }
+  }
+
+  /* ══════════ العملة الأم — ترقص بفرح مع ميل 3D خفيف ══════════ */
+  .coin{
+    transform-box: view-box; transform-origin:96px 40px;
+    animation: coinDance 1.2s ease-in-out infinite;
+  }
+  @keyframes coinDance{
+    0%,100% { transform: perspective(240px) rotateY(0deg) translateY(0) rotate(0deg); }
+    25%     { transform: perspective(240px) rotateY(-11deg) translateY(-2px) rotate(-3deg); }
+    60%     { transform: perspective(240px) rotateY(9deg) translateY(.6px) rotate(2.5deg); }
+  }
+
+  /* ══════════ نافورة العملات ══════════
+     القوس: translate فقط (موضع النقطة) · المقياس: حسب العمق --z */
+  .fcoin{
+    transform-box: fill-box; transform-origin: 50% 50%;
+    animation: fountain .9s cubic-bezier(.25,.45,.55,1) infinite;
+    opacity:0;
+  }
+  @keyframes fountain{
+    0%   { transform: translate(0,0) scale(calc(var(--z) * .22)) rotate(0deg); opacity:0 }
+    7%   { transform: translate(calc(var(--x) * .07px), calc(var(--h) * -.28px)) scale(calc(var(--z) * .95)) rotate(25deg); opacity:1 }
+    25%  { transform: translate(calc(var(--x) * .25px), calc(var(--h) * -.75px)) scale(calc(var(--z) * 1)) rotate(95deg); opacity:1 }
+    50%  { transform: translate(calc(var(--x) * .5px), calc(var(--h) * -1px)) scale(calc(var(--z) * .96)) rotate(180deg); opacity:1 }  /* القمة */
+    75%  { transform: translate(calc(var(--x) * .75px), calc(var(--h) * -.75px)) scale(calc(var(--z) * .86)) rotate(265deg); opacity:calc(1 - var(--fade) * .35) }
+    100% { transform: translate(calc(var(--x) * 1px), 0px) scale(calc(var(--z) * .42)) rotate(360deg); opacity:calc(1 - var(--fade)) }
+  }
+  /* الدوران الحقيقي على محور Y داخل فضاء ثلاثي الأبعاد */
+  .fcoin-3d{
+    transform-box: fill-box; transform-origin: 50% 50%;
+    perspective: 200px; perspective-origin: 50% 50%;
+    animation: coinSpin .45s linear infinite;
+  }
+  @keyframes coinSpin{
+    0%   { transform: rotateY(0deg); }
+    25%  { transform: rotateY(90deg); }    /* حافة */
+    50%  { transform: rotateY(180deg); }   /* الظهر */
+    75%  { transform: rotateY(270deg); }   /* حافة */
+    100% { transform: rotateY(360deg); }
+  }
+  /* بريق خاطف عند القمم */
+  .glint{
+    fill:#EAFFF6; opacity:0;
+    transform-box: fill-box; transform-origin: 50% 50%;
+    animation: glint .9s ease-out infinite;
+  }
+  @keyframes glint{
+    0%,42%   { opacity:0;   transform: scale(.2) rotate(0deg); }
+    50%      { opacity:.95; transform: scale(1.1) rotate(35deg); }
+    58%      { opacity:.35; transform: scale(.7) rotate(60deg); }
+    72%,100% { opacity:0;   transform: scale(.2) rotate(90deg); }
+  }
+  /* ومضات صغيرة حول الرأس */
+  .twinkle{ fill:#AFF5A7; animation: twinkle 1.8s ease-in-out infinite; }
+  @keyframes twinkle{
+    0%,100% { opacity:0 }
+    50%     { opacity:.75 }
+  }
+</style>
+
+<!-- ═══ هالة الوفرة خلف كل شيء ═══ -->
+<ellipse class="aura" cx="90" cy="130" rx="96" ry="112" fill="url(#aura)"/>
+
+<!-- ═══ الطبقة البعيدة من النافورة (خلف العملة الأم ⇒ عمق حقيقي) ═══ -->
+<g transform="translate(54,97)">
+  <g class="fcoin" style="--x:-18;--h:54;--z:.85;--fade:.6;animation-delay:-1.5s">
+    <g class="fcoin-3d"><use href="#fc"/></g>
+  </g>
+</g>
+<g transform="translate(54,97)">
+  <g class="fcoin" style="--x:-40;--h:34;--z:.7;--fade:.5;animation-delay:-.9s">
+    <g class="fcoin-3d"><use href="#fc"/></g>
+  </g>
+</g>
+<g transform="translate(126,97)">
+  <g class="fcoin" style="--x:32;--h:40;--z:.74;--fade:.5;animation-delay:-2.7s">
+    <g class="fcoin-3d"><use href="#fc"/></g>
+  </g>
+</g>
+<g transform="translate(126,97)">
+  <g class="fcoin" style="--x:18;--h:30;--z:.68;--fade:.45;animation-delay:-2.1s">
+    <g class="fcoin-3d"><use href="#fc"/></g>
+  </g>
+</g>
+
+<!-- ═══ الشعار الرسمي + التوهج ═══ -->
+<g class="glow">
+  <g class="pot">
+    <g class="coin">
+      <path class="wafeer-coin-fill" d="M 86.433,15.71 C 82.264,19.879 81.008,27.739 83.032,37 C 84.043,41.623 87.712,50.549 89.497,52.723 C 90.048,53.395 91.85,55.697 93.5,57.837 C 96.83,62.156 101.52,65.591 105.428,66.571 C 107.478,67.086 108.59,66.58 110.944,64.06 C 118.492,55.98 115.06,36.312 103.729,22.703 C 97.433,15.141 90.005,12.138 86.433,15.71 Z"/>
+      <path class="wafeer-coin-stroke" fill-rule="evenodd" d="M 81.332,6.497 C 72.794,10.688 69.577,14.206 67.383,21.756 C 61.007,43.687 81.417,78.842 100.603,78.978 C 105.216,79.011 116.925,74.446 120.147,71.359 C 131.894,60.105 126.835,29.23 110.529,12.661 C 100.605,2.577 92.714,0.911 81.332,6.497 M 83.09,12.265 C 71.748,18.079 75.084,46.867 88.877,62.209 C 108.236,83.74 126.491,63.317 114.426,33.625 C 107.591,16.806 93.273,7.045 83.09,12.265"/>
+    </g>
+    <path class="wafeer-pot" fill-rule="evenodd" d="M 56.5,79.715 C 27.539,83.72 13.425,100.025 26.262,114.646 C 29.892,118.78 29.225,121.152 22.131,129.349 C -2.127,157.377 -3.641,194.866 18.566,217.611 C 21.555,220.673 24,223.304 24,223.459 C 24,223.613 21.188,224.293 17.75,224.969 C 9.958,226.501 8,227.529 8,230.086 C 8,239.466 91.486,242.125 127.5,233.892 C 152.705,228.129 167.929,214.123 172.489,192.5 C 177.102,170.628 170.017,147.544 152.756,128.199 C 146.179,120.828 144.356,116.779 146.728,114.811 C 151.39,110.946 152.288,101.36 148.51,95.8 C 143.653,88.652 121.438,81.133 117.327,85.245 C 114.791,87.781 116.876,89.414 126.472,92.406 C 143.39,97.681 146.132,105.895 133.164,112.453 C 119.319,119.455 62.629,120.024 42.139,113.366 C 21.299,106.595 30.54,91.901 58.5,87.353 C 69.511,85.562 72,84.599 72,82.128 C 72,79.128 66.703,78.304 56.5,79.715 M 72.978,91.113 C 55.999,92.482 45.764,96.615 47.586,101.365 C 50.657,109.366 107.039,111.719 121.128,104.434 C 135.618,96.941 105.168,88.517 72.978,91.113 M 36.944,125.135 C 36.206,126.916 33.531,130.877 30.999,133.937 C 28.467,136.997 25.043,141.525 23.39,144 C 3.864,173.243 13.254,212.289 42.298,222.617 C 67.567,231.602 121.034,230.186 140.997,220.002 C 168.539,205.951 170.47,163.878 144.913,134.648 C 141.65,130.915 138.274,126.497 137.412,124.829 C 136.208,122.501 135.339,121.915 133.672,122.305 C 116.431,126.343 93.813,128.339 75.671,127.425 C 65.287,126.902 43.553,123.917 39.889,122.511 C 38.74,122.07 37.905,122.814 36.944,125.135 M 131.667,144.667 C 130.059,146.275 131.273,150.136 134.651,154.155 C 138.701,158.975 142.354,166.526 143.402,172.242 C 144.215,176.68 148.007,178.421 150.792,175.636 C 154.204,172.225 148.362,155.619 141.046,147.928 C 137.543,144.245 133.495,142.838 131.667,144.667 M 66.2,163.2 C 61.444,167.956 70.499,177 80.018,177 C 89.032,177 97.48,167.88 92.8,163.2 C 91.004,161.404 90.428,161.646 86.117,166 C 80.621,171.551 75.695,171.179 72.485,164.97 C 70.886,161.879 68.261,161.139 66.2,163.2"/>
+    <path class="wafeer-sparkles sparkles" fill-rule="evenodd" d="M 138.92,10.92 C 132.456,17.384 131.305,21.187 135.628,21.804 C 138.347,22.191 149.5,10.81 149.5,7.647 C 149.5,3.18 145.389,4.451 138.92,10.92 M 148.09,37.818 C 141.428,39.566 139.205,41.485 140.359,44.492 C 141.084,46.383 141.192,46.377 153.5,43.721 C 158.577,42.625 159.552,42.065 159.837,40.076 C 160.459,35.748 157.875,35.251 148.09,37.818 M 39.614,38.529 C 37.443,40.7 38.607,42.818 45.261,48.811 C 51.586,54.509 52.133,54.725 54.429,52.429 C 57.019,49.838 56.773,49.395 48.739,42.176 C 42.432,36.509 41.862,36.281 39.614,38.529"/>
+  </g>
+</g>
+
+<!-- ═══ الطبقة القريبة والمتوسطة من النافورة (أمام الشعار) ═══ -->
+<!-- نافذة اليسار -->
+<g transform="translate(54,97)">
+  <g class="fcoin" style="--x:-44;--h:62;--z:1.15;--fade:.95;animation-delay:-0s">
+    <g class="fcoin-3d"><use href="#fc"/></g>
+  </g>
+</g>
+<g transform="translate(54,97)">
+  <g class="fcoin" style="--x:-28;--h:78;--z:1.05;--fade:.9;animation-delay:-.6s">
+    <g class="fcoin-3d"><use href="#fc"/></g>
+  </g>
+</g>
+<g transform="translate(54,97)">
+  <g class="fcoin" style="--x:-56;--h:44;--z:.95;--fade:.8;animation-delay:-2.4s">
+    <g class="fcoin-3d"><use href="#fc"/></g>
+  </g>
+</g>
+<!-- نافذة اليمين -->
+<g transform="translate(126,97)">
+  <g class="fcoin" style="--x:46;--h:58;--z:1.18;--fade:.95;animation-delay:-.3s">
+    <g class="fcoin-3d"><use href="#fc"/></g>
+  </g>
+</g>
+<g transform="translate(126,97)">
+  <g class="fcoin" style="--x:30;--h:74;--z:1.08;--fade:.9;animation-delay:-1.8s">
+    <g class="fcoin-3d"><use href="#fc"/></g>
+  </g>
+</g>
+<g transform="translate(126,97)">
+  <g class="fcoin" style="--x:58;--h:42;--z:.95;--fade:.8;animation-delay:-3s">
+    <g class="fcoin-3d"><use href="#fc"/></g>
+  </g>
+</g>
+<!-- عملات الوسط: ترجع إلى الفوهة وتختفي داخل الوعاء -->
+<g transform="translate(92,100)">
+  <g class="fcoin" style="--x:-7;--h:40;--z:1;--fade:.08;animation-delay:-1.2s">
+    <g class="fcoin-3d"><use href="#fc"/></g>
+  </g>
+</g>
+<g transform="translate(92,100)">
+  <g class="fcoin" style="--x:9;--h:34;--z:.95;--fade:.06;animation-delay:-2.55s">
+    <g class="fcoin-3d"><use href="#fc"/></g>
+  </g>
+</g>
+<g transform="translate(92,100)">
+  <g class="fcoin" style="--x:-2;--h:24;--z:.85;--fade:.04;animation-delay:-3.3s">
+    <g class="fcoin-3d"><use href="#fc"/></g>
+  </g>
+</g>
+
+<!-- ═══ ومضات صغيرة حول الرأس ═══ -->
+<circle class="twinkle" cx="16"  cy="52" r="2.6"/>
+<circle class="twinkle" cx="176" cy="66" r="2.2" style="animation-delay:-.45s"/>
+<circle class="twinkle" cx="168" cy="14" r="2.6" style="animation-delay:-.9s"/>
+<circle class="twinkle" cx="36"  cy="24" r="2.2" style="animation-delay:-1.35s"/>
+
+<!-- ═══ بريق خاطف عند قمم العملات (نفس توقيت قممها) ═══ -->
+<g class="glint" style="animation-delay:0s">
+  <path d="M 32,35 l 1.6,4.4 4.4,1.6 -4.4,1.6 -1.6,4.4 -1.6,-4.4 -4.4,-1.6 4.4,-1.6 z"/>
+</g>
+<g class="glint" style="animation-delay:-.3s">
+  <path d="M 149,39 l 1.4,3.8 3.8,1.4 -3.8,1.4 -1.4,3.8 -1.4,-3.8 -3.8,-1.4 3.8,-1.4 z"/>
+</g>
+<g class="glint" style="animation-delay:-.6s">
+  <path d="M 40,19 l 1.2,3.2 3.2,1.2 -3.2,1.2 -1.2,3.2 -1.2,-3.2 -3.2,-1.2 3.2,-1.2 z"/>
+</g>
+<g class="glint" style="animation-delay:-1.8s">
+  <path d="M 141,23 l 1.2,3.2 3.2,1.2 -3.2,1.2 -1.2,3.2 -1.2,-3.2 -3.2,-1.2 3.2,-1.2 z"/>
+</g>
+<g class="glint" style="animation-delay:-1.2s">
+  <path d="M 88,60 l 1.1,3 3,1.1 -3,1.1 -1.1,3 -1.1,-3 -3,-1.1 3,-1.1 z"/>
+</g>
+<g class="glint" style="animation-delay:-2.4s">
+  <path d="M 26,53 l 1,2.8 2.8,1 -2.8,1 -1,2.8 -1,-2.8 -2.8,-1 2.8,-1 z"/>
+</g>
+</svg>

@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>وفير — حالات الرمز الرسمي</title>
+<style>
+  :root{
+    --bg:#080c0b;            /* الأسود الفاخر الرسمي */
+    --surface:#0e1413;
+    --surface-2:#121a18;
+    --line:rgba(175,245,167,.10);
+    --ink:#F4F9F7;
+    --sub:#8FA8A0;
+    --mint:#AFF5A7;
+    --teal:#48FEBD;
+    --amber:#FFB454;
+    --red:#FF4D5E;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; min-height:100vh; background:
+      radial-gradient(900px 520px at 70% -10%, rgba(72,254,189,.05), transparent 60%),
+      radial-gradient(700px 500px at 10% 110%, rgba(175,245,167,.04), transparent 60%),
+      var(--bg);
+    color:var(--ink);
+    font-family:"Segoe UI", system-ui, Tahoma, sans-serif;
+  }
+  header{padding:40px 32px 8px; max-width:980px; margin-inline:auto}
+  h1{font-size:22px; font-weight:700; margin:0 0 6px; letter-spacing:-.2px}
+  .lede{color:var(--sub); font-size:14px; line-height:1.9; margin:0}
+  .lede b{color:var(--ink); font-weight:600}
+
+  .principles{max-width:980px; margin:18px auto 0; padding:0 32px; display:flex; gap:10px; flex-wrap:wrap}
+  .principle{
+    flex:1 1 220px; background:var(--surface); border:1px solid var(--line);
+    border-radius:14px; padding:14px 16px; font-size:12.5px; line-height:1.8; color:var(--sub);
+  }
+  .principle b{display:block; color:var(--ink); font-size:13px; margin-bottom:4px}
+
+  /* ---------- المنصة ---------- */
+  .stage-wrap{max-width:980px; margin:26px auto 0; padding:0 32px}
+  .statebar{display:flex; gap:8px; margin-bottom:18px; flex-wrap:wrap}
+  .statebar button{
+    appearance:none; border:1px solid var(--line); background:var(--surface); color:var(--sub);
+    font:inherit; font-size:13px; padding:9px 16px; border-radius:999px; cursor:pointer;
+    transition:all .25s;
+  }
+  .statebar button[aria-selected="true"]{color:#08110e; font-weight:700}
+  .stage{
+    display:grid; grid-template-columns:minmax(260px,380px) 1fr; gap:0;
+    background:var(--surface); border:1px solid var(--line); border-radius:24px; overflow:hidden;
+  }
+  .glyph-col{
+    position:relative; display:flex; align-items:center; justify-content:center;
+    padding:56px 24px; background:
+      radial-gradient(420px 380px at 50% 42%, var(--aura, transparent), transparent 70%);
+    transition:background .6s ease;
+  }
+  .glyph-col svg{width:min(46vw,300px); height:auto; position:relative; z-index:2}
+  .pct{
+    position:absolute; bottom:22px; inset-inline:0; text-align:center;
+    font-size:13px; letter-spacing:.5px; color:var(--sub); font-variant-numeric:tabular-nums;
+  }
+  .pct b{color:var(--accentMain, var(--teal)); font-size:15px}
+
+  /* ---------- المؤشر الخطي الدقيق ---------- */
+  .meter{position:absolute; bottom:52px; inset-inline:56px; height:3px; border-radius:2px;
+    background:rgba(255,255,255,.06); overflow:visible}
+  .meter .fill{position:absolute; inset-inline-start:0; top:0; bottom:0; border-radius:2px;
+    background:linear-gradient(90deg,var(--teal),var(--mint)); transition:width .7s cubic-bezier(.2,.7,.2,1), background .7s}
+  .meter .cap75,.meter .cap100{position:absolute; top:-3px; bottom:-3px; width:1px}
+  .meter .cap75{inset-inline-start:60%; background:rgba(255,255,255,.14)}
+  .meter .cap100{inset-inline-start:80%; background:rgba(255,255,255,.22)}
+
+  /* ---------- لوحة المواصفات ---------- */
+  .spec-col{border-inline-start:1px solid var(--line); padding:32px 36px; display:flex; flex-direction:column; gap:18px}
+  .spec h2{font-size:16px; margin:0}
+  .spec p{font-size:13.5px; line-height:2; color:var(--sub); margin:6px 0 0}
+  .spec p b{color:var(--ink); font-weight:600}
+  .motion{
+    display:flex; gap:16px; flex-wrap:wrap; font-size:11.5px; color:var(--sub);
+    font-variant-numeric:tabular-nums;
+  }
+  .motion span{background:var(--surface-2); border:1px solid var(--line); border-radius:8px; padding:5px 10px}
+  details.notif{border:1px solid var(--line); border-radius:14px; background:var(--surface-2); padding:14px 18px}
+  details.notif summary{cursor:pointer; font-size:12px; color:var(--sub); letter-spacing:.3px}
+  details.notif summary b{color:var(--ink)}
+  .notif-body{display:grid; gap:10px; padding-top:12px}
+  .notif-card{background:#101715; border:1px solid var(--line); border-radius:14px; padding:14px 16px;
+    box-shadow:0 12px 30px rgba(0,0,0,.35)}
+  .notif-card .t{font-size:13px; font-weight:700; display:flex; align-items:center; gap:8px}
+  .notif-card .t svg{width:15px; height:15px; flex:none}
+  .notif-card .b{font-size:12.5px; color:var(--sub); line-height:1.9; margin-top:5px}
+  .rule{font-size:12px; color:var(--sub); line-height:1.9; margin:0}
+  .rule b{color:var(--ink)}
+
+  footer{max-width:980px; margin:26px auto 48px; padding:0 32px; color:var(--sub); font-size:12px; line-height:2}
+
+  /* ============================================================
+     الحالات — القاعدة: الشكل الهندسي لا يتغير، يتغير الضوء فقط
+     ============================================================ */
+
+  /* ---------- 1) الأمان والتوفير ---------- */
+  [data-state="safe"]{
+    --accentMain:var(--teal);
+    --aura:rgba(72,254,189,.10);
+    --notif:#48FEBD;
+  }
+  [data-state="safe"] #symbol{
+    animation:safeGlow 3.8s cubic-bezier(.4,0,.2,1) infinite;
+  }
+  @keyframes safeGlow{
+    0%,100%{filter:drop-shadow(0 0 5px rgba(72,254,189,.30)) drop-shadow(0 0 20px rgba(72,254,189,.14))}
+    50%    {filter:drop-shadow(0 0 9px rgba(72,254,189,.50)) drop-shadow(0 0 34px rgba(72,254,189,.24))}
+  }
+  [data-state="safe"] .wafeer-sparkles{
+    transform-origin:82px 26px; animation:sparkPulse 2.4s ease-in-out infinite;
+  }
+  @keyframes sparkPulse{
+    0%,100%{opacity:.45; transform:scale(.92)}
+    50%    {opacity:1;  transform:scale(1.06)}
+  }
+  [data-state="safe"] .wafeer-coin{transform-origin:95px 45px; animation:coinBreath 5s ease-in-out infinite}
+  @keyframes coinBreath{0%,100%{transform:scale(1)}50%{transform:scale(1.012)}}
+  [data-state="safe"] .meter .fill{width:30.5%}
+
+  /* ---------- 2) وتيرة صرف سريعة ---------- */
+  [data-state="pace"]{
+    --accentMain:var(--amber);
+    --aura:rgba(255,180,84,.08);
+    --notif:#FFB454;
+  }
+  [data-state="pace"] .glyph-col{animation:flash 3.4s steps(1,end) infinite}
+  [data-state="pace"] .glyph-col::after{
+    content:""; position:absolute; inset:0; z-index:1; opacity:0; pointer-events:none;
+    background:radial-gradient(260px 240px at 50% 45%, rgba(255,166,66,.14), transparent 70%);
+    animation:flash 3.4s ease infinite;
+  }
+  @keyframes flash{0%,88%,100%{opacity:0}92%,96%{opacity:1}}
+  [data-state="pace"] #symbol{
+    animation:shake 3.4s cubic-bezier(.3,.8,.3,1) infinite;
+    filter:drop-shadow(0 0 4px rgba(255,180,84,.25));
+  }
+  /* انفجار اهتزاز مقصود: ±1.1px فقط — مقروء لكن غير صاخب */
+  @keyframes shake{
+    0%,88%,100%{transform:translate(0,0) rotate(0)}
+    90%{transform:translate(-1.1px,.4px) rotate(-.25deg)}
+    92%{transform:translate(1.1px,-.4px) rotate(.25deg)}
+    94%{transform:translate(-1px,.3px) rotate(-.2deg)}
+    96%{transform:translate(.7px,0) rotate(.15deg)}
+  }
+  [data-state="pace"] .wafeer-pot{fill:#FFB454}
+  [data-state="pace"] .wafeer-coin-stroke{fill:#FFB454}
+  [data-state="pace"] .wafeer-sparkles{fill:#FFB454}
+  [data-state="pace"] .meter .fill{width:54.5%; background:linear-gradient(90deg,#E09A3C,var(--amber))}
+
+  /* ---------- 3) سقف 75% ---------- */
+  [data-state="warn"]{
+    --accentMain:#FFC24B;
+    --aura:rgba(255,194,75,.09);
+    --notif:#FFC24B;
+  }
+  [data-state="warn"] .wafeer-pot{fill:url(#gradWarn)}
+  [data-state="warn"] .wafeer-coin-stroke{fill:#FFC24B}
+  [data-state="warn"] .wafeer-sparkles{fill:#FFC24B}
+  [data-state="warn"] #symbol{
+    filter:drop-shadow(0 0 6px rgba(255,194,75,.28)) drop-shadow(0 0 22px rgba(255,180,84,.12));
+    animation:warnBreathe 4.4s ease-in-out infinite;
+  }
+  @keyframes warnBreathe{
+    0%,100%{filter:drop-shadow(0 0 5px rgba(255,194,75,.25)) drop-shadow(0 0 18px rgba(255,180,84,.10))}
+    50%    {filter:drop-shadow(0 0 8px rgba(255,194,75,.40)) drop-shadow(0 0 30px rgba(255,180,84,.18))}
+  }
+  [data-state="warn"] .meter .fill{width:60%; background:linear-gradient(90deg,var(--teal) 0 45%,#FFD9A0 80%,var(--amber) 100%)}
+  [data-state="warn"] .meter .cap75{background:rgba(255,194,75,.55)}
+
+  /* ---------- 4) تجاوز 100% ---------- */
+  [data-state="over"]{
+    --accentMain:var(--red);
+    --aura:rgba(255,77,94,.10);
+    --notif:#FF4D5E;
+  }
+  [data-state="over"] .wafeer-pot{fill:url(#gradOver)}
+  [data-state="over"] .wafeer-coin-fill{fill:url(#gradOverCoin)}
+  [data-state="over"] .wafeer-coin-stroke{fill:#FF5A6E}
+  [data-state="over"] .wafeer-sparkles{fill:#FF5A6E}
+  [data-state="over"] #symbol{
+    animation:neon 4s ease-in-out infinite;
+  }
+  @keyframes neon{
+    0%,100%{filter:drop-shadow(0 0 5px rgba(255,60,80,.40)) drop-shadow(0 0 24px rgba(255,60,80,.18))}
+    50%    {filter:drop-shadow(0 0 9px rgba(255,60,80,.60)) drop-shadow(0 0 38px rgba(255,60,80,.28))}
+  }
+  [data-state="over"] .meter .fill{width:80%; background:linear-gradient(90deg,var(--amber) 0 50%,var(--red) 100%)}
+  [data-state="over"] .meter .cap75{background:rgba(255,194,75,.4)}
+  [data-state="over"] .meter .overflow{
+    position:absolute; inset-inline-start:80%; width:3.5%; top:0; bottom:0; border-radius:2px;
+    background:repeating-linear-gradient(-45deg, rgba(255,77,94,.55) 0 3px, transparent 3px 6px);
+  }
+
+  /* ---------- أخفاء اللوحات غير النشطة ---------- */
+  .spec{display:none}
+  [data-state="safe"]   .spec[data-state="safe"],
+  [data-state="pace"]   .spec[data-state="pace"],
+  [data-state="warn"]   .spec[data-state="warn"],
+  [data-state="over"]   .spec[data-state="over"]{display:flex; flex-direction:column; gap:16px}
+
+  @media (max-width:760px){
+    .stage{grid-template-columns:1fr}
+    .spec-col{border-inline-start:none; border-top:1px solid var(--line)}
+  }
+  /* احترام تفضيل تقليل الحركة */
+  @media (prefers-reduced-motion:reduce){
+    *{animation:none !important}
+  }
+</style>
+</head>
+<body data-state="safe">
+
+<header>
+  <h1>وفير — لغة الحالة للرمز الرسمي</h1>
+  <p class="lede">الرمز هو الواجهة. <b>الهندسة لا تُلمس إطلاقاً</b> — لا أقنعة، لا شخصيات، لا تعديل مسارات. الحالة تُقرأ عبر ثلاث قنوات فقط: <b>لون الضوء</b>، <b>شدّة التوهج</b>، و<b>وتيرة الحركة</b>. حساسية كالخط الفاخر: كل غيغابكسل حسابي.</p>
+</header>
+
+<div class="principles">
+  <div class="principle"><b>① الرمز فوق الشكل</b>الوعاء والعملة والبريق تبقى كما رسمها الشعار. لا ماسكوت، لا وجه صادم، لا مبالغة توضيحية.</div>
+  <div class="principle"><b>② الضوء بديل عن اللفظ</b>اللون المشتعل وحده يحمل الرسالة: أخضر كهربائي = توازن. كهرمان = إيقاع متسارع. تدرّج تحذيري = قرب السقف. نيون أحمر = استهلاك كامل.</div>
+  <div class="principle"><b>③ حركة محسوبة</b>لا هبوب، لا ارتداد مرح. بريق نابض ذكي عند الأمان؛ ششّة نصف-درجة عند التسارع؛ بثق تدرّج عند الاقتراب؛ نيون بطيء عند التجاوز.</div>
+  <div class="principle"><b>④ المتر خطوط لا كلمات</b>السقف 75% وتجاوز الـ100% مرسومان كعتبات دقيقة على خط الميزانية الفعلي — لا كتعليقات صوتية.</div>
+</div>
+
+<div class="stage-wrap">
+  <div class="statebar" role="tablist">
+    <button aria-selected="true" data-go="safe">الأمان والتوفير</button>
+    <button aria-selected="false" data-go="pace">وتيرة صرف سريعة</button>
+    <button aria-selected="false" data-go="warn">السقف 75%</button>
+    <button aria-selected="false" data-go="over">تجاوز 100%</button>
+  </div>
+
+  <div class="stage">
+    <div class="glyph-col">
+      <svg viewBox="-10 0 195 245" aria-label="رمز وفير" role="img">
+        <defs>
+          <linearGradient id="coinGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#5AC17A"/><stop offset="100%" stop-color="#388E3C"/>
+          </linearGradient>
+          <linearGradient id="gradWarn" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#AFF5A7"/><stop offset="100%" stop-color="#FFB454"/>
+          </linearGradient>
+          <linearGradient id="gradOver" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#FF8A7A"/><stop offset="100%" stop-color="#FF2D4D"/>
+          </linearGradient>
+          <linearGradient id="gradOverCoin" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#FF6E81"/><stop offset="100%" stop-color="#C81E38"/>
+          </linearGradient>
+        </defs>
+        <g id="symbol">
+          <g class="wafeer-coin">
+            <path class="wafeer-coin-fill" d="M 86.433,15.71 C 82.264,19.879 81.008,27.739 83.032,37 C 84.043,41.623 87.712,50.549 89.497,52.723 C 90.048,53.395 91.85,55.697 93.5,57.837 C 96.83,62.156 101.52,65.591 105.428,66.571 C 107.478,67.086 108.59,66.58 110.944,64.06 C 118.492,55.98 115.06,36.312 103.729,22.703 C 97.433,15.141 90.005,12.138 86.433,15.71 Z"/>
+            <path class="wafeer-coin-stroke" fill-rule="evenodd" d="M 81.332,6.497 C 72.794,10.688 69.577,14.206 67.383,21.756 C 61.007,43.687 81.417,78.842 100.603,78.978 C 105.216,79.011 116.925,74.446 120.147,71.359 C 131.894,60.105 126.835,29.23 110.529,12.661 C 100.605,2.577 92.714,0.911 81.332,6.497 M 83.09,12.265 C 71.748,18.079 75.084,46.867 88.877,62.209 C 108.236,83.74 126.491,63.317 114.426,33.625 C 107.591,16.806 93.273,7.045 83.09,12.265"/>
+          </g>
+          <path class="wafeer-pot" fill-rule="evenodd" d="M 56.5,79.715 C 27.539,83.72 13.425,100.025 26.262,114.646 C 29.892,118.78 29.225,121.152 22.131,129.349 C -2.127,157.377 -3.641,194.866 18.566,217.611 C 21.555,220.673 24,223.304 24,223.459 C 24,223.613 21.188,224.293 17.75,224.969 C 9.958,226.501 8,227.529 8,230.086 C 8,239.466 91.486,242.125 127.5,233.892 C 152.705,228.129 167.929,214.123 172.489,192.5 C 177.102,170.628 170.017,147.544 152.756,128.199 C 146.179,120.828 144.356,116.779 146.728,114.811 C 151.39,110.946 152.288,101.36 148.51,95.8 C 143.653,88.652 121.438,81.133 117.327,85.245 C 114.791,87.781 116.876,89.414 126.472,92.406 C 143.39,97.681 146.132,105.895 133.164,112.453 C 119.319,119.455 62.629,120.024 42.139,113.366 C 21.299,106.595 30.54,91.901 58.5,87.353 C 69.511,85.562 72,84.599 72,82.128 C 72,79.128 66.703,78.304 56.5,79.715 M 72.978,91.113 C 55.999,92.482 45.764,96.615 47.586,101.365 C 50.657,109.366 107.039,111.719 121.128,104.434 C 135.618,96.941 105.168,88.517 72.978,91.113 M 36.944,125.135 C 36.206,126.916 33.531,130.877 30.999,133.937 C 28.467,136.997 25.043,141.525 23.39,144 C 3.864,173.243 13.254,212.289 42.298,222.617 C 67.567,231.602 121.034,230.186 140.997,220.002 C 168.539,205.951 170.47,163.878 144.913,134.648 C 141.65,130.915 138.274,126.497 137.412,124.829 C 136.208,122.501 135.339,121.915 133.672,122.305 C 116.431,126.343 93.813,128.339 75.671,127.425 C 65.287,126.902 43.553,123.917 39.889,122.511 C 38.74,122.07 37.905,122.814 36.944,125.135 M 131.667,144.667 C 130.059,146.275 131.273,150.136 134.651,154.155 C 138.701,158.975 142.354,166.526 143.402,172.242 C 144.215,176.68 148.007,178.421 150.792,175.636 C 154.204,172.225 148.362,155.619 141.046,147.928 C 137.543,144.245 133.495,142.838 131.667,144.667 M 66.2,163.2 C 61.444,167.956 70.499,177 80.018,177 C 89.032,177 97.48,167.88 92.8,163.2 C 91.004,161.404 90.428,161.646 86.117,166 C 80.621,171.551 75.695,171.179 72.485,164.97 C 70.886,161.879 68.261,161.139 66.2,163.2"/>
+          <path class="wafeer-sparkles" fill-rule="evenodd" d="M 138.92,10.92 C 132.456,17.384 131.305,21.187 135.628,21.804 C 138.347,22.191 149.5,10.81 149.5,7.647 C 149.5,3.18 145.389,4.451 138.92,10.92 M 148.09,37.818 C 141.428,39.566 139.205,41.485 140.359,44.492 C 141.084,46.383 141.192,46.377 153.5,43.721 C 158.577,42.625 159.552,42.065 159.837,40.076 C 160.459,35.748 157.875,35.251 148.09,37.818 M 39.614,38.529 C 37.443,40.7 38.607,42.818 45.261,48.811 C 51.586,54.509 52.133,54.725 54.429,52.429 C 57.019,49.838 56.773,49.395 48.739,42.176 C 42.432,36.509 41.862,36.281 39.614,38.529"/>
+        </g>
+      </svg>
+      <div class="meter" aria-hidden="true">
+        <div class="fill"></div>
+        <div class="cap75"></div><div class="cap100"></div><div class="overflow" style="display:none"></div>
+      </div>
+      <div class="pct">نسبة السقف <b id="pct">38%</b></div>
+    </div>
+
+    <!-- لوحة المواصفات -->
+    <div class="spec-col">
+      <div class="spec" data-state="safe">
+        <h2>الأمان والتوفير — عنوان التوهّج الهادئ</h2>
+        <p>التدرج الرسمي <b>#AFF5A7 → #48FEBD</b> منتصف الدورة رقمي البوصلة. التوهّج الخارجي (Glow) يتنفس <b>3.8s</b> — نبضة تُقرأ باللاوعي لا بالعين. البريق الذكي (الشرار في مسار الشعار الأصلي) ينمو ويتقلص <b>±3°</b> — إشارة «صدور وصفر عجلة» ثابتة. العملة مستقرة كنقطة قبس صلبة في المكان المرسوم.</p>
+        <div class="motion"><span>Glow · 3.8s ease-in-out</span><span>Sparkle · 2.4s</span><span>Coin · 1.2% scale</span></div>
+        <details class="notif"><summary><b>صياغة الإشعار</b> — نفّذ لعرضه</summary><div class="notif-body">
+          <div class="notif-card"><div class="t"><svg viewBox="-10 0 195 245"><path fill="#48FEBD" d="M56.5 79.7C27.5 83.7 13.4 100 26.3 114.6 29.9 118.8 29.2 121.2 22.1 129.3-2.1 157.4-3.6 194.9 18.6 217.6 56 241.1 91.5 242.1 127.5 233.9 152.7 228.1 167.9 214.1 172.5 192.5 177.1 170.6 170 147.5 152.8 128.2 146.2 120.8 144.4 116.8 146.7 114.8 151.4 110.9 152.3 101.4 148.5 95.8 143.7 88.7 121.4 81.1 117.3 85.2 114.8 87.8 116.9 89.4 126.5 92.4 143.4 97.7 146.1 105.9 133.2 112.5 119.3 119.5 62.6 120 42.1 113.4 21.3 106.6 30.5 91.9 58.5 87.4 69.5 85.6 72 84.6 72 82.1 72 79.1 66.7 78.3 56.5 79.7"/></svg>وفير · وضع التوفير نشط</div>
+            <div class="b">أنفقت 38% من ميزانية الدورة. المعدل اليومي <b>61 ر.س</b> من سقف 160، والفائض المتراكم حتى الآن <b>1,240 ر.س</b> — محفوظ ضمن خزّان الدورة.</div>
+          </div>
+          <div class="rule" style="padding:0 4px"><b>نبرة:</b> «تمكين لا مديح». تُنقل بيانات ثم سبب وجيه للاستمرار.</div>
+        </div></details>
+      </div>
+
+      <div class="spec" data-state="pace">
+        <h2>وتيرة صرف سريعة — تموج كهرماني مقصود</h2>
+        <p>الخضّر ينسحب والوعاء يقبل <b>#FFB454</b> — بدون هالة (Halo)، وبدون قناع. الاهتزاز <b>±1.1px</b> لمدة <b>420ms</b> كل <b>3.4s</b>: وامضة بكهرماني لم تنته. الصياغة تُشعل قنوات (فلب غير مسموع) والرمز يميل <b>±0.25°</b> بدل التشويش. <span dir="ltr">cubic-bezier(.3,.8,.3,1)</span>.</p>
+        <div class="motion"><span>Burst · 420ms</span><span>Cycle · 3.4s</span><span>Amplitude · 1.1px / .25°</span></div>
+        <details class="notif"><summary><b>صياغة الإشعار</b> — نفّذ لعرضه</summary><div class="notif-body">
+          <div class="notif-card"><div class="t"><svg viewBox="-10 0 195 245"><path fill="#FFB454" d="M56.5 79.7C27.5 83.7 13.4 100 26.3 114.6 29.9 118.8 29.2 121.2 22.1 129.3-2.1 157.4-3.6 194.9 18.6 217.6 56 241.1 91.5 242.1 127.5 233.9 152.7 228.1 167.9 214.1 172.5 192.5 177.1 170.6 170 147.5 152.8 128.2 146.2 120.8 144.4 116.8 146.7 114.8 151.4 110.9 152.3 101.4 148.5 95.8 143.7 88.7 121.4 81.1 117.3 85.2 114.8 87.8 116.9 89.4 126.5 92.4 143.4 97.7 146.1 105.9 133.2 112.5 119.3 119.5 62.6 120 42.1 113.4 21.3 106.6 30.5 91.9 58.5 87.4 69.5 85.6 72 84.6 72 82.1 72 79.1 66.7 78.3 56.5 79.7"/></svg>وفير · إيقاع أعلى من خط الأساس</div>
+            <div class="b">معدل اليوم <b>84 ر.س</b> مقابل خط أساسك 57. إن استمر الإيقاع، ستصل 92% من السقف قبل نهاية الدورة بسبعة أيام.</div>
+          </div>
+          <div class="rule" style="padding:0 4px"><b>نبرة:</b> إحصائية في وقتها، لا فلسفة: متوسط المادة الحسّاسة لا تهاجَم بها المستخدم. لا «هذا سيبتُ آسفاً».</div>
+        </div></details>
+      </div>
+
+      <div class="spec" data-state="warn">
+        <h2>سقف 75% — تحوّلّ تدرّج دون تغيير الشكل</h2>
+        <p>الوعاء يقبل تدرّجاً راقياً <b>#AFF5A7 → #FFB454</b> <span dir="ltr">(url(#gradWarn)</span>). المتر الخطي الجديد يظهر شريطين تحذير — عتبة <b>75%</b> وعتبة <b>100%</b>. النفس يصبح <b>4.4s</b> أطول وأثقل نبضة أمان — المنبّه المرتفع للسبوية لا للمؤقت.</p>
+        <div class="motion"><span>Breathe · 4.4s</span><span>Glow drop · rgba(255,194,75).28</span><span>Meter · cap75 hit</span></div>
+        <details class="notif"><summary><b>صياغة الإشعار</b> — نفّذ لعرضه</summary><div class="notif-body">
+          <div class="notif-card"><div class="t"><svg viewBox="-10 0 195 245"><path fill="#FFC24B" d="M56.5 79.7C27.5 83.7 13.4 100 26.3 114.6 29.9 118.8 29.2 121.2 22.1 129.3-2.1 157.4-3.6 194.9 18.6 217.6 56 241.1 91.5 242.1 127.5 233.9 152.7 228.1 167.9 214.1 172.5 192.5 177.1 170.6 170 147.5 152.8 128.2 146.2 120.8 144.4 116.8 146.7 114.8 151.4 110.9 152.3 101.4 148.5 95.8 143.7 88.7 121.4 81.1 117.3 85.2 114.8 87.8 116.9 89.4 126.5 92.4 143.4 97.7 146.1 105.9 133.2 112.5 119.3 119.5 62.6 120 42.1 113.4 21.3 106.6 30.5 91.9 58.5 87.4 69.5 85.6 72 84.6 72 82.1 72 79.1 66.7 78.3 56.5 79.7"/></svg>وفير · مؤشر الميزانية 75%</div>
+            <div class="b">استُهلك <b>1,470 من 1,960 ر.س</b> مع 9 أيام متبقية. الحد اليومي المضبوط: <b>54 ر.س</b> ليبقى الخزّان الجاري متوازناً.</div>
+          </div>
+          <div class="notif-card"><div class="b">معدل الإنفاق تجاوز المنحنى المخطط بمقدار خمس نسبة مئوية. أُهلك إلغاء بند واحد من الفئات المتكررة يعيد المؤشر إلى خط المسار اليومي.</div></div>
+          <div class="rule" style="padding:0 4px"><b>نبرة:</b> تقديم حل (بند الاستهلاك الأعلى / الفئات المتكررة) لا عدّ رسمي للمافيات الحكومية.</div>
+        </div></details>
+      </div>
+
+      <div class="spec" data-state="over">
+        <h2>تجاوز 100% — نيون أحمر أنيق، ألا صخب</h2>
+        <p>محتوى التدرّج <b>#FF8A7A → #FF2D4D</b> ونيون أحمر <b>4s</b> — نبضة بطيئة تجزّء سقفياً لا كخطر عالمي (هذه تُبنى بـ<b>drop-shadow</b> فقط: أنيقة، لا تحريف الشكل). المتر يظهر شريط تجاوز منسوج (Strand) بعتبة 100%. العملة تُصطبغ كإشارة واحدة قاطعة.</p>
+        <div class="motion"><span>Neon · 4s</span><span>Glow drop · rgba(255,60,80).6</span><span>Meter · 100% + overflow</span></div>
+        <details class="notif"><summary><b>صياغة الإشعار</b> — نفّذ لعرضه</summary><div class="notif-body">
+          <div class="notif-card"><div class="t"><svg viewBox="-10 0 195 245"><path fill="#FF4D5E" d="M56.5 79.7C27.5 83.7 13.4 100 26.3 114.6 29.9 118.8 29.2 121.2 22.1 129.3-2.1 157.4-3.6 194.9 18.6 217.6 56 241.1 91.5 242.1 127.5 233.9 152.7 228.1 167.9 214.1 172.5 192.5 177.1 170.6 170 147.5 152.8 128.2 146.2 120.8 144.4 116.8 146.7 114.8 151.4 110.9 152.3 101.4 148.5 95.8 143.7 88.7 121.4 81.1 117.3 85.2 114.8 87.8 116.9 89.4 126.5 92.4 143.4 97.7 146.1 105.9 133.2 112.5 119.3 119.5 62.6 120 42.1 113.4 21.3 106.6 30.5 91.9 58.5 87.4 69.5 85.6 72 84.6 72 82.1 72 79.1 66.7 78.3 56.5 79.7"/></svg>وفير · اكتمال سقف الدورة</div>
+            <div class="b">استُهلك السقف بالكامل (<b>1,960 ر.س</b>). الفارق الحالي <b>85 ر.س</b> — يُرحّل إلى الفائض عند فتح الدورة التالية إن لم يُعالَج.</div>
+          </div>
+          <div class="notif-card"><div class="b">أعلى بند استهلاكاً: <b>المطاعم (62%)</b>. الإدلاء بقربة واحدة على هذا البند يوزّع الفارق مباشرة في الدورة القادمة.</div></div>
+          <div class="rule" style="padding:0 4px"><b>نبرة:</b> المرحلة «مُسجّلة، وقابلة للمعالجة» — لا غَرَضة، لا لوم، لا علامات تعجّب. مشهد محاسبي مهني.</div>
+        </div></details>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <b style="color:var(--ink)">عقد النصوص الإشعارية:</b>
+  العنوان يعبّر عن الحالة + المتغيّر (رقم + وحدة). المتن: <span dir="ltr">Cohort</span> رقمان على الأكثر — <b>الوقائع</b> ثم <b>الإجراء بتحمل واضح</b>. لا إيموجي، لا «لنتفق!», لا وعود طويلة المدة، لا صيغة توبيخ. كل إشعار يعمل غيباً كبعد سببية: رقم المقياس، خط الأساس، الأثر، التوقيت.
+</footer>
+
+<script>
+/* إظهار/إخفاء التجاوز في المتر + تغيير النسبة المعروضة */
+const state=document.body, pct=document.querySelector('#pct'), ovf=document.querySelector('.meter .overflow');
+const pcts={safe:'38%',pace:'68%',warn:'75%',over:'104%'};
+function setState(s){state.dataset.state=s;pct.textContent=pcts[s];ovf.style.display=(s==='over')?'block':'none';
+ document.querySelectorAll('.statebar button').forEach(b=>b.setAttribute('aria-selected',b.dataset.go===s));}
+document.querySelectorAll('.statebar button').forEach(b=>b.addEventListener('click',()=>setState(b.dataset.go)));
+</script>
+</body>
+</html>
