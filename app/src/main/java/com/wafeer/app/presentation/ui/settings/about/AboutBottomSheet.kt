@@ -36,6 +36,7 @@ import androidx.compose.material3.AssistChip
 import androidx.compose.material3.AssistChipDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialShapes
 import androidx.compose.material3.MaterialTheme
@@ -317,23 +318,23 @@ fun AboutBottomSheet(
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            Text(
-                text = "${stringResource(R.string.about_foss_badge)} • ${stringResource(R.string.about_license_label)}",
-                style = MaterialTheme.typography.labelSmall,
-                fontWeight = FontWeight.SemiBold,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                textAlign = TextAlign.Center
+            HorizontalDivider(
+                modifier = Modifier.padding(horizontal = 28.dp),
+                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
             )
 
-            Spacer(modifier = Modifier.height(4.dp))
+            Spacer(modifier = Modifier.height(14.dp))
 
+            // Credits
             Text(
-                text = stringResource(R.string.about_licenses_summary),
+                text = stringResource(R.string.about_credits_summary),
                 style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.outline,
                 textAlign = TextAlign.Center,
-                lineHeight = 15.sp,
-                modifier = Modifier.padding(horizontal = 16.dp)
+                lineHeight = 16.sp,
+                modifier = Modifier
+                    .padding(horizontal = 24.dp)
+                    .fillMaxWidth()
             )
         }
     }

@@ -1036,6 +1036,7 @@
     <string name="about_app_title">Wafeer</string>
     <string name="about_app_version">Version: v%1$s</string>
     <string name="about_developer">Developer: TAtz</string>
-    <!-- Open Source Attribution -->
-    <string name="about_licenses_summary">Wafeer is licensed under GNU GPLv3 by TAtz • Architecture licensed under Apache 2.0 by Isaac Serrano</string>
+    <!-- Credits -->
+    <string name="about_foss_badge">100% मुक्त और ओपन सॉर्स</string>
+    <string name="about_credits_summary">TAtz (@biZenX) द्वारा विकसित • Isaac Serrano के Minus ऐप पर आधारित</string>
 </resources>

@@ -1055,9 +1055,8 @@
     <string name="about_website_desc">bizenx.github.io/Wafeer</string>
     <string name="about_issues_title">Issues &amp; Feedback</string>
     <string name="about_issues_desc">Report an issue or suggest a feature</string>
-    <string name="about_license_label">GNU GPLv3</string>
     <string name="about_architecture_tag">M3 Expressive</string>
     <string name="about_foss_badge">100% Free &amp; Open Source</string>
-    <!-- Open Source Attribution -->
-    <string name="about_licenses_summary">Wafeer is licensed under GNU GPLv3 by TAtz • Architecture licensed under Apache 2.0 by Isaac Serrano</string>
+    <!-- Credits -->
+    <string name="about_credits_summary">Wafeer developed by TAtz (@biZenX) • Built on the Minus app by Isaac Serrano</string>
 </resources>

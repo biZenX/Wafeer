@@ -1035,6 +1035,7 @@
     <string name="about_app_title">Wafeer</string>
     <string name="about_app_version">Version: v%1$s</string>
     <string name="about_developer">Developer: TAtz</string>
-    <!-- Open Source Attribution -->
-    <string name="about_licenses_summary">Wafeer is licensed under GNU GPLv3 by TAtz • Architecture licensed under Apache 2.0 by Isaac Serrano</string>
+    <!-- Credits -->
+    <string name="about_foss_badge">100% 自由及开源</string>
+    <string name="about_credits_summary">由 TAtz (@biZenX) 开发 • 基于 Isaac Serrano 的 Minus 应用</string>
 </resources>

@@ -848,6 +848,6 @@
     <string name="settings_reset_tips_title">إعادة إظهار النصائح المستبعدة</string>
     <string name="settings_reset_tips_subtitle">إعادة تفعيل كافة النصائح اللي لغيتها قبل كده</string>
     <string name="settings_reset_tips_toast">تمت إعادة تفعيل كل النصائح بنجاح</string>
-    <!-- Open Source Attribution -->
-    <string name="about_licenses_summary">تطبيق وفير مرخص بـ GNU GPLv3 للمطور TAtz • النواة المعمارية مرخصة بـ Apache 2.0 للمطور Isaac Serrano</string>
+    <!-- Credits -->
+    <string name="about_credits_summary">تطوير وفير بواسطة TAtz (@biZenX) • مبني على تطبيق Minus للمطور Isaac Serrano</string>
 </resources>

@@ -1076,15 +1076,14 @@
     <string name="about_developer_tagline"></string>
     <string name="about_github_profile_title">الملف الشخصي للمطور</string>
     <string name="about_github_profile_desc">github.com/biZenX</string>
-    <string name="about_repository_title">المستودع البرمجي مفتوح المصدر</string>
+    <string name="about_repository_title">مستودع الكود البرمجي</string>
     <string name="about_repository_desc">github.com/biZenX/Wafeer</string>
     <string name="about_website_title">الموقع الرسمي</string>
     <string name="about_website_desc">bizenx.github.io/Wafeer</string>
     <string name="about_issues_title">الملاحظات والإبلاغ عن الأخطاء</string>
     <string name="about_issues_desc">إبلاغ عن مشكلة برمجية أو اقتراح ميزة جديدة</string>
-    <string name="about_license_label">ترخيص GNU GPLv3</string>
     <string name="about_architecture_tag">M3 Expressive</string>
     <string name="about_foss_badge">مفتوح المصدر 100%</string>
-    <!-- Open Source Attribution -->
-    <string name="about_licenses_summary">تطبيق وفير مرخص بـ GNU GPLv3 للمطور TAtz • النواة المعمارية مرخصة بـ Apache 2.0 للمطور Isaac Serrano</string>
+    <!-- Credits -->
+    <string name="about_credits_summary">تطوير وفير بواسطة TAtz (@biZenX) • مبني على تطبيق Minus للمطور Isaac Serrano</string>
 </resources>
