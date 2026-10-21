@@ -68,11 +68,11 @@ class NotificationScheduler @Inject constructor(
         scheduleCreditCutoffReminder()
         checkAndReschedulePeriodEndNotification()
         scheduleMidnightPeriodCheck()
-        scheduleDaily75PercentCheck()
+        scheduleDailyFinancialCheck()
         com.wafeer.app.data.updater.AppUpdateCheckWorker.schedule(context)
     }
 
-    fun scheduleDaily75PercentCheck() {
+    fun scheduleDailyFinancialCheck() {
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
         val alarmIntent = Intent(context, DailyFinancialCheckReceiver::class.java)
         val pendingIntent = PendingIntent.getBroadcast(
@@ -91,21 +91,23 @@ class NotificationScheduler @Inject constructor(
         }
 
         val triggerTime = targetTime.atZone(java.time.ZoneId.systemDefault()).toInstant().toEpochMilli()
-        logcat { "Scheduling daily 75% financial check for $targetTime ($triggerTime)" }
+        logcat { "Scheduling daily financial check for $targetTime ($triggerTime)" }
 
         scheduleAlarmSafely(
             alarmManager = alarmManager,
             triggerMillis = triggerTime,
             pendingIntent = pendingIntent,
-            tag = "Daily 75% check"
+            tag = "Daily financial check"
         )
     }
+
+    fun scheduleDaily75PercentCheck() = scheduleDailyFinancialCheck()
 
     fun cancelDaily75PercentAlert() {
         try {
             val notificationManager =
                 context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-            notificationManager.cancel(NotificationHelper.NOTIFICATION_ID_DAILY_75_PERCENT)
+            notificationManager.cancel(NotificationHelper.NOTIFICATION_ID_OVERSPEND)
         } catch (e: Exception) {
             logcat { "cancelDaily75PercentAlert error: ${e.message}" }
         }

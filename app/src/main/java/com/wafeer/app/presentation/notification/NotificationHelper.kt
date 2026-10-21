@@ -8,6 +8,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
+import android.widget.RemoteViews
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
@@ -39,6 +40,7 @@ class NotificationHelper @Inject constructor(
         const val NOTIFICATION_ID_RECURRENT = 1002
         const val NOTIFICATION_ID_CREDIT = 1003
         const val NOTIFICATION_ID_APP_UPDATE = 1004
+        const val NOTIFICATION_ID_OVERSPEND = 1005
         const val NOTIFICATION_ID_DAILY_75_PERCENT = 1005
     }
 
@@ -139,12 +141,13 @@ class NotificationHelper @Inject constructor(
 
     fun isNotificationPermissionGranted(): Boolean = checkNotificationPermission()
 
-    fun showRichCustomNotification(
+    fun showAnimatedMascotNotification(
         notificationId: Int,
         channelId: String,
         title: String,
         message: String,
-        tag: String = if (com.wafeer.app.presentation.util.LocaleHelper.isArabic()) "وفير • الرقيب المالي الذكي" else "Wafeer • Smart Financial Assistant",
+        detailText: String? = null,
+        tag: String = if (com.wafeer.app.presentation.util.LocaleHelper.isArabic()) "وفير • تنبيه الميزانية" else "Wafeer • Budget Alert",
     ): Boolean {
         if (!checkNotificationPermission()) {
             logcat { "Cannot show notification: permission not granted" }
@@ -177,29 +180,44 @@ class NotificationHelper @Inject constructor(
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
-        val bigTextStyle = NotificationCompat.BigTextStyle()
-            .setBigContentTitle(title)
-            .bigText(message)
-            .setSummaryText(tag)
+        val isAr = com.wafeer.app.presentation.util.LocaleHelper.isArabic()
+
+        // Inflate RemoteViews for animated cracking mascot
+        val collapsedViews = RemoteViews(context.packageName, R.layout.notification_mascot_overspend_collapsed).apply {
+            setTextViewText(R.id.notification_title, title)
+            setTextViewText(R.id.notification_message, message)
+        }
+
+        val expandedViews = RemoteViews(context.packageName, R.layout.notification_mascot_overspend_expanded).apply {
+            setTextViewText(R.id.notification_title, title)
+            setTextViewText(R.id.notification_message, message)
+            if (!detailText.isNullOrBlank()) {
+                setTextViewText(R.id.notification_detail, detailText)
+                setViewVisibility(R.id.notification_detail, android.view.View.VISIBLE)
+            } else {
+                setViewVisibility(R.id.notification_detail, android.view.View.GONE)
+            }
+        }
 
         val mascotBitmap = runCatching {
             android.graphics.BitmapFactory.decodeResource(context.resources, R.drawable.ic_mascot_crack)
         }.getOrNull()
 
-        val isAr = com.wafeer.app.presentation.util.LocaleHelper.isArabic()
         val notificationBuilder = NotificationCompat.Builder(context, channelId)
             .setSmallIcon(R.drawable.ic_notification)
             .setColor(0xFF48FEBD.toInt())
             .setContentTitle(title)
             .setContentText(message)
             .setSubText(tag)
-            .setStyle(bigTextStyle)
+            .setStyle(NotificationCompat.DecoratedCustomViewStyle())
+            .setCustomContentView(collapsedViews)
+            .setCustomBigContentView(expandedViews)
             .setPriority(NotificationCompat.PRIORITY_MAX)
             .setDefaults(NotificationCompat.DEFAULT_ALL)
             .setVibrate(longArrayOf(0, 300, 200, 300))
             .setContentIntent(mainPendingIntent)
             .setAutoCancel(true)
-            .setCategory(NotificationCompat.CATEGORY_REMINDER)
+            .setCategory(NotificationCompat.CATEGORY_ALARM)
             .addAction(
                 R.drawable.ic_notification,
                 if (isAr) "تسجيل مصروف +" else "Log Expense +",
@@ -217,8 +235,78 @@ class NotificationHelper @Inject constructor(
 
         val notification = notificationBuilder.build()
         managerCompat.notify(notificationId, notification)
-        logcat { "Rich notification ($notificationId) sent successfully with mascot via $channelId" }
+        logcat { "Animated mascot overspend notification ($notificationId) dispatched via $channelId" }
         return true
+    }
+
+    fun showRichCustomNotification(
+        notificationId: Int,
+        channelId: String,
+        title: String,
+        message: String,
+        tag: String = if (com.wafeer.app.presentation.util.LocaleHelper.isArabic()) "وفير • الرقيب المالي الذكي" else "Wafeer • Smart Financial Assistant",
+    ): Boolean {
+        return showAnimatedMascotNotification(
+            notificationId = notificationId,
+            channelId = channelId,
+            title = title,
+            message = message,
+            tag = tag,
+        )
+    }
+
+    fun showOverspendAlert(
+        overspendAmount: String,
+        currency: String,
+        isPeriodOverspend: Boolean = false,
+    ): Boolean {
+        val isAr = com.wafeer.app.presentation.util.LocaleHelper.isArabic()
+        val formattedAmount = formatAmount(overspendAmount, currency)
+
+        val title = if (isPeriodOverspend) {
+            if (isAr) "تجاوزت الميزانية الإجمالية!" else "Total Budget Exceeded!"
+        } else {
+            if (isAr) "تنبيه: تجاوزت ميزانية اليوم!" else "Alert: Daily Budget Exceeded!"
+        }
+
+        val message = if (isPeriodOverspend) {
+            if (isAr) {
+                "انكسرت ميزانية الفترة بمقدار $formattedAmount. راجع مصاريفك لاستعادة التوازن."
+            } else {
+                "Your period budget is exceeded by $formattedAmount. Review expenses to regain control."
+            }
+        } else {
+            if (isAr) {
+                "تجاوزت مصروفاتك الحد اليومي المسموح بمقدار $formattedAmount."
+            } else {
+                "Your daily spending exceeded the allowed limit by $formattedAmount."
+            }
+        }
+
+        val detail = if (isAr) {
+            "⚡ حصالة وفير انصدعت تحت ضغط المصروفات — انتبه لمصاريفك القادمة"
+        } else {
+            "⚡ Wafeer piggy bank cracked under spending pressure"
+        }
+
+        return showAnimatedMascotNotification(
+            notificationId = NOTIFICATION_ID_OVERSPEND,
+            channelId = CHANNEL_PERIOD_END,
+            title = title,
+            message = message,
+            detailText = detail,
+            tag = if (isAr) "وفير • تجاوز الميزانية" else "Wafeer • Budget Overspend",
+        )
+    }
+
+    fun cancelOverspendAlert() {
+        try {
+            val notificationManager =
+                context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            notificationManager.cancel(NOTIFICATION_ID_OVERSPEND)
+        } catch (e: Exception) {
+            logcat { "Failed to cancel overspend alert: ${e.message}" }
+        }
     }
 
     fun showPeriodEndNotification(remainingBudget: String, currency: String) {
@@ -228,43 +316,38 @@ class NotificationHelper @Inject constructor(
             return
         }
 
-        val formattedAmount = formatAmount(remainingBudget, currency)
-        val message = buildPeriodEndMessage(remainingBudget, formattedAmount)
-        val title = context.getString(R.string.notification_period_end_title)
+        val amount = remainingBudget.toDoubleOrNull() ?: 0.0
         val isAr = com.wafeer.app.presentation.util.LocaleHelper.isArabic()
+        val formattedAmount = formatAmount(remainingBudget, currency)
 
-        showRichCustomNotification(
-            notificationId = NOTIFICATION_ID_PERIOD_END,
-            channelId = CHANNEL_PERIOD_END,
-            title = title,
-            message = message,
-            tag = if (isAr) "وفير • تجديد الميزانية" else "Wafeer • Budget Renewal",
-        )
+        if (amount < 0) {
+            // Negative budget deficit: show animated cracking mascot
+            showOverspendAlert(
+                overspendAmount = (-amount).toString(),
+                currency = currency,
+                isPeriodOverspend = true,
+            )
+        } else {
+            val message = buildPeriodEndMessage(remainingBudget, formattedAmount)
+            val title = context.getString(R.string.notification_period_end_title)
+            showRichCustomNotification(
+                notificationId = NOTIFICATION_ID_PERIOD_END,
+                channelId = CHANNEL_PERIOD_END,
+                title = title,
+                message = message,
+                tag = if (isAr) "وفير • تجديد الميزانية" else "Wafeer • Budget Renewal",
+            )
+        }
     }
 
+    @Deprecated("Replaced with showOverspendAlert")
     fun showDaily75PercentAlert(): Boolean {
-        val isAr = com.wafeer.app.presentation.util.LocaleHelper.isArabic()
-        return showRichCustomNotification(
-            notificationId = NOTIFICATION_ID_DAILY_75_PERCENT,
-            channelId = CHANNEL_PERIOD_END,
-            title = if (isAr) "يوم هادئ وموفر، أم نسيت تدوين مصاريفك؟" else "A quiet, frugal day — or did you forget to log expenses?",
-            message = if (isAr) {
-                "انقضى 75% من يومك دون تسجيل أي حركة مالية. بلمسة واحدة دوّن مصاريفك وحافظ على انضباط ميزانيتك اليومية."
-            } else {
-                "75% of your day has passed without logging any transaction. Log your expenses with one tap to stay on top of your daily budget."
-            },
-            tag = if (isAr) "وفير • نشاط اليوم" else "Wafeer • Today's Activity",
-        )
+        cancelDaily75PercentAlert()
+        return false
     }
 
     fun cancelDaily75PercentAlert() {
-        try {
-            val notificationManager =
-                context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-            notificationManager.cancel(NOTIFICATION_ID_DAILY_75_PERCENT)
-        } catch (e: Exception) {
-            logcat { "Failed to cancel daily 75% alert: ${e.message}" }
-        }
+        cancelOverspendAlert()
     }
 
     private fun buildPeriodEndMessage(remainingBudget: String, formattedAmount: String): String {

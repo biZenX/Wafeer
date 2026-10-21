@@ -27,27 +27,42 @@ class DailyFinancialCheckReceiver : BroadcastReceiver() {
     lateinit var notificationScheduler: NotificationScheduler
 
     override fun onReceive(context: Context, intent: Intent) {
-        logcat("DailyFinancialCheckReceiver") { "onReceive called for 75% daily check" }
+        logcat("DailyFinancialCheckReceiver") { "onReceive called for daily financial check" }
         val pendingResult = goAsync()
         CoroutineScope(Dispatchers.IO).launch {
             try {
-                val today = LocalDate.now()
-                val spent = budgetRepository.getSpentForDate(today).first()
-                val todayTransactions = budgetRepository.getTransactionsForPeriod(today, today).first()
-                val hasTransactionToday = todayTransactions.any {
-                    !it.isDeleted && !it.isRecurrent
-                }
-                if (spent <= BigDecimal.ZERO && !hasTransactionToday) {
-                    logcat("DailyFinancialCheckReceiver") { "Zero spend today ($spent) -> Showing 75% day rich alert" }
-                    notificationHelper.showDaily75PercentAlert()
-                } else {
-                    logcat("DailyFinancialCheckReceiver") { "User recorded spend today ($spent, hasTx=$hasTransactionToday) -> skipping reminder" }
-                    notificationHelper.cancelDaily75PercentAlert()
+                val settings = budgetRepository.getBudgetSettingsSync()
+                if (settings != null) {
+                    val today = LocalDate.now()
+                    val todaySpent = budgetRepository.getSpentForDate(today).first()
+                    val dailyBudget = settings.calculateDailyBudget()
+                    val currency = settings.currencyCode
+
+                    val periodSpent = budgetRepository.getSpentForPeriod(settings.startDate, today).first()
+                    val isPeriodOverspent = periodSpent > settings.totalBudget
+                    val isDailyOverspent = dailyBudget > BigDecimal.ZERO && todaySpent > dailyBudget
+
+                    if (isPeriodOverspent || isDailyOverspent) {
+                        val overAmount = if (isPeriodOverspent) {
+                            periodSpent.subtract(settings.totalBudget)
+                        } else {
+                            todaySpent.subtract(dailyBudget)
+                        }
+                        logcat("DailyFinancialCheckReceiver") { "Overspend detected ($overAmount $currency) -> Showing animated cracking pot notification" }
+                        notificationHelper.showOverspendAlert(
+                            overspendAmount = overAmount.toPlainString(),
+                            currency = currency,
+                            isPeriodOverspend = isPeriodOverspent,
+                        )
+                    } else {
+                        logcat("DailyFinancialCheckReceiver") { "Spending within budget (todaySpent=$todaySpent, dailyBudget=$dailyBudget) -> canceling overspend alert" }
+                        notificationHelper.cancelOverspendAlert()
+                    }
                 }
                 com.wafeer.app.data.updater.AppUpdateCheckWorker.checkNow(context.applicationContext)
-                notificationScheduler.scheduleDaily75PercentCheck()
+                notificationScheduler.scheduleDailyFinancialCheck()
             } catch (e: Exception) {
-                logcat("DailyFinancialCheckReceiver") { "Error in daily check: ${e.message}" }
+                logcat("DailyFinancialCheckReceiver") { "Error in daily financial check: ${e.message}" }
             } finally {
                 pendingResult.finish()
             }

@@ -371,6 +371,16 @@ class BudgetViewModel @Inject constructor(
             val currency = settings?.currencyCode ?: "USD"
 
             try {
+                notificationHelper.showOverspendAlert(
+                    overspendAmount = "50.00",
+                    currency = currency,
+                    isPeriodOverspend = false
+                )
+            } catch (e: Exception) {
+                logcat(TAG) { e.asLog() }
+            }
+
+            try {
                 notificationHelper.showPeriodEndNotification(
                     remainingBudget = "150.00",
                     currency = currency
