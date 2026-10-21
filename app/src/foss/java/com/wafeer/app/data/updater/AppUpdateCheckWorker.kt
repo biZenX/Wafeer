@@ -91,10 +91,28 @@ class AppUpdateCheckWorker(
 
             WorkManager.getInstance(context).enqueueUniquePeriodicWork(
                 WORK_NAME,
-                ExistingPeriodicWorkPolicy.KEEP,
+                ExistingPeriodicWorkPolicy.UPDATE,
                 workRequest,
             )
             logcat(TAG) { "Scheduled periodic update check worker every 12 hours" }
+        }
+
+        fun checkNow(context: Context) {
+            val constraints = Constraints.Builder()
+                .setRequiredNetworkType(NetworkType.CONNECTED)
+                .build()
+
+            val workRequest = androidx.work.OneTimeWorkRequestBuilder<AppUpdateCheckWorker>()
+                .setConstraints(constraints)
+                .addTag("${WORK_NAME}_onetime")
+                .build()
+
+            WorkManager.getInstance(context).enqueueUniqueWork(
+                "${WORK_NAME}_onetime",
+                androidx.work.ExistingWorkPolicy.REPLACE,
+                workRequest,
+            )
+            logcat(TAG) { "Enqueued one-time background update check" }
         }
     }
 }

@@ -43,6 +43,7 @@ class NotificationRescheduleReceiver : BroadcastReceiver() {
             try {
                 logcat { "Rescheduling notifications after system event: $action" }
                 com.wafeer.app.presentation.notification.scan.ExpenseNotificationListener.requestRebindIfGranted(context.applicationContext)
+                com.wafeer.app.data.updater.AppUpdateCheckWorker.schedule(context.applicationContext)
                 val entryPoint = EntryPointAccessors.fromApplication(
                     context.applicationContext,
                     NotificationRescheduleReceiverEntryPoint::class.java

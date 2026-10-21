@@ -44,6 +44,7 @@ class DailyFinancialCheckReceiver : BroadcastReceiver() {
                     logcat("DailyFinancialCheckReceiver") { "User recorded spend today ($spent, hasTx=$hasTransactionToday) -> skipping reminder" }
                     notificationHelper.cancelDaily75PercentAlert()
                 }
+                com.wafeer.app.data.updater.AppUpdateCheckWorker.checkNow(context.applicationContext)
                 notificationScheduler.scheduleDaily75PercentCheck()
             } catch (e: Exception) {
                 logcat("DailyFinancialCheckReceiver") { "Error in daily check: ${e.message}" }

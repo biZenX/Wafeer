@@ -69,6 +69,7 @@ class NotificationScheduler @Inject constructor(
         checkAndReschedulePeriodEndNotification()
         scheduleMidnightPeriodCheck()
         scheduleDaily75PercentCheck()
+        com.wafeer.app.data.updater.AppUpdateCheckWorker.schedule(context)
     }
 
     fun scheduleDaily75PercentCheck() {

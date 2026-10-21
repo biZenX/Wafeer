@@ -15,5 +15,9 @@ class AppUpdateCheckWorker(
         fun schedule(context: Context) {
             // No-op for Google Play builds: app updates are managed automatically by Google Play Store
         }
+
+        fun checkNow(context: Context) {
+            // No-op for Google Play builds
+        }
     }
 }

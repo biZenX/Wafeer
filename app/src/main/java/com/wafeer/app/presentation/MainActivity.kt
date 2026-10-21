@@ -253,7 +253,10 @@ class MainActivity : AppCompatActivity() {
                             val lastNotified = prefs.getInt("last_notified_update_version_code", 0)
                             if (info.versionCode > lastNotified) {
                                 notificationHelper.showUpdateNotification(info)
-                                prefs.edit().putInt("last_notified_update_version_code", info.versionCode).apply()
+                                prefs.edit()
+                                    .putString("last_notified_update_version_name", info.versionName)
+                                    .putInt("last_notified_update_version_code", info.versionCode)
+                                    .apply()
                             }
                         }
                     }

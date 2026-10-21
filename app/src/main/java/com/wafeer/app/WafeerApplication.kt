@@ -41,6 +41,7 @@ class WafeerApplication : Application(), Configuration.Provider {
         phoneWearMessageListener.start()
 
         CoroutineScope(Dispatchers.IO).launch {
+            com.wafeer.app.data.updater.AppUpdateCheckWorker.schedule(this@WafeerApplication)
             com.wafeer.app.data.updater.AppUpdateManager.cleanOldUpdateApks(this@WafeerApplication)
             backfillOrphanedPeriodsUseCase()
             foldCarryIntoTotalBudgetUseCase()
