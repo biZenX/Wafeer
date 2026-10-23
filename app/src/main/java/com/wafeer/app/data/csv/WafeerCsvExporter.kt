@@ -138,8 +138,8 @@ class WafeerCsvExporter {
                     printer.printRecord(
                         txDate.format(dateTimeFormatter),
                         tx.amount.toPlainString(),
-                        tx.comment,
-                        tx.note,
+                        WafeerCsvContract.sanitizeForExport(tx.comment),
+                        WafeerCsvContract.sanitizeForExport(tx.note),
                         if (tx.isRecurrent) "1" else "0",
                         frequency,
                         endDate,

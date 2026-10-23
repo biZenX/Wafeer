@@ -300,4 +300,39 @@ class WafeerCsvRoundTripTest {
         assertThat(payload.metadata).isNotNull()
         assertThat(payload.errors).isEmpty()
     }
+
+    @Test
+    fun `formula injection triggers are escaped in exported CSV and restored upon import`() {
+        val dangerousInputs = listOf(
+            "=SUM(A1:A10)",
+            "+cmd|' /C calc'!A0",
+            "-2+3*[1]!A$1",
+            "@SUM(1+1)*cmd|' /C calc'!A0",
+            "\tTAB_SEPARATED",
+        )
+
+        val transactions = dangerousInputs.mapIndexed { index, maliciousText ->
+            tx(id = (index + 1).toLong(), comment = maliciousText, note = maliciousText)
+        }
+
+        val out = ByteArrayOutputStream()
+        exporter.export(transactions, emptyList(), null, out)
+        val csvString = out.toString(Charsets.UTF_8.name())
+
+        // Ensure every malicious line has been prefixed with a single quote '
+        for (dangerous in dangerousInputs) {
+            assertThat(csvString).contains("'" + dangerous)
+        }
+
+        // Ensure round-trip restores the original string identically
+        val parsed = parser.parse(ByteArrayInputStream(out.toByteArray()))
+        assertThat(parsed.errors).isEmpty()
+        assertThat(parsed.rows).hasSize(dangerousInputs.size)
+
+        parsed.rows.forEachIndexed { index, row ->
+            assertThat(row.comment).isEqualTo(dangerousInputs[index])
+            assertThat(row.note).isEqualTo(dangerousInputs[index])
+        }
+    }
 }
+

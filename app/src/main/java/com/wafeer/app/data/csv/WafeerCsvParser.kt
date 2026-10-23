@@ -91,10 +91,13 @@ class WafeerCsvParser {
     private fun parseRecord(raw: Map<String, String>): CsvTransactionRow {
         val date = LocalDateTime.parse(raw.valueOf(WafeerCsvContract.COL_DATE), dateTimeFormatter)
         val amount = raw.valueOf(WafeerCsvContract.COL_AMOUNT).toBigDecimal()
-        val comment = raw.valueOf(WafeerCsvContract.COL_CATEGORY)
+        val rawComment = raw.valueOf(WafeerCsvContract.COL_CATEGORY)
             .ifEmpty { raw.valueOf(WafeerCsvContract.COL_COMMENT_LEGACY) }
-        val note = raw.valueOf(WafeerCsvContract.COL_EXTRA_NOTE)
+        val rawNote = raw.valueOf(WafeerCsvContract.COL_EXTRA_NOTE)
             .ifEmpty { raw.valueOf(WafeerCsvContract.COL_NOTE_LEGACY) }
+
+        val comment = WafeerCsvContract.unescapeAfterImport(rawComment)
+        val note = WafeerCsvContract.unescapeAfterImport(rawNote)
 
         val isRecurrent = raw.valueOf(WafeerCsvContract.COL_IS_RECURRENT).trim() == "1"
         val frequency = raw.valueOf(WafeerCsvContract.COL_FREQUENCY)

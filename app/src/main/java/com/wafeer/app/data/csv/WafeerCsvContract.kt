@@ -65,4 +65,21 @@ object WafeerCsvContract {
         COL_CREDIT_CARD_CUTOFF_DAY,
         COL_SPLIT_MODE,
     )
+    val FORMULA_PREFIXES = charArrayOf('=', '+', '-', '@', '\t', '\r')
+
+    fun sanitizeForExport(value: String): String {
+        if (value.isEmpty()) return value
+        return if (value[0] in FORMULA_PREFIXES) {
+            "'$value"
+        } else {
+            value
+        }
+    }
+
+    fun unescapeAfterImport(value: String): String {
+        if (value.length > 1 && value[0] == '\'' && value[1] in FORMULA_PREFIXES) {
+            return value.substring(1)
+        }
+        return value
+    }
 }
