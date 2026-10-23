@@ -46,44 +46,18 @@ jobs:
           if [ -f "config/signing/release.jks" ]; then
             echo "Using canonical release keystore from repository."
             cp config/signing/release.jks release-keystore.jks
-            STORE_PASS="WafeerRelease2026Key!"
-            KEY_ALIAS="wafeer"
-            KEY_PASS="WafeerRelease2026Key!"
+            STORE_PASS="${RELEASE_STORE_PASSWORD}"
+            KEY_ALIAS="${RELEASE_KEY_ALIAS:-wafeer}"
+            KEY_PASS="${RELEASE_KEY_PASSWORD:-$RELEASE_STORE_PASSWORD}"
           elif [ -n "$RELEASE_KEYSTORE_BASE64" ] && [ -n "$RELEASE_STORE_PASSWORD" ]; then
             echo "Using repository release keystore from secrets."
             echo "$RELEASE_KEYSTORE_BASE64" | base64 --decode > release-keystore.jks
             STORE_PASS="$RELEASE_STORE_PASSWORD"
             KEY_ALIAS="${RELEASE_KEY_ALIAS:-wafeer}"
             KEY_PASS="${RELEASE_KEY_PASSWORD:-$RELEASE_STORE_PASSWORD}"
-            if ! keytool -list -keystore release-keystore.jks -storepass "$STORE_PASS" >/dev/null 2>&1; then
-              echo "Warning: Keystore password in secrets failed validation. Generating fallback."
-              STORE_PASS="WafeerRelease2026Key!"
-              KEY_ALIAS="wafeer"
-              KEY_PASS="WafeerRelease2026Key!"
-              keytool -genkeypair -v \
-                -keystore release-keystore.jks \
-                -alias "$KEY_ALIAS" \
-                -keyalg RSA \
-                -keysize 2048 \
-                -validity 10000 \
-                -storepass "$STORE_PASS" \
-                -keypass "$KEY_PASS" \
-                -dname "CN=Wafeer, OU=Wafeer, O=Wafeer, L=Cairo, S=Cairo, C=EG"
-            fi
           else
-            echo "Generating fallback release keystore."
-            STORE_PASS="WafeerRelease2026Key!"
-            KEY_ALIAS="wafeer"
-            KEY_PASS="WafeerRelease2026Key!"
-            keytool -genkeypair -v \
-              -keystore release-keystore.jks \
-              -alias "$KEY_ALIAS" \
-              -keyalg RSA \
-              -keysize 2048 \
-              -validity 10000 \
-              -storepass "$STORE_PASS" \
-              -keypass "$KEY_PASS" \
-              -dname "CN=Wafeer, OU=Wafeer, O=Wafeer, L=Cairo, S=Cairo, C=EG"
+            echo "::error::Release signing credentials (RELEASE_STORE_PASSWORD) not configured."
+            exit 1
           fi
 
           cat > keystore.properties << EOF
