@@ -1,0 +1,203 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-10 0 195 245" style="overflow:visible" fill="none">
+<!-- ═══════════════════════════════════════════════════════════════════════
+     وفير — الحالة 5: وتيرة الصرف السريعة — «الوعاء يجري!» 🏃
+     ─────────────────────────────────────────────────────────────────────
+     العدّاء: ميل للأمام (yaw) + عدّة خطوتين (bob) + ارتداد الدفع
+     عند القفزة الأخيرة. خطوط السرعة خلف الوعاء (الوعاء يتقدّم يميناً).
+     العملة فوقه: نيوتن جيروسكوب — دوران Y مستمر (0.9s) + تمايل Z
+     رعاش (0.36s) + انزلاق بطيء على الحافة المنحدرة حتى تكاد تسقط.
+     اللون: #48FEBD بالضبط — لا تغيير في لون الشعار الرسمي.
+     ═══════════════════════════════════════════════════════════════════════ -->
+<defs>
+  <linearGradient id="coinGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+    <stop offset="0%" stop-color="#5AC17A"/>
+    <stop offset="100%" stop-color="#388E3C"/>
+  </linearGradient>
+</defs>
+
+<style>
+  .wafeer-coin-fill   { fill: url(#coinGrad); }
+  .wafeer-coin-stroke { fill: #48FEBD; }
+  .wafeer-pot         { fill: #48FEBD; filter: drop-shadow(0 0 5px rgba(72,254,189,.32)); }
+  .wafeer-sparkles    { fill: #48FEBD; opacity:.2; transform-box: view-box; transform-origin:96px 26px;
+                        animation: sparkDash .9s ease-in-out infinite; }
+  @keyframes sparkDash{
+    0%,100% { opacity:.2; transform: scale(1) rotate(0deg); }
+    50%     { opacity:.45; transform: scale(1.08) rotate(6deg); }
+  }
+
+  /* ══════════ خطوط السرعة — تنطلق خلف العدّاء (تظهر في نافذة العدو فقط) ══════════ */
+  .lines{
+    animation: linesGate 3.6s linear infinite;
+  }
+  @keyframes linesGate{
+    0%,6%   { opacity:0 }
+    11%,74% { opacity:1 }
+    82%,100%{ opacity:0 }
+  }
+  .line{
+    stroke:#48FEBD; stroke-linecap:round; fill:none; opacity:0;
+    transform-box: view-box;
+    animation: speedLine 1.2s linear infinite;
+  }
+  @keyframes speedLine{
+    0%        { opacity:0;   transform: translateX(0)    scaleX(.2); }
+    12%       { opacity:.85; transform: translateX(-6px) scaleX(1); }
+    55%       { opacity:.4;  transform: translateX(-22px) scaleX(1); }
+    100%      { opacity:0;   transform: translateX(-40px) scaleX(.35); }
+  }
+  .l1{ stroke-width:2.4; animation-delay:-.05s; }
+  .l2{ stroke-width:1.6; animation-delay:-.28s; }
+  .l3{ stroke-width:3;   animation-delay:-.5s; }
+  .l4{ stroke-width:1.4; animation-delay:-.72s; }
+  .l5{ stroke-width:2.2; animation-delay:-.9s; }
+  .l6{ stroke-width:1.8; animation-delay:-1.05s; }
+
+  /* ══════════ الوعاء — عدّاء يميل للأمام ويلتقط الخطوتين ══════════ */
+  .pot{
+    transform-box: view-box; transform-origin:172px 234px;
+    animation: potSprint 3.6s linear infinite;
+  }
+  @keyframes potSprint{
+    0%      { transform: translateX(0) translateY(0) rotate(0deg); }              /* تمهيد */
+    5%      { transform: translateX(1px) translateY(1px) rotate(-3deg); }         /* شدّ للخلف */
+    11%     { transform: translateX(3px) translateY(-1.5px) rotate(6deg); }      /* دفع أول */
+    15%     { transform: translateX(5px) translateY(0) rotate(11deg); }          /* خطوة 1 */
+    18%     { transform: translateX(6px) translateY(-4px) rotate(13deg); }        /* القفزة 1 */
+    24%     { transform: translateX(7px) translateY(1px) rotate(12deg); }         /* الهبوط 1 */
+    30%     { transform: translateX(8px) translateY(-1px) rotate(14deg); }       /* خطوة 2 */
+    34%     { transform: translateX(8.5px) translateY(-4.5px) rotate(16deg); }   /* القفزة 2 */
+    40%     { transform: translateX(9px) translateY(1px) rotate(15deg); }        /* الهبوط 2 */
+    46%     { transform: translateX(9.5px) translateY(-1.5px) rotate(16.5deg); }/* دفع أخير */
+    50%     { transform: translateX(10px) translateY(-5px) rotate(18deg); }      /* القفزة الأخيرة */
+    56%     { transform: translateX(10px) translateY(1.5px) rotate(17deg); }     /* الهبوط */
+    62%     { transform: translateX(10px) translateY(-.5px) rotate(17.6deg); }   /* رعشة الثبات */
+    64%     { transform: translateX(10px) translateY(.5px) rotate(16.4deg); }
+    66%     { transform: translateX(10px) translateY(-.8px) rotate(18deg); }
+    68%     { transform: translateX(10px) translateY(.3px) rotate(17deg); }
+    72%     { transform: translateX(8.5px) translateY(0) rotate(15deg); }
+    80%     { transform: translateX(6px) translateY(0) rotate(10deg); }          /* تباطؤ */
+    88%     { transform: translateX(3px) translateY(0) rotate(4.5deg); }
+    95%     { transform: translateX(1px) translateY(0) rotate(1.5deg); }
+    100%    { transform: translateX(0) translateY(0) rotate(0deg); }
+  }
+
+  /* ══════════ العملة — انزلاق على الحافة المنحدرة ══════════ */
+  .coin-slide{
+    transform-box: view-box; transform-origin:96px 42px;
+    perspective: 320px; perspective-origin: 96px 42px;
+    animation: coinSlide 3.6s cubic-bezier(.45,0,.55,.5) infinite;
+  }
+  @keyframes coinSlide{
+    0%      { transform: translate(0,0) rotate(0deg); }
+    8%      { transform: translate(1.5px,1.4px) rotate(6deg); }
+    15%     { transform: translate(7px,7px) rotate(20deg); }
+    22%     { transform: translate(13px,11px) rotate(31deg); }
+    30%     { transform: translate(18px,14px) rotate(39deg); }
+    38%     { transform: translate(23px,16px) rotate(45deg); }
+    46%     { transform: translate(27px,17.5px) rotate(49deg); }
+    54%     { transform: translate(30px,18.5px) rotate(52deg); }
+    60%     { transform: translate(31.5px,19px) rotate(54deg); }
+    64%     { transform: translate(34px,21.5px) rotate(60deg); }     /* كادت تسقط فعلاً */
+    68%     { transform: translate(32.5px,19.5px) rotate(56deg); }    /* ارتداد الخوف */
+    72%     { transform: translate(33.6px,20.8px) rotate(58deg); }
+    78%     { transform: translate(32px,19.5px) rotate(55deg); }
+    88%     { transform: translate(15px,9px) rotate(28deg); }        /* إنقاذها */
+    95%     { transform: translate(4px,2.5px) rotate(8deg); }
+    100%    { transform: translate(0,0) rotate(0deg); }
+  }
+  /* التمايل الرعاش — نبض جيروسكوب على الحافة (2.8Hz) */
+  .coin-wobble{
+    transform-box: view-box; transform-origin:96px 42px;
+    animation: coinWobble .36s ease-in-out infinite alternate;
+  }
+  @keyframes coinWobble{
+    from { transform: rotateZ(-7deg) rotateX(4deg) translateX(-.7px); }
+    to   { transform: rotateZ(7deg)  rotateX(-4deg) translateX(.7px); }
+  }
+  /* الدوران الجيروسكوب حول المحور الرأسي (0.9s دورة كاملة) */
+  .coin-spin{
+    transform-box: view-box; transform-origin:96px 42px;
+    animation: coinSpin .9s linear infinite;
+  }
+  @keyframes coinSpin{
+    0%   { transform: rotateY(0deg); }
+    25%  { transform: rotateY(90deg); }    /* الحافة */
+    50%  { transform: rotateY(180deg); }   /* الظهر */
+    75%  { transform: rotateY(270deg); }   /* الحافة */
+    100% { transform: rotateY(360deg); }
+  }
+
+  /* ══════════ غبار الخطوات من قاعدة الوعاء ══════════ */
+  .puff{
+    fill:#48FEBD; opacity:0;
+    transform-box: fill-box; transform-origin:50% 100%;
+    animation: stepPuff 1.2s ease-out infinite;
+  }
+  @keyframes stepPuff{
+    0%,10%   { opacity:0; transform: translateY(0) scale(.3,.3); }
+    13%      { opacity:.6; transform: translateY(-1px) scale(.7,.7); }
+    17%      { opacity:.3; transform: translateY(-4px) scale(1.2,.6); }
+    24%,100% { opacity:0; transform: translateY(-7px) scale(1.6,.4); }
+  }
+  .puff-2{ animation: stepPuff2 1.2s ease-out infinite; }
+  @keyframes stepPuff2{
+    0%,34%   { opacity:0; transform: translateY(0) scale(.3,.3); }
+    37%      { opacity:.55; transform: translateY(-1px) scale(.65,.65); }
+    41%      { opacity:.28; transform: translateY(-4px) scale(1.15,.6); }
+    48%,100% { opacity:0; transform: translateY(-7px) scale(1.5,.4); }
+  }
+
+  /* ══════════ قطرة焦虑 تنساب من التاج ══════════ */
+  .sweat{
+    fill:rgba(72,254,189,.9); opacity:0;
+    transform-box: view-box; transform-origin: center;
+    animation: sweatDrop 1.2s ease-in infinite;
+  }
+  @keyframes sweatDrop{
+    0%   { transform: translate(0,0) scale(.4); opacity:0 }
+    20%  { transform: translate(0,2px) scale(1); opacity:.9 }
+    85%  { transform: translate(0,9px) scale(.9); opacity:.9 }
+    100% { transform: translate(0,11px) scale(0); opacity:0 }
+  }
+</style>
+
+<!-- ═══ خطوط السرعة (خلف العدّاء) ═══ -->
+<g class="lines">
+  <path class="line l1" d="M 2,74  L 34,74"/>
+  <path class="line l2" d="M -4,96 L 20,96"/>
+  <path class="line l3" d="M 0,118 L 42,118"/>
+  <path class="line l4" d="M -6,140 L 14,140"/>
+  <path class="line l5" d="M 1,162 L 38,162"/>
+  <path class="line l6" d="M -3,186 L 18,186"/>
+  <path class="line l2" d="M 0,208 L 26,208" style="animation-delay:-.36s"/>
+  <path class="line l4" d="M -4,228 L 12,228" style="animation-delay:-.64s"/>
+</g>
+
+<!-- ═══ الوعاء الرسمي (-countdown中高) ═══ -->
+<g class="pot">
+  <!-- العملة: انزلاق + تمايل + دوران جيروسكوب -->
+  <g class="coin-slide">
+    <g class="coin-wobble">
+      <g class="coin-spin">
+        <path class="wafeer-coin-fill" d="M 86.433,15.71 C 82.264,19.879 81.008,27.739 83.032,37 C 84.043,41.623 87.712,50.549 89.497,52.723 C 90.048,53.395 91.85,55.697 93.5,57.837 C 96.83,62.156 101.52,65.591 105.428,66.571 C 107.478,67.086 108.59,66.58 110.944,64.06 C 118.492,55.98 115.06,36.312 103.729,22.703 C 97.433,15.141 90.005,12.138 86.433,15.71 Z"/>
+        <path class="wafeer-coin-stroke" fill-rule="evenodd" d="M 81.332,6.497 C 72.794,10.688 69.577,14.206 67.383,21.756 C 61.007,43.687 81.417,78.842 100.603,78.978 C 105.216,79.011 116.925,74.446 120.147,71.359 C 131.894,60.105 126.835,29.23 110.529,12.661 C 100.605,2.577 92.714,0.911 81.332,6.497 M 83.09,12.265 C 71.748,18.079 75.084,46.867 88.877,62.209 C 108.236,83.74 126.491,63.317 114.426,33.625 C 107.591,16.806 93.273,7.045 83.09,12.265"/>
+      </g>
+    </g>
+  </g>
+  <path class="wafeer-pot" fill-rule="evenodd" d="M 56.5,79.715 C 27.539,83.72 13.425,100.025 26.262,114.646 C 29.892,118.78 29.225,121.152 22.131,129.349 C -2.127,157.377 -3.641,194.866 18.566,217.611 C 21.555,220.673 24,223.304 24,223.459 C 24,223.613 21.188,224.293 17.75,224.969 C 9.958,226.501 8,227.529 8,230.086 C 8,239.466 91.486,242.125 127.5,233.892 C 152.705,228.129 167.929,214.123 172.489,192.5 C 177.102,170.628 170.017,147.544 152.756,128.199 C 146.179,120.828 144.356,116.779 146.728,114.811 C 151.39,110.946 152.288,101.36 148.51,95.8 C 143.653,88.652 121.438,81.133 117.327,85.245 C 114.791,87.781 116.876,89.414 126.472,92.406 C 143.39,97.681 146.132,105.895 133.164,112.453 C 119.319,119.455 62.629,120.024 42.139,113.366 C 21.299,106.595 30.54,91.901 58.5,87.353 C 69.511,85.562 72,84.599 72,82.128 C 72,79.128 66.703,78.304 56.5,79.715 M 72.978,91.113 C 55.999,92.482 45.764,96.615 47.586,101.365 C 50.657,109.366 107.039,111.719 121.128,104.434 C 135.618,96.941 105.168,88.517 72.978,91.113 M 36.944,125.135 C 36.206,126.916 33.531,130.877 30.999,133.937 C 28.467,136.997 25.043,141.525 23.39,144 C 3.864,173.243 13.254,212.289 42.298,222.617 C 67.567,231.602 121.034,230.186 140.997,220.002 C 168.539,205.951 170.47,163.878 144.913,134.648 C 141.65,130.915 138.274,126.497 137.412,124.829 C 136.208,122.501 135.339,121.915 133.672,122.305 C 116.431,126.343 93.813,128.339 75.671,127.425 C 65.287,126.902 43.553,123.917 39.889,122.511 C 38.74,122.07 37.905,122.814 36.944,125.135 M 131.667,144.667 C 130.059,146.275 131.273,150.136 134.651,154.155 C 138.701,158.975 142.354,166.526 143.402,172.242 C 144.215,176.68 148.007,178.421 150.792,175.636 C 154.204,172.225 148.362,155.619 141.046,147.928 C 137.543,144.245 133.495,142.838 131.667,144.667 M 66.2,163.2 C 61.444,167.956 70.499,177 80.018,177 C 89.032,177 97.48,167.88 92.8,163.2 C 91.004,161.404 90.428,161.646 86.117,166 C 80.621,171.551 75.695,171.179 72.485,164.97 C 70.886,161.879 68.261,161.139 66.2,163.2"/>
+  <path class="wafeer-sparkles" fill-rule="evenodd" d="M 138.92,10.92 C 132.456,17.384 131.305,21.187 135.628,21.804 C 138.347,22.191 149.5,10.81 149.5,7.647 C 149.5,3.18 145.389,4.451 138.92,10.92 M 148.09,37.818 C 141.428,39.566 139.205,41.485 140.359,44.492 C 141.084,46.383 141.192,46.377 153.5,43.721 C 158.577,42.625 159.552,42.065 159.837,40.076 C 160.459,35.748 157.875,35.251 148.09,37.818 M 39.614,38.529 C 37.443,40.7 38.607,42.818 45.261,48.811 C 51.586,54.509 52.133,54.725 54.429,52.429 C 57.019,49.838 56.773,49.395 48.739,42.176 C 42.432,36.509 41.862,36.281 39.614,38.529"/>
+
+  <!-- قطرة قلق من التاج -->
+  <circle class="sweat" cx="120" cy="10" r="2.8"/>
+  <circle class="sweat" cx="136" cy="18" r="2.1" style="animation-delay:-.6s"/>
+</g>
+
+<!-- ═══ غبار الخطوات عند القاعدة ═══ -->
+<g class="puff" style="transform-origin:38px 236px">
+  <circle cx="38" cy="236" r="2.2"/><circle cx="30" cy="234" r="1.5"/><circle cx="45" cy="235" r="1.2"/>
+</g>
+<g class="puff puff-2" style="transform-origin:34px 238px">
+  <circle cx="34" cy="238" r="2"/><circle cx="26" cy="236" r="1.3"/><circle cx="41" cy="237" r="1.1"/>
+</g>
+</svg>
