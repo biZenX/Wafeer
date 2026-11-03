@@ -33,6 +33,12 @@ class BudgetPeriodManager @Inject constructor(
         budgetRepository.getBudgetSettingsSync()?.let { settings ->
             notificationScheduler.schedulePeriodEndNotification(settings.getPeriodEndDate())
         }
+        notificationScheduler.scheduleSavingsReminder()
+    }
+
+    suspend fun setSavingsReminderEnabled(enabled: Boolean) {
+        settingsRepository.setSavingsReminderEnabled(enabled)
+        notificationScheduler.scheduleSavingsReminder()
     }
 
     suspend fun updateRecurrentNotificationTime(hour: Int, minute: Int) {
@@ -175,6 +181,7 @@ class BudgetPeriodManager @Inject constructor(
 
         notificationScheduler.schedulePeriodEndNotification(periodEndDate)
         notificationScheduler.scheduleCreditCutoffReminder()
+        notificationScheduler.scheduleSavingsReminder()
         PeriodBoundaryResult(periodStartMillis = periodStartMillis, periodId = periodId)
     }
 

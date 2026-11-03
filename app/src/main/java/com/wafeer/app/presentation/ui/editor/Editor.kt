@@ -4,13 +4,16 @@ package com.wafeer.app.presentation.ui.editor
 
 import android.content.res.Configuration
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
@@ -110,15 +113,18 @@ import com.wafeer.app.domain.model.BudgetPeriod
 import com.wafeer.app.domain.model.BudgetSettings
 import com.wafeer.app.domain.model.BudgetSplitMode
 import com.wafeer.app.domain.model.BudgetState
+import com.wafeer.app.domain.model.CategoryLimitUnit
 import com.wafeer.app.domain.model.RecurrentFrequency
 import com.wafeer.app.domain.model.SupportedCurrency
 import com.wafeer.app.domain.model.SymbolPosition
 import com.wafeer.app.presentation.ui.budget.BudgetUiState
 import com.wafeer.app.presentation.ui.editor.calculation.evaluateCalculation
+import com.wafeer.app.presentation.ui.editor.category.CategoryLimitsUi
 import com.wafeer.app.presentation.ui.editor.category.CategoryToolbar
-import com.wafeer.app.presentation.ui.editor.category.NewCategoryTag
 import com.wafeer.app.presentation.ui.editor.category.EditableCategoryTag
 import com.wafeer.app.presentation.ui.editor.category.FocusController
+import com.wafeer.app.presentation.ui.editor.category.NewCategoryTag
+import com.wafeer.app.presentation.ui.editor.category.SelectedCategoryLimitCard
 import com.wafeer.app.presentation.ui.editor.dialogs.CreditCutoffDayDialog
 import com.wafeer.app.presentation.ui.editor.dialogs.RecurrentExpenseDialog
 import com.wafeer.app.presentation.ui.editor.note.EditableNoteTag
@@ -186,6 +192,7 @@ fun Editor(
     onCommentUpdate: (String) -> Unit = {},
     onNoteUpdate: (String) -> Unit = {},
     onDeleteTag: (String) -> Unit = {},
+    onSetCategoryLimit: ((String, BigDecimal?, CategoryLimitUnit) -> Unit)? = null,
     onCreateCategory: suspend (String) -> Boolean = { true },
     onCategoryEditingChanged: (Boolean) -> Unit = {},
     onRecurrentToggle: (Boolean) -> Unit = {},
@@ -673,6 +680,14 @@ fun Editor(
                     onCommentUpdate = onCommentUpdate,
                     onNoteUpdate = onNoteUpdate,
                     onDeleteTag = onDeleteTag,
+                    limits = onSetCategoryLimit?.let { onSetLimit ->
+                        CategoryLimitsUi(
+                            statuses = uiState.categoryLimits,
+                            pendingAmount = uiState.numpadInput.toBigDecimalOrNull(),
+                            currencyCode = uiState.budgetSettings?.currencyCode ?: "USD",
+                            onSetLimit = onSetLimit,
+                        )
+                    },
                     onCategoryEditingChanged = onCategoryEditingChanged,
                     editorFocusController = editorFocusController,
                     directCategoryPopupEnabled = directCategoryPopupEnabled,
@@ -767,6 +782,7 @@ private fun EditingContent(
     onCommentUpdate: (String) -> Unit,
     onNoteUpdate: (String) -> Unit = {},
     onDeleteTag: (String) -> Unit,
+    limits: CategoryLimitsUi? = null,
     onCategoryEditingChanged: (Boolean) -> Unit = {},
     editorFocusController: FocusController,
     directCategoryPopupEnabled: Boolean = false,
@@ -1084,6 +1100,24 @@ private fun EditingContent(
                 }
             }
 
+            val selectedLimit = limits?.statuses?.get(currentComment.trim())
+            var shownLimit by remember { mutableStateOf(selectedLimit) }
+            if (selectedLimit != null) shownLimit = selectedLimit
+            AnimatedVisibility(
+                visible = selectedLimit != null,
+                enter = expandVertically() + fadeIn(),
+                exit = shrinkVertically() + fadeOut(),
+            ) {
+                shownLimit?.let { status ->
+                    SelectedCategoryLimitCard(
+                        status = status,
+                        pendingAmount = limits?.pendingAmount,
+                        currencyCode = currencyCode,
+                        modifier = Modifier.padding(start = 24.dp, end = 24.dp, bottom = 12.dp),
+                    )
+                }
+            }
+
             if (categoryGridModeEnabled) {
                 var isInlineNoteEditing by remember { mutableStateOf(false) }
                 var isInlineCategoryEditing by remember { mutableStateOf(false) }
@@ -1136,6 +1170,9 @@ private fun EditingContent(
                             onShowCategoryGrid = onShowCategoryGrid,
                             onHideCategoryGrid = onHideCategoryGrid,
                             onDisableCalculationMode = onDisableCalculationMode,
+                            limits = limits,
+                            splitInput = input,
+                            currencyCode = currencyCode,
                         )
                     }
                 }
@@ -1158,6 +1195,9 @@ private fun EditingContent(
                     onShowCategoryGrid = onShowCategoryGrid,
                     onHideCategoryGrid = onHideCategoryGrid,
                     onDisableCalculationMode = onDisableCalculationMode,
+                    limits = limits,
+                    splitInput = input,
+                    currencyCode = currencyCode,
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(bottom = 26.dp)

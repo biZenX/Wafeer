@@ -21,5 +21,7 @@ data class CategoryEntity(
     val createdAt: Long = System.currentTimeMillis(),
     val parentId: Long? = null,
     val nameResKey: String? = null,
-    val iconName: String? = null
+    val iconName: String? = null,
+    val limitAmount: String? = null,
+    val limitUnit: String? = null
 )

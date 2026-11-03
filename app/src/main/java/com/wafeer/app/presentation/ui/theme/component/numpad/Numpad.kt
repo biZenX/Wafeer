@@ -101,6 +101,7 @@ fun Numpad(
     onBackspaceLongPress: () -> Unit = {},
     onDelete: () -> Unit = {},
     onApply: () -> Unit = {},
+    onApplyLongPress: (() -> Unit)? = null,
     isCalculation: Boolean = false,
     onCalculationModeChanged: (Boolean) -> Unit = {},
     onOperatorInput: (Char) -> Unit = {},
@@ -208,7 +209,8 @@ fun Numpad(
                 onBackspace = onBackspace,
                 onBackspaceLongPress = onBackspaceLongPress,
                 onDelete = onDelete,
-                onApply = onApply
+                onApply = onApply,
+                onApplyLongPress = onApplyLongPress,
             )
         } else {
             if (effectiveDragProgress > 0.01f || isCalculation) {
@@ -277,6 +279,7 @@ fun Numpad(
                         onApplyPressedForTutorial?.invoke()
                         onApply()
                     },
+                    onApplyLongPress = onApplyLongPress,
                     onEqualsInput = onEqualsInput,
                     applyHintAnchorModifier = applyHintAnchorModifier
                 )
@@ -297,8 +300,10 @@ private fun CompactHardwareLayout(
     onBackspaceLongPress: () -> Unit,
     onDelete: () -> Unit,
     onApply: () -> Unit,
+    onApplyLongPress: (() -> Unit)?,
 ) {
     val haptic = LocalHapticFeedback.current
+    val scanReceiptLabel = androidx.compose.ui.res.stringResource(com.wafeer.app.R.string.receipt_scan_button)
     Column(
         Modifier
             .fillMaxWidth()
@@ -392,7 +397,14 @@ private fun CompactHardwareLayout(
                     onClick = {
                         if (targetIsDelete) onDelete() else onApply()
                         haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                    }
+                    },
+                    onLongClick = onApplyLongPress?.takeUnless { targetIsDelete }?.let { scan ->
+                        {
+                            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                            scan()
+                        }
+                    },
+                    onLongClickLabel = scanReceiptLabel.takeUnless { targetIsDelete || onApplyLongPress == null },
                 )
             }
         }
@@ -597,10 +609,12 @@ private fun RowScope.ActionButtonsColumn(
     onBackspaceLongPress: () -> Unit,
     onDelete: () -> Unit,
     onApply: () -> Unit,
+    onApplyLongPress: (() -> Unit)?,
     onEqualsInput: () -> Unit = {},
     applyHintAnchorModifier: Modifier
 ) {
     val haptic = LocalHapticFeedback.current
+    val scanReceiptLabel = androidx.compose.ui.res.stringResource(com.wafeer.app.R.string.receipt_scan_button)
     Column(
         Modifier
             .fillMaxHeight()
@@ -647,7 +661,14 @@ private fun RowScope.ActionButtonsColumn(
                 onClick = {
                     if (isDelete) onDelete() else onApply()
                     haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                }
+                },
+                onLongClick = onApplyLongPress?.takeUnless { isDelete }?.let { scan ->
+                    {
+                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                        scan()
+                    }
+                },
+                onLongClickLabel = scanReceiptLabel.takeUnless { isDelete || onApplyLongPress == null },
             )
         }
 

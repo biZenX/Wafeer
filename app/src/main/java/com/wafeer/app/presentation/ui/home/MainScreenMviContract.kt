@@ -95,6 +95,7 @@ data class MainScreenActions(
     val onCreateCategory: suspend (String) -> Boolean = { false },
     val onHistoryVisibilityChanged: (Boolean) -> Unit = {},
     val onCategoryGridVisibilityChanged: (Boolean) -> Unit = {},
+    val receiptScanner: com.wafeer.app.presentation.ui.editor.receipt.ReceiptScannerState? = null,
 )
 
 data class MainScreenFeatureFlags(

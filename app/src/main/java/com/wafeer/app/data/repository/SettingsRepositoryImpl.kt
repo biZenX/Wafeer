@@ -160,6 +160,7 @@ private val SAVINGS_WANTS_PCT = intPreferencesKey(SAVINGS_WANTS_PCT_KEY_NAME)
 private val SAVINGS_SAVINGS_PCT = intPreferencesKey(SAVINGS_SAVINGS_PCT_KEY_NAME)
 private val SAVINGS_GOAL_AMOUNT = stringPreferencesKey(SAVINGS_GOAL_AMOUNT_KEY_NAME)
 private val SAVINGS_GOAL_MONTHS = intPreferencesKey(SAVINGS_GOAL_MONTHS_KEY_NAME)
+private val SAVINGS_REMINDER_ENABLED = booleanPreferencesKey("savings_reminder_enabled")
 private val LEFTOVER_CHOICES = stringSetPreferencesKey("leftover_choices")
 
 @Singleton
@@ -251,6 +252,7 @@ class SettingsRepositoryImpl @Inject constructor(
                         savingsGoalMonths = preferences[SAVINGS_GOAL_MONTHS],
                     )
                 },
+                savingsReminderEnabled = preferences[SAVINGS_REMINDER_ENABLED] ?: false,
                 leftoverChoices = preferences[LEFTOVER_CHOICES].orEmpty().toLeftoverChoices(),
                 allowanceDaysEnabled = preferences[ALLOWANCE_DAYS_ENABLED] ?: false,
                 activeSpendingDays = preferences[ACTIVE_SPENDING_DAYS]?.mapNotNull { it.toIntOrNull() }?.toSet()
@@ -592,6 +594,12 @@ class SettingsRepositoryImpl @Inject constructor(
             } else {
                 preferences[SAVINGS_GOAL_MONTHS] = goalMonths
             }
+        }
+    }
+
+    override suspend fun setSavingsReminderEnabled(enabled: Boolean) {
+        dataStore.edit { preferences ->
+            preferences[SAVINGS_REMINDER_ENABLED] = enabled
         }
     }
 

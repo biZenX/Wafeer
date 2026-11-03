@@ -57,6 +57,7 @@ class NotificationScheduler @Inject constructor(
         const val CREDIT_CUTOFF_REMINDER_DAYS = 3L
         const val UPCOMING_REMINDER_LEAD_DAYS = 3L
         private const val CREDIT_CUTOFF_WORK_NAME = "credit_cutoff_reminder"
+        private const val SAVINGS_REMINDER_WORK_NAME = "savings_reminder"
         private const val MAX_CREDIT_CUTOFF_LOOKAHEAD_MONTHS = 24L
     }
 
@@ -66,6 +67,7 @@ class NotificationScheduler @Inject constructor(
     fun initializeNotifications() {
         scheduleAllRecurrentExpenseNotifications()
         scheduleCreditCutoffReminder()
+        scheduleSavingsReminder()
         checkAndReschedulePeriodEndNotification()
         scheduleMidnightPeriodCheck()
         scheduleDailyFinancialCheck()
@@ -481,10 +483,42 @@ class NotificationScheduler @Inject constructor(
 
     fun rescheduleNotifications(periodEndDate: LocalDate?) {
         logcat { "Rescheduling notifications for period end: $periodEndDate" }
+        scheduleSavingsReminder()
         if (periodEndDate != null) {
             schedulePeriodEndNotification(periodEndDate)
         } else {
             cancelPeriodEndNotification()
+        }
+    }
+
+    fun scheduleSavingsReminder() {
+        scope.launch {
+            try {
+                val settings = settingsRepository.getSettings()
+                val budget = budgetRepository.getBudgetSettingsSync()
+                val now = LocalDateTime.now()
+                val trigger = budget?.takeIf { settings.savingsReminderEnabled }?.let {
+                    com.wafeer.app.domain.calculator.savingsReminderTriggerAt(
+                        it.startDate,
+                        LocalTime.of(settings.notificationHour, settings.notificationMinute),
+                        now,
+                    )
+                }
+                if (trigger == null) {
+                    workManager.cancelUniqueWork(SAVINGS_REMINDER_WORK_NAME)
+                    logcat { "Savings reminder off or period already started, work cancelled" }
+                    return@launch
+                }
+                val initialDelay = java.time.Duration.between(now, trigger).toMillis().coerceAtLeast(0L)
+                logcat { "Scheduling savings reminder: trigger=$trigger initialDelayMs=$initialDelay" }
+                val workRequest = OneTimeWorkRequestBuilder<SavingsReminderWorker>()
+                    .setInitialDelay(initialDelay, TimeUnit.MILLISECONDS)
+                    .addTag(RecurrentExpenseNotificationWorker.TAG_RECURRENT_NOTIFICATION)
+                    .build()
+                workManager.enqueueUniqueWork(SAVINGS_REMINDER_WORK_NAME, ExistingWorkPolicy.REPLACE, workRequest)
+            } catch (e: Exception) {
+                logcat { "Error scheduling savings reminder\n${e.asLog()}" }
+            }
         }
     }
 

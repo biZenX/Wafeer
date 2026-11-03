@@ -33,6 +33,7 @@ class NotificationHelper @Inject constructor(
         const val CHANNEL_CREDIT = "credit_expenses_v131"
         const val CHANNEL_APP_UPDATES = "app_updates_v133"
         const val CHANNEL_SPEND_DETECTED = "spend_detected_v133"
+        const val CHANNEL_SAVINGS = "savings_reminder_v260"
 
         const val SPEND_SAVED_TIMEOUT_MS = 6000L
 
@@ -42,6 +43,7 @@ class NotificationHelper @Inject constructor(
         const val NOTIFICATION_ID_APP_UPDATE = 1004
         const val NOTIFICATION_ID_OVERSPEND = 1005
         const val NOTIFICATION_ID_DAILY_75_PERCENT = 1005
+        const val NOTIFICATION_ID_SAVINGS = 1007
     }
 
     init {
@@ -113,6 +115,18 @@ class NotificationHelper @Inject constructor(
         notificationManager.createNotificationChannel(creditChannel)
         notificationManager.createNotificationChannel(updatesChannel)
         notificationManager.createNotificationChannel(spendDetectedChannel)
+
+        val savingsChannel = NotificationChannel(
+            CHANNEL_SAVINGS,
+            context.getString(R.string.notification_channel_savings_name),
+            NotificationManager.IMPORTANCE_DEFAULT
+        ).apply {
+            description = context.getString(R.string.notification_channel_savings_description)
+            enableVibration(true)
+            enableLights(true)
+            setShowBadge(true)
+        }
+        notificationManager.createNotificationChannel(savingsChannel)
         logcat { "Notification channels created (v133)" }
     }
 
@@ -756,5 +770,42 @@ class NotificationHelper @Inject constructor(
 
     fun cancelAllNotifications() {
         NotificationManagerCompat.from(context).cancelAll()
+    }
+
+    fun showSavingsReminderNotification(amount: String, currency: String) {
+        if (!canPostNotifications(CHANNEL_SAVINGS)) return
+
+        val pendingIntent = PendingIntent.getActivity(
+            context,
+            4,
+            Intent(context, MainActivity::class.java).apply {
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            },
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+        val formattedAmount = try {
+            com.wafeer.app.presentation.util.font.format.formatCurrencySymbolOnly(
+                java.math.BigDecimal(amount),
+                currency
+            )
+        } catch (_: Exception) {
+            "$amount $currency"
+        }
+        val message = context.getString(
+            R.string.notification_savings_reminder_message,
+            formattedAmount
+        )
+
+        val notification = NotificationCompat.Builder(context, CHANNEL_SAVINGS)
+            .setSmallIcon(R.drawable.ic_notification)
+            .setContentTitle(context.getString(R.string.notification_savings_reminder_title))
+            .setContentText(message)
+            .setStyle(NotificationCompat.BigTextStyle().bigText(message))
+            .setContentIntent(pendingIntent)
+            .setAutoCancel(true)
+            .setCategory(NotificationCompat.CATEGORY_REMINDER)
+            .build()
+
+        NotificationManagerCompat.from(context).notify(NOTIFICATION_ID_SAVINGS, notification)
     }
 }

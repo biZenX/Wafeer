@@ -37,6 +37,9 @@ interface CategoryDao {
     @Query("UPDATE category SET isHidden = 0 WHERE name = :name")
     suspend fun unhideCategory(name: String)
 
+    @Query("UPDATE category SET limitAmount = :amount, limitUnit = :unit WHERE name = :name")
+    suspend fun setLimit(name: String, amount: String?, unit: String?)
+
     @Query("UPDATE category SET isHidden = :isHidden WHERE id = :categoryId OR parentId = :categoryId")
     suspend fun setCategoryAndChildrenHidden(categoryId: Long, isHidden: Boolean)
 

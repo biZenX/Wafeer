@@ -84,6 +84,20 @@ fun MainScreen(
     var isHistoryVisible by remember { mutableStateOf(false) }
     var isCategoryGridVisible by remember { mutableStateOf(false) }
 
+    val receiptScanner = com.wafeer.app.presentation.ui.editor.receipt.rememberReceiptScanner(
+        onScanned = { scan ->
+            budgetViewModel.processIntent(
+                com.wafeer.app.presentation.ui.budget.mvi.intent.BudgetEditorIntent.ReceiptScanned(
+                    amount = scan.total.toPlainString(),
+                    merchant = scan.merchant,
+                ),
+            )
+        },
+        onFailed = {
+            android.widget.Toast.makeText(context, R.string.receipt_scan_failed, android.widget.Toast.LENGTH_SHORT).show()
+        },
+    )
+
     val tutorialStage = mainScreenState.tutorialStage
     val tutorialBoxCompleted = mainScreenState.tutorialBoxCompleted
 
@@ -274,6 +288,7 @@ fun MainScreen(
                                 onCreateCategory = budgetViewModel::createCategory,
                                 onHistoryVisibilityChanged = { isHistoryVisible = it },
                                 onCategoryGridVisibilityChanged = { isCategoryGridVisible = it },
+                                receiptScanner = receiptScanner,
                                 onPeriodSelected = { period ->
                                     mainScreenViewModel.processIntent(
                                         MainScreenUiIntent.SetSelectedPeriod(period), tutorialStage

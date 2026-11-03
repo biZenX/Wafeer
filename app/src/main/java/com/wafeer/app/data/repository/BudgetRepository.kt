@@ -22,6 +22,8 @@ interface BudgetRepository {
     /** Inserts [transaction] and returns the id the row was given. */
     suspend fun addTransaction(transaction: Transaction): Long
 
+    suspend fun addTransactions(transactions: List<Transaction>): List<Long>
+
     suspend fun addQueuedTransaction(transaction: Transaction)
 
     suspend fun addTransactionIfAbsent(transaction: Transaction): Boolean
@@ -66,6 +68,8 @@ interface BudgetRepository {
     suspend fun hideCategory(name: String)
 
     suspend fun incrementCategoryUsage(name: String)
+
+    suspend fun setCategoryLimit(name: String, limit: com.wafeer.app.domain.model.CategoryLimit?)
 
     suspend fun getPeriodCount(): Int
 

@@ -9,6 +9,9 @@ import com.wafeer.app.data.repository.BudgetRepository
 import com.wafeer.app.data.repository.SettingsRepository
 import com.wafeer.app.domain.model.BudgetPeriod
 import com.wafeer.app.domain.model.BudgetSettings
+import com.wafeer.app.domain.model.Category
+import com.wafeer.app.domain.model.CategoryLimit
+import com.wafeer.app.domain.model.CategoryLimitUnit
 import com.wafeer.app.domain.model.ContrastMode
 import com.wafeer.app.domain.model.PeriodMappingMode
 import com.wafeer.app.domain.model.ThemeMode
@@ -52,7 +55,9 @@ class SettingsViewModelTest {
         every { censorManager.isCensored } returns censored
         every { censorManager.setCensored(any()) } just Runs
         every { settingsRepository.observeSettings() } returns flowOf(UserSettings.DEFAULT)
+        every { settingsRepository.observeString(any()) } returns flowOf(null)
         every { budgetRepository.getBudgetSettings() } returns flowOf(null)
+        every { budgetRepository.getActiveCategories() } returns flowOf(emptyList())
         every { context.getSystemService(Context.ALARM_SERVICE) } returns alarmManager
         every { alarmManager.canScheduleExactAlarms() } returns true
     }
@@ -253,5 +258,32 @@ class SettingsViewModelTest {
         vm.onBack()
 
         assertThat(vm.effects.value).isEqualTo(SettingsUiEffect.NavigateBack)
+    }
+
+    @Test
+    fun `active categories with their limits are exposed for the limits list`() = runTest {
+        val coffee = Category(name = "Coffee", limit = CategoryLimit(BigDecimal("50"), CategoryLimitUnit.WEEKLY))
+        val food = Category(name = "Food")
+        every { budgetRepository.getActiveCategories() } returns flowOf(listOf(coffee, food))
+
+        newViewModel().uiState.test {
+            val state = awaitCondition { it.categories.isNotEmpty() }
+            assertThat(state.categories).containsExactly(coffee, food).inOrder()
+            cancelAndIgnoreRemainingEvents()
+        }
+    }
+
+    @Test
+    fun `setting a category limit from settings goes to the repository`() = runTest {
+        newViewModel().onSetCategoryLimit("Coffee", BigDecimal("50"), CategoryLimitUnit.PERIOD)
+
+        coVerify { budgetRepository.setCategoryLimit("Coffee", CategoryLimit(BigDecimal("50"), CategoryLimitUnit.PERIOD)) }
+    }
+
+    @Test
+    fun `removing a category limit from settings stores null`() = runTest {
+        newViewModel().onSetCategoryLimit("Coffee", null, CategoryLimitUnit.PERIOD)
+
+        coVerify { budgetRepository.setCategoryLimit("Coffee", null) }
     }
 }

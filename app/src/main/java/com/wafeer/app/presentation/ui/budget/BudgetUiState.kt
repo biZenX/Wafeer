@@ -33,6 +33,7 @@ data class BudgetUiState(
     val pendingRecurrentComment: String = "",
     val currentPeriodStartedAtMillis: Long = 0L,
     val currentPeriodId: Long = 0L,
+    val categoryLimits: Map<String, com.wafeer.app.domain.calculator.CategoryLimitStatus> = emptyMap(),
     val isCalculation: Boolean = false,
     val dragProgress: Float = 0f,
     val lockSwipeable: Boolean = false,

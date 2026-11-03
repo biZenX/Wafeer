@@ -71,6 +71,9 @@ data class SettingsUiState(
     val isCensored: Boolean = false,
     val periodMappingMode: PeriodMappingMode = PeriodMappingMode.ACTIVE_BUDGET,
     val savingsPreferences: SavingsPreferences = SavingsPreferences.DEFAULT,
+    val savingsReminderEnabled: Boolean = false,
+    val categories: List<com.wafeer.app.domain.model.Category> = emptyList(),
+    val currencyCode: String = "USD",
     val creditCardCutoffDay: Int? = null,
     val financialTipsEnabled: Boolean = true,
 )
@@ -158,10 +161,12 @@ class SettingsViewModel @Inject constructor(
 
     val uiState: StateFlow<SettingsUiState> = combine(
         settingsRepository.observeSettings(),
-        budgetRepository.getBudgetSettings(),
+        combine(budgetRepository.getBudgetSettings(), budgetRepository.getActiveCategories()) { budget, categories ->
+            budget to categories
+        },
         censorManager.isCensored,
         _notificationPermissionGranted
-    ) { settings, budgetSettings, isCensored, permissionGranted ->
+    ) { settings, (budgetSettings, categories), isCensored, permissionGranted ->
         SettingsUiState(
             currentTheme = when (settings.themeMode) {
                 ThemeMode.LIGHT -> "Light"
@@ -204,6 +209,9 @@ class SettingsViewModel @Inject constructor(
             isCensored = isCensored,
             periodMappingMode = settings.periodMappingMode,
             savingsPreferences = settings.savingsPreferences,
+            savingsReminderEnabled = settings.savingsReminderEnabled,
+            categories = categories,
+            currencyCode = budgetSettings?.currencyCode ?: "USD",
             creditCardCutoffDay = budgetSettings?.creditCardCutoffDay,
             financialTipsEnabled = settings.financialTipsEnabled,
         )
@@ -456,6 +464,17 @@ class SettingsViewModel @Inject constructor(
     fun onSavingsPreferencesChange(prefs: SavingsPreferences) {
         viewModelScope.launch {
             settingsRepository.setSavingsPreferences(prefs)
+        }
+    }
+
+    fun onSetCategoryLimit(name: String, amount: java.math.BigDecimal?, unit: com.wafeer.app.domain.model.CategoryLimitUnit) {
+        val limit = amount?.takeIf { it.signum() > 0 }?.let { com.wafeer.app.domain.model.CategoryLimit(it, unit) }
+        viewModelScope.launch { budgetRepository.setCategoryLimit(name, limit) }
+    }
+
+    fun onSavingsReminderToggle(enabled: Boolean) {
+        viewModelScope.launch {
+            updateNotificationTimeUseCase.setSavingsReminderEnabled(enabled)
         }
     }
 

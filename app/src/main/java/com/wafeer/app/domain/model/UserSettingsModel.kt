@@ -39,6 +39,7 @@ data class UserSettings(
     val recurrentPaymentsViewMode: RecurrentPaymentsViewMode = RecurrentPaymentsViewMode.VERTICAL_LIST,
     val budgetSplitViewPeriod: BudgetPeriod? = null,
     val savingsPreferences: SavingsPreferences = SavingsPreferences.DEFAULT,
+    val savingsReminderEnabled: Boolean = false,
     val leftoverChoices: Map<LocalDate, LeftoverChoice> = emptyMap(),
     val allowanceDaysEnabled: Boolean = false,
     val activeSpendingDays: Set<Int> = setOf(7, 1, 2, 3, 4),

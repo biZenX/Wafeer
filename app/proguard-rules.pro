@@ -28,6 +28,9 @@
 -keep class * extends androidx.glance.appwidget.GlanceAppWidget
 -keep class * extends androidx.glance.appwidget.GlanceAppWidgetReceiver
 
+-keep class com.googlecode.tesseract.android.** { *; }
+-keep class com.googlecode.leptonica.android.** { *; }
+
 # Hardening & Obfuscation
 # Repackage all internal classes into a single flat obfuscated root
 -repackageclasses ''

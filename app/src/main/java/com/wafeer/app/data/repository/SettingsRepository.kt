@@ -118,6 +118,8 @@ interface SettingsRepository {
 
     suspend fun setSavingsPreferences(prefs: SavingsPreferences)
 
+    suspend fun setSavingsReminderEnabled(enabled: Boolean)
+
     suspend fun clearEarlyFinish()
 
     suspend fun resetTutorials()

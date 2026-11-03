@@ -7,9 +7,12 @@ import com.wafeer.app.BuildConfig
 import com.wafeer.app.R
 import com.wafeer.app.data.repository.BudgetRepository
 import com.wafeer.app.data.repository.SettingsRepository
+import com.wafeer.app.domain.calculator.categoryLimitStatuses
+import com.wafeer.app.domain.calculator.rankCategoriesForEntry
 import com.wafeer.app.domain.model.UserSettings
 import com.wafeer.app.domain.model.BudgetSettings
 import com.wafeer.app.domain.model.Category
+import com.wafeer.app.domain.model.CategoryLimit
 import com.wafeer.app.domain.model.CreditCard
 import com.wafeer.app.domain.model.LeftoverChoice
 import com.wafeer.app.domain.model.PaidRecurrentOccurrence
@@ -189,7 +192,22 @@ class BudgetViewModel @Inject constructor(
             animState = if (numpadInput.isNotEmpty()) AnimState.EDITING else AnimState.IDLE,
             currentComment = editorState.currentComment,
             currentNote = editorState.currentNote,
-            tags = categories.map { it.name },
+            categoryLimits = settingsWithRollover?.let { s ->
+                categoryLimitStatuses(
+                    categories = categories,
+                    transactions = transactions,
+                    periodStart = s.startDate,
+                    periodEnd = s.getPeriodEndDate(),
+                    today = LocalDate.now(),
+                    firstDayOfWeek = java.time.temporal.WeekFields.of(Locale.getDefault()).firstDayOfWeek,
+                )
+            } ?: emptyMap(),
+            tags = rankCategoriesForEntry(
+                categories = categories.map { it.name },
+                history = transactions,
+                amount = numpadInput.toBigDecimalOrNull(),
+                now = java.time.LocalDateTime.now(),
+            ),
             isFirstLaunch = settings == null,
             isRecurrentEnabled = editorState.isRecurrentEnabled,
             isCreditEnabled = editorState.isCreditEnabled,
@@ -542,6 +560,7 @@ class BudgetViewModel @Inject constructor(
 
             is BudgetEditorIntent.UpdateSettings -> handleUpdateSettings(intent.settings)
             is BudgetEditorIntent.DeleteTag -> handleDeleteTag(intent.tag)
+            is BudgetEditorIntent.SetCategoryLimit -> handleSetCategoryLimit(intent)
             is BudgetEditorIntent.CreateCategory -> handleCreateCategory(intent.name)
             is BudgetEditorIntent.RecurrentExpenseApplied -> handleRecurrentExpenseApply(
                 intent.frequency,
@@ -558,7 +577,17 @@ class BudgetViewModel @Inject constructor(
                 hasCreditCardCutoffDay = uiState.value.budgetSettings?.creditCardCutoffDay != null,
             )
             is BudgetEditorIntent.DismissFinancialTip -> handleDismissFinancialTip(intent.tipId)
+            is BudgetEditorIntent.ReceiptScanned -> handleReceiptScanned(intent.amount, intent.merchant)
         }
+    }
+
+    private fun handleReceiptScanned(amount: String, merchant: String?) {
+        numpadController.setInput(amount)
+        if (merchant.isNullOrBlank()) return
+        editorStateController.process(
+            EditorIntent.NoteUpdated(merchant),
+            hasCreditCardCutoffDay = uiState.value.budgetSettings?.creditCardCutoffDay != null,
+        )
     }
 
     private fun handleDismissFinancialTip(tipId: Int) {
@@ -664,6 +693,11 @@ class BudgetViewModel @Inject constructor(
 
     private fun handleDeleteTag(tag: String) {
         viewModelScope.launch { budgetRepository.hideCategory(tag) }
+    }
+
+    private fun handleSetCategoryLimit(intent: BudgetEditorIntent.SetCategoryLimit) {
+        val limit = intent.amount?.takeIf { it.signum() > 0 }?.let { CategoryLimit(it, intent.unit) }
+        viewModelScope.launch { budgetRepository.setCategoryLimit(intent.name, limit) }
     }
 
     suspend fun createCategory(name: String): Boolean {

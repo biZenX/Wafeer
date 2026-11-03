@@ -89,6 +89,7 @@ import androidx.wear.compose.material.ExperimentalWearMaterialApi
 import androidx.wear.compose.material.SwipeableState
 import androidx.wear.compose.material.rememberSwipeableState
 import com.wafeer.app.R
+import com.wafeer.app.domain.calculator.pickCategory
 import com.wafeer.app.domain.model.BudgetPeriod
 import com.wafeer.app.domain.model.BudgetSettings
 import com.wafeer.app.domain.model.BudgetState
@@ -103,6 +104,7 @@ import com.wafeer.app.presentation.ui.budget.mvi.intent.BudgetEditorIntent
 import com.wafeer.app.presentation.ui.budget.mvi.intent.BudgetNumpadIntent
 import com.wafeer.app.presentation.ui.editor.AnimState
 import com.wafeer.app.presentation.ui.editor.Editor
+import com.wafeer.app.presentation.ui.editor.category.CategoryLimitsUi
 import com.wafeer.app.presentation.ui.history.HistoryScreen
 import com.wafeer.app.presentation.ui.theme.WafeerTheme
 import com.wafeer.app.presentation.ui.theme.colorButton
@@ -1048,6 +1050,13 @@ private fun PhoneLayout(
             },
         )
 
+        ReceiptCameraHost(
+            scanner = actions.receiptScanner,
+            budgetUiState = budgetUiState,
+            selectedViewPeriod = budgetPeriodState.selectedViewPeriod,
+            startHeightPx = editorHeightAnimatedState.value,
+        )
+
         LaunchedEffect(budgetUiState.isCalculation) {
             localDragProgress = 0f
             externalSheetDragOffset = 0f
@@ -1227,7 +1236,40 @@ private fun TabletLayout(
                 }
             }
         }
+
+        ReceiptCameraHost(
+            scanner = actions.receiptScanner,
+            budgetUiState = budgetUiState,
+            selectedViewPeriod = budgetPeriodState.selectedViewPeriod,
+            startHeightPx = 0f,
+        )
     }
+}
+
+@Composable
+private fun ReceiptCameraHost(
+    scanner: com.wafeer.app.presentation.ui.editor.receipt.ReceiptScannerState?,
+    budgetUiState: BudgetUiState,
+    selectedViewPeriod: BudgetPeriod?,
+    startHeightPx: Float,
+) {
+    if (scanner == null) return
+    com.wafeer.app.presentation.ui.editor.receipt.ReceiptCameraSheet(
+        visible = scanner.isOpen,
+        state = scanner.camera,
+        startHeightPx = startHeightPx,
+        budgetState = budgetUiState.budgetState,
+        viewPeriod = selectedViewPeriod ?: BudgetPeriod.DAILY,
+        splitMode = budgetUiState.budgetSettings?.splitMode ?: com.wafeer.app.domain.model.BudgetSplitMode.DYNAMIC,
+        currencyCode = budgetUiState.budgetSettings?.currencyCode ?: "USD",
+        onClose = scanner.close,
+        onCapture = scanner.capture,
+        onPickImage = scanner.pickImage,
+        onSwitchCamera = scanner.switchCamera,
+        onToggleTorch = scanner.toggleTorch,
+        cameraPreview = scanner.preview,
+        modifier = Modifier.zIndex(2f),
+    )
 }
 
 @Composable
@@ -1265,13 +1307,30 @@ private fun MainScreenNumpadSection(
                     tags = budgetUiState.tags,
                     selectedCategory = budgetUiState.currentComment,
                     onCategorySelected = { category ->
+                        val comment = pickCategory(
+                            comment = budgetUiState.currentComment,
+                            tag = category,
+                            input = budgetUiState.numpadInput,
+                        )
                         actions.onProcessIntent(
                             MainScreenUiIntent.ProcessBudgetEditorIntent(
-                                BudgetEditorIntent.CommentUpdated(category),
+                                BudgetEditorIntent.CommentUpdated(comment),
                             ),
                         )
                     },
                     applyWindowInsets = false,
+                    limits = CategoryLimitsUi(
+                        statuses = budgetUiState.categoryLimits,
+                        pendingAmount = budgetUiState.numpadInput.toBigDecimalOrNull(),
+                        currencyCode = budgetUiState.budgetSettings?.currencyCode ?: "USD",
+                        onSetLimit = { name, amount, unit ->
+                            actions.onProcessIntent(
+                                MainScreenUiIntent.ProcessBudgetEditorIntent(
+                                    BudgetEditorIntent.SetCategoryLimit(name, amount, unit),
+                                ),
+                            )
+                        },
+                    ),
                 )
             }
         } else {
@@ -1398,6 +1457,7 @@ private fun MainScreenNumpadSection(
             )
         },
         onShowSnackbar = actions.onShowSnackbar,
+        onApplyLongPress = if (choosingLeftover) null else actions.receiptScanner?.launch,
         onTestNotifications = {
             actions.onProcessIntent(
                 MainScreenUiIntent.ProcessBudgetNumpadIntent(
@@ -1496,6 +1556,13 @@ private fun MainScreenEditorSection(
             actions.onProcessIntent(
                 MainScreenUiIntent.ProcessBudgetEditorIntent(
                     BudgetEditorIntent.DeleteTag(tag),
+                ),
+            )
+        },
+        onSetCategoryLimit = { name, amount, unit ->
+            actions.onProcessIntent(
+                MainScreenUiIntent.ProcessBudgetEditorIntent(
+                    BudgetEditorIntent.SetCategoryLimit(name, amount, unit),
                 ),
             )
         },

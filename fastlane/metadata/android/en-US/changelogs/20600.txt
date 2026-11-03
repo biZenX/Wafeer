@@ -1,0 +1,7 @@
+- feat: Offline Receipt Scanner: Scan Arabic and English receipts directly via Camera or Gallery with zero internet.
+- feat: Category Spending Limits: Set weekly or period caps per category with real-time pace and overspend warnings.
+- feat: Split Expenses: Log multiple categories and amounts in a single entry using (+) notation.
+- feat: Interactive Spotlight Tour: Replaced legacy demo mode with a streamlined real-interface walkthrough.
+- feat: Period Start Savings Reminder: Gentle notification at the start of each period with your target savings.
+- improve: Smart Category Suggestions: Dynamically rank categories based on time of day and history.
+- fix: Background updater stability and scheduled recurring transaction reliability.

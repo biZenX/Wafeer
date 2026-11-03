@@ -1,10 +1,12 @@
 package com.wafeer.app.presentation.ui.budget.mvi.intent
 
 import com.wafeer.app.domain.model.BudgetSettings
+import com.wafeer.app.domain.model.CategoryLimitUnit
 import com.wafeer.app.domain.model.RecurrentFrequency
 import com.wafeer.app.presentation.ui.budget.mvi.BudgetUiIntent
 import com.wafeer.app.presentation.ui.editor.AnimState
 import com.wafeer.app.presentation.ui.editor.EditMode
+import java.math.BigDecimal
 import java.time.LocalDate
 
 sealed interface BudgetEditorIntent : BudgetUiIntent {
@@ -15,6 +17,11 @@ sealed interface BudgetEditorIntent : BudgetUiIntent {
     data class CommentUpdated(val comment: String) : BudgetEditorIntent
     data class NoteUpdated(val note: String) : BudgetEditorIntent
     data class DeleteTag(val tag: String) : BudgetEditorIntent
+    data class SetCategoryLimit(
+        val name: String,
+        val amount: BigDecimal?,
+        val unit: CategoryLimitUnit,
+    ) : BudgetEditorIntent
     data class CreateCategory(val name: String) : BudgetEditorIntent
     data class SetRecurrentEnabled(val enabled: Boolean) : BudgetEditorIntent
     data class SetCreditEnabled(val enabled: Boolean) : BudgetEditorIntent
@@ -31,4 +38,5 @@ sealed interface BudgetEditorIntent : BudgetUiIntent {
     data class UpdateAllowanceDays(val enabled: Boolean, val days: Set<Int>) : BudgetEditorIntent
     data class SetWalletIncomeEnabled(val enabled: Boolean) : BudgetEditorIntent
     data class DismissFinancialTip(val tipId: Int) : BudgetEditorIntent
+    data class ReceiptScanned(val amount: String, val merchant: String?) : BudgetEditorIntent
 }

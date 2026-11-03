@@ -64,6 +64,15 @@ class TransactionActionsController(
         )
         return when (result) {
             is ApplyTransactionResult.InvalidInput -> emptyList()
+            is ApplyTransactionResult.SplitMismatch -> listOf(
+                TransactionAction.ShowMessage(
+                    context.getString(R.string.split_expense_mismatch, result.amounts, result.categories),
+                ),
+            )
+
+            ApplyTransactionResult.SplitWithRecurrent -> listOf(
+                TransactionAction.ShowMessage(context.getString(R.string.split_expense_not_recurring)),
+            )
             is ApplyTransactionResult.ShowRecurrentDialog -> listOf(
                 TransactionAction.OpenRecurrentDialog(
                     normalizedInput = result.normalizedInput,
@@ -79,11 +88,22 @@ class TransactionActionsController(
                 TransactionAction.ShowMessage(context.getString(R.string.expense_queued_for_next_period)),
             )
 
-            is ApplyTransactionResult.Added -> listOf(
-                TransactionAction.ClearInput,
-                TransactionAction.ClearEditorFlags,
-                TransactionAction.TransactionAdded,
-            )
+            is ApplyTransactionResult.Added -> buildList {
+                add(TransactionAction.ClearInput)
+                add(TransactionAction.ClearEditorFlags)
+                add(TransactionAction.TransactionAdded)
+                if (result.splitCount > 1) {
+                    add(
+                        TransactionAction.ShowMessage(
+                            context.resources.getQuantityString(
+                                R.plurals.split_expense_saved,
+                                result.splitCount,
+                                result.splitCount,
+                            ),
+                        ),
+                    )
+                }
+            }
 
             is ApplyTransactionResult.Failed -> {
                 logcat(TAG) { "Could not save transaction: ${result.cause}" }

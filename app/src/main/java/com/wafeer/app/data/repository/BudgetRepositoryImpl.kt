@@ -184,7 +184,17 @@ class BudgetRepositoryImpl @Inject constructor(
         createdAt = this.createdAt,
         parentId = this.parentId,
         nameResKey = this.nameResKey,
-        iconName = this.iconName
+        iconName = this.iconName,
+        limit = this.limitAmount?.let { amount ->
+            try {
+                com.wafeer.app.domain.model.CategoryLimit(
+                    BigDecimal(amount),
+                    com.wafeer.app.domain.model.CategoryLimitUnit.from(this.limitUnit)
+                )
+            } catch (_: Exception) {
+                null
+            }
+        }
     )
 
     private fun Category.toEntity(): CategoryEntity = CategoryEntity(
@@ -196,7 +206,9 @@ class BudgetRepositoryImpl @Inject constructor(
         createdAt = this.createdAt,
         parentId = this.parentId,
         nameResKey = this.nameResKey,
-        iconName = this.iconName
+        iconName = this.iconName,
+        limitAmount = this.limit?.amount?.toPlainString(),
+        limitUnit = this.limit?.unit?.name
     )
 
 
@@ -244,6 +256,9 @@ class BudgetRepositoryImpl @Inject constructor(
 
     override suspend fun addTransaction(transaction: Transaction): Long =
         transactionDao.insert(transaction.toEntity())
+
+    override suspend fun addTransactions(transactions: List<Transaction>): List<Long> =
+        appDatabase.withTransaction { transactions.map { transactionDao.insert(it.toEntity()) } }
 
     override suspend fun addQueuedTransaction(transaction: Transaction) {
         queuedTransactionDao.insert(transaction.toQueuedEntity())
@@ -405,6 +420,10 @@ class BudgetRepositoryImpl @Inject constructor(
 
     override suspend fun incrementCategoryUsage(name: String) {
         categoryDao.incrementUsage(name)
+    }
+
+    override suspend fun setCategoryLimit(name: String, limit: com.wafeer.app.domain.model.CategoryLimit?) {
+        categoryDao.setLimit(name, limit?.amount?.toPlainString(), limit?.unit?.name)
     }
 
     override suspend fun getPeriodCount(): Int {

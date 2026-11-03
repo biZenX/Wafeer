@@ -41,6 +41,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.rounded.Sell
 import androidx.compose.material.icons.rounded.SortByAlpha
+import androidx.compose.material.icons.rounded.Speed
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.ExposedDropdownMenuBox
@@ -78,6 +79,12 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
 import com.wafeer.app.R
+import com.wafeer.app.domain.calculator.lastCategoryQuery
+import com.wafeer.app.domain.calculator.pickSuggestion
+import com.wafeer.app.domain.calculator.previewSplit
+import com.wafeer.app.domain.calculator.removeCategoryAt
+import com.wafeer.app.domain.calculator.singlePlus
+import com.wafeer.app.domain.calculator.splitCategories
 import com.wafeer.app.presentation.LocalWindowInsets
 import com.wafeer.app.presentation.ui.theme.WafeerTheme
 import com.wafeer.app.presentation.ui.theme.bodyMediumCondensed
@@ -104,7 +111,11 @@ fun EditableCategoryTag(
     onHideCategoryGrid: () -> Unit = {},
     onDisableCalculationMode: () -> Unit = {},
     startInEditMode: Boolean = false,
+    limits: CategoryLimitsUi? = null,
+    splitInput: String = "",
+    currencyCode: String = "USD",
 ) {
+    var limitTarget by remember { mutableStateOf<String?>(null) }
     val focusManager = LocalFocusManager.current
     val localDensity = LocalDensity.current
     val scope = rememberCoroutineScope()
@@ -249,11 +260,35 @@ fun EditableCategoryTag(
                         renderPopup = true
                     }
 
+                    val splitPreview = remember(targetLabel, splitInput, tags) {
+                        if (targetLabel == null || targetLabel.trim() in tags) {
+                            emptyList()
+                        } else {
+                            previewSplit(splitInput, targetLabel)
+                        }
+                    }
                     if (targetLabel == null) {
                         CommentEditor(
                             value = value,
-                            onChange = { value = it },
-                            onApply = { close() })
+                            onChange = { changed ->
+                                val cleaned = singlePlus(changed.text)
+                                value = if (cleaned == changed.text) {
+                                    changed
+                                } else {
+                                    TextFieldValue(cleaned, TextRange(cleaned.length))
+                                }
+                            },
+                            onApply = { close() },
+                            visualTransformation = rememberCategoryHighlight(tags),
+                            highlightTags = tags,
+                        )
+                    } else if (splitPreview.isNotEmpty()) {
+                        SplitCategoryPills(
+                            preview = splitPreview,
+                            currencyCode = currencyCode,
+                            showErrors = splitInput.isNotBlank(),
+                            onRemove = { index -> onCommentUpdate(removeCategoryAt(targetLabel, index)) },
+                        )
                     } else if (!onlyIcon || targetLabel.isNotEmpty()) {
                         Text(
                             modifier = Modifier
@@ -274,11 +309,15 @@ fun EditableCategoryTag(
 
         val trimmedValue = value.text.trim()
         val filteredItems = remember(trimmedValue, tags, directCategoryPopupEnabled, sortAlphabetically) {
+            val query = lastCategoryQuery(trimmedValue)
+            val picked = splitCategories(trimmedValue.substringBeforeLast('+', ""))
             val baseFiltered = if (trimmedValue.isBlank()) {
                 if (directCategoryPopupEnabled) tags else emptyList()
+            } else if (query.isEmpty()) {
+                emptyList()
             } else {
                 tags.filter { tag ->
-                    tag.contains(trimmedValue, ignoreCase = true) && tag != trimmedValue
+                    tag.contains(query, ignoreCase = true) && tag != query && tag !in picked
                 }
             }
             if (sortAlphabetically) {
@@ -383,11 +422,19 @@ fun EditableCategoryTag(
                                         filteredItems.forEach { item ->
                                             itemSuggest(
                                                 name = item,
+                                                limits = limits,
+                                                onSetLimit = limits?.let {
+                                                    {
+                                                        dismissEvent.value = true
+                                                        limitTarget = item
+                                                    }
+                                                },
                                                 onClick = {
                                                     dismissEvent.value = true
+                                                    val completed = pickSuggestion(value.text, item, splitInput)
                                                     value = TextFieldValue(
-                                                        item,
-                                                        TextRange(item.length),
+                                                        completed,
+                                                        TextRange(completed.length),
                                                     )
                                                 },
                                                 onDelete = {
@@ -412,12 +459,26 @@ fun EditableCategoryTag(
 
         }
     }
+
+    limitTarget?.let { target ->
+        CategoryLimitDialog(
+            categoryName = target,
+            current = limits?.statuses?.get(target)?.limit,
+            onDismiss = { limitTarget = null },
+            onSave = { amount, unit ->
+                limits?.onSetLimit?.invoke(target, amount, unit)
+                limitTarget = null
+            },
+        )
+    }
 }
 
 fun LazyListScope.itemSuggest(
     name: String,
     onClick: () -> Unit,
     onDelete: () -> Unit,
+    limits: CategoryLimitsUi? = null,
+    onSetLimit: (() -> Unit)? = null,
 ) {
     item(name) {
         var showDelete by remember { mutableStateOf(false) }
@@ -440,12 +501,38 @@ fun LazyListScope.itemSuggest(
                 .heightIn(42.dp)
                 .padding(start = 24.dp, end = 16.dp, top = 8.dp, bottom = 8.dp),
         ) {
-            Text(
-                text = name,
-                overflow = TextOverflow.Ellipsis,
-                softWrap = false,
-                modifier = Modifier.weight(1f)
-            )
+            val status = limits?.statuses?.get(name)
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = name,
+                    overflow = TextOverflow.Ellipsis,
+                    softWrap = false,
+                )
+                if (status != null) {
+                    CategoryLimitBar(
+                        status = status,
+                        currencyCode = limits.currencyCode,
+                        pendingAmount = limits.pendingAmount,
+                        modifier = Modifier.padding(top = 4.dp, end = 8.dp),
+                    )
+                }
+            }
+
+            if (showDelete && onSetLimit != null) {
+                IconButton(
+                    onClick = {
+                        onSetLimit()
+                        showDelete = false
+                    },
+                    modifier = Modifier.size(28.dp),
+                ) {
+                    Icon(
+                        imageVector = Icons.Rounded.Speed,
+                        contentDescription = stringResource(R.string.category_limit_set),
+                        modifier = Modifier.size(16.dp),
+                    )
+                }
+            }
 
             if (showDelete) {
                 IconButton(

@@ -179,6 +179,7 @@ class SupportedCurrency(
             SupportedCurrency("HUF", "Ft", SymbolPosition.END),
             SupportedCurrency("UAH", "₴", SymbolPosition.END),
             SupportedCurrency("GEL", "₾"),
+            SupportedCurrency("AZN", "₼"),
             SupportedCurrency("QAR", "QAR"),
             SupportedCurrency("AED", "AED"),
             SupportedCurrency("CRC", "₡")
@@ -344,6 +345,7 @@ data class SupportedCurrencyData(
             "ZWL" to SymbolPosition.START,
             "HUF" to SymbolPosition.END,
             "UAH" to SymbolPosition.END,
+            "AZN" to SymbolPosition.START,
             "QAR" to SymbolPosition.START,
             "AED" to SymbolPosition.START,
             "CRC" to SymbolPosition.START,
