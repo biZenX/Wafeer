@@ -74,6 +74,7 @@ class MainScreenViewModel @Inject constructor(
             walletSheetOpened = local.walletSheetOpened,
             demoModeActive = settings.demoModeActive,
             demoMissionCompleted = settings.demoMissionCompleted,
+            spotlightTourV2Completed = settings.spotlightTourV2Completed,
         )
     }.stateIn(
         scope = viewModelScope,
@@ -95,6 +96,7 @@ class MainScreenViewModel @Inject constructor(
             is MainScreenUiIntent.SetSelectedPeriod -> setSelectedPeriod(intent.period)
             is MainScreenUiIntent.MarkWalletSheetOpened -> markWalletSheetOpened()
             is MainScreenUiIntent.SetTutorialBoxCompleted -> setTutorialBoxCompleted(intent.completed)
+            is MainScreenUiIntent.SetSpotlightTourCompleted -> setSpotlightTourCompleted(intent.completed)
             is MainScreenUiIntent.ExitDemoModeAndStartRealBudget -> exitDemoModeAndStartRealBudget()
 
             is MainScreenUiIntent.ProcessBudgetTransactionIntent -> { /* caller */ }
@@ -238,6 +240,19 @@ class MainScreenViewModel @Inject constructor(
     private fun setTutorialBoxCompleted(completed: Boolean) {
         viewModelScope.launch {
             settingsRepository.setTutorialBoxCompleted(completed)
+        }
+    }
+
+    private fun setSpotlightTourCompleted(completed: Boolean) {
+        viewModelScope.launch {
+            try {
+                settingsRepository.setSpotlightTourV2Completed(completed)
+                if (completed) {
+                    settingsRepository.setTutorialBoxCompleted(true)
+                }
+            } catch (e: Exception) {
+                logcat(TAG) { "setSpotlightTourCompleted failed: ${e.message}" }
+            }
         }
     }
 

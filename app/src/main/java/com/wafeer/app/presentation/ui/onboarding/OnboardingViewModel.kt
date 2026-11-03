@@ -80,21 +80,17 @@ class OnboardingViewModel @Inject constructor(
                 }
 
                 val isArabic = com.wafeer.app.presentation.util.LocaleHelper.isArabic()
-                val sampleBudget = when (intent.budgetType) {
-                    SurveyBudgetType.ALLOWANCE -> if (isArabic) java.math.BigDecimal("1200.00") else java.math.BigDecimal("300.00")
-                    SurveyBudgetType.SALARY, SurveyBudgetType.HOUSEHOLD -> if (isArabic) java.math.BigDecimal("5000.00") else java.math.BigDecimal("1200.00")
-                }
-
                 val defaultCurrency = if (isArabic) "EGP" else "USD"
                 val currency = defaultCurrency
+                val initialBudget = existing?.totalBudget ?: java.math.BigDecimal.ZERO
 
                 val updatedSettings = (existing ?: com.wafeer.app.domain.model.BudgetSettings(
-                    totalBudget = sampleBudget,
+                    totalBudget = initialBudget,
                     period = period,
                     startDate = java.time.LocalDate.now().withDayOfMonth(1),
                     currencyCode = currency,
                 )).copy(
-                    totalBudget = sampleBudget,
+                    totalBudget = initialBudget,
                     period = period,
                     splitMode = splitMode,
                     currencyCode = currency,
@@ -105,10 +101,10 @@ class OnboardingViewModel @Inject constructor(
                     settingsRepository.setAllowanceDaysEnabled(true)
                 }
 
-                // Seed interactive simulation mock transactions
-                budgetRepository.seedDemoData(currencyCode = currency, sampleBudget = sampleBudget)
-                settingsRepository.setDemoModeActive(true)
+                // Clean initial setup without forcing fake demo mode or dummy transactions
+                settingsRepository.setDemoModeActive(false)
                 settingsRepository.setDemoMissionCompleted(false)
+                settingsRepository.setSpotlightTourV2Completed(false)
 
                 settingsRepository.setOnboardingCompleted(true)
                 _localState.update { it.copy(isCompleted = true) }

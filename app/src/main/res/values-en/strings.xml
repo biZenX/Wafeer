@@ -328,8 +328,8 @@
     <string name="settings_backup_subtitle">Back up data to wafeer_export.csv</string>
     <string name="settings_import_csv_title">Import CSV</string>
     <string name="settings_import_csv_subtitle">Import data from a CSV file</string>
-    <string name="settings_reset_tutorial_title">Reset tutorial</string>
-    <string name="settings_reset_tutorial_subtitle">You will see gesture hints, info, and actions across the app again.</string>
+    <string name="settings_reset_tutorial_title">Quick Interactive Tour (Spotlight)</string>
+    <string name="settings_reset_tutorial_subtitle">Replay the interactive spotlight guide explaining features and actions.</string>
     <string name="settings_simulation_demo_title">Demo Mode</string>
     <string name="settings_simulation_demo_subtitle">Populate the app with sample data to test spending and explore features.</string>
     <string name="settings_theme_dialog_title">App theme</string>

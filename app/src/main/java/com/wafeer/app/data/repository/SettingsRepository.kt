@@ -80,6 +80,8 @@ interface SettingsRepository {
 
     suspend fun setTutorialBoxCompleted(completed: Boolean)
 
+    suspend fun setSpotlightTourV2Completed(completed: Boolean)
+
     suspend fun setAnalyticsTutorialCompleted(completed: Boolean)
 
     suspend fun setAnalyticsSpendsTutorialCompleted(completed: Boolean)

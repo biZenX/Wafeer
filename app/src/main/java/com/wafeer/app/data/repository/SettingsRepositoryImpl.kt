@@ -67,6 +67,7 @@ const val SAVINGS_SAVINGS_PCT_KEY_NAME = "savings_savings_pct"
 const val SAVINGS_GOAL_AMOUNT_KEY_NAME = "savings_goal_amount"
 const val SAVINGS_GOAL_MONTHS_KEY_NAME = "savings_goal_months"
 const val TUTORIAL_BOX_COMPLETED_KEY_NAME = "tutorial_box_completed"
+const val SPOTLIGHT_TOUR_V2_COMPLETED_KEY_NAME = "spotlight_tour_v2_completed"
 const val ANALYTICS_TUTORIAL_COMPLETED_KEY_NAME = "analytics_tutorial_completed"
 const val ANALYTICS_SPENDS_TUTORIAL_COMPLETED_KEY_NAME = "analytics_spends_tutorial_completed"
 const val ALLOWANCE_DAYS_ENABLED_KEY_NAME = "allowance_days_enabled"
@@ -128,6 +129,8 @@ private val NEW_CATEGORY_TAG_ENABLED =
     booleanPreferencesKey(NEW_CATEGORY_TAG_KEY_NAME)
 private val TUTORIAL_BOX_COMPLETED =
     booleanPreferencesKey(TUTORIAL_BOX_COMPLETED_KEY_NAME)
+private val SPOTLIGHT_TOUR_V2_COMPLETED =
+    booleanPreferencesKey(SPOTLIGHT_TOUR_V2_COMPLETED_KEY_NAME)
 private val FIRST_LAUNCH_TUTORIAL_STAGE =
     stringPreferencesKey("first_launch_tutorial_stage")
 private val RECURRENT_PAYMENTS_VIEW_MODE =
@@ -206,6 +209,7 @@ class SettingsRepositoryImpl @Inject constructor(
                 reserveUpcomingChargesEnabled = preferences[RESERVE_UPCOMING_CHARGES_ENABLED] ?: false,
                 newCategoryTagEnabled = preferences[NEW_CATEGORY_TAG_ENABLED] ?: false,
                 tutorialBoxCompleted = preferences[TUTORIAL_BOX_COMPLETED] ?: false,
+                spotlightTourV2Completed = preferences[SPOTLIGHT_TOUR_V2_COMPLETED] ?: false,
                 firstLaunchTutorialStage = FirstLaunchTutorialStage.from(preferences[FIRST_LAUNCH_TUTORIAL_STAGE]),
                 analyticsTutorialCompleted = preferences[ANALYTICS_TUTORIAL_COMPLETED] ?: false,
                 analyticsSpendsTutorialCompleted = preferences[ANALYTICS_SPENDS_TUTORIAL_COMPLETED] ?: false,
@@ -450,6 +454,12 @@ class SettingsRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun setSpotlightTourV2Completed(completed: Boolean) {
+        dataStore.edit { preferences ->
+            preferences[SPOTLIGHT_TOUR_V2_COMPLETED] = completed
+        }
+    }
+
     override suspend fun setAnalyticsTutorialCompleted(completed: Boolean) {
         dataStore.edit { preferences ->
             preferences[ANALYTICS_TUTORIAL_COMPLETED] = completed
@@ -596,6 +606,7 @@ class SettingsRepositoryImpl @Inject constructor(
     override suspend fun resetTutorials() {
         dataStore.edit { preferences ->
             preferences[TUTORIAL_BOX_COMPLETED] = false
+            preferences[SPOTLIGHT_TOUR_V2_COMPLETED] = false
             preferences[ANALYTICS_TUTORIAL_COMPLETED] = false
             preferences[FIRST_LAUNCH_TUTORIAL_STAGE] = FirstLaunchTutorialStage.TAP_ANY_NUMBER.name
         }

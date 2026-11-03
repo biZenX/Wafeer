@@ -514,8 +514,8 @@
     <string name="settings_backup_subtitle">تصدير بياناتك إلى ملف wafeer_export.csv</string>
     <string name="settings_import_csv_title">استيراد ملف CSV</string>
     <string name="settings_import_csv_subtitle">استيراد بياناتك السابقة من ملف CSV</string>
-    <string name="settings_reset_tutorial_title">إعادة تشغيل الدليل الترحيبي</string>
-    <string name="settings_reset_tutorial_subtitle">ستظهر لك تلميحات الإيماءات والإرشادات التفاعلية مجدداً.</string>
+    <string name="settings_reset_tutorial_title">الدليل التفاعلي السريع (Spotlight)</string>
+    <string name="settings_reset_tutorial_subtitle">إعادة تشغيل جولة البؤرة التفاعلية لشرح الواجهة وطريقة التسجيل.</string>
     <string name="settings_simulation_demo_title">وضع التجربة</string>
     <string name="settings_simulation_demo_subtitle">ملء بيانات افتراضية لتجربة تسجيل المصاريف واستكشاف التطبيق.</string>
     <string name="settings_theme_dialog_title">مظهر التطبيق</string>

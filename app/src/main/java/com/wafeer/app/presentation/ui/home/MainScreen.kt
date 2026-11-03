@@ -57,7 +57,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.text.font.FontWeight
 import com.wafeer.app.presentation.LocalWindowInsets
-import com.wafeer.app.presentation.ui.demo.SimulationDemoBanner
 import com.wafeer.app.presentation.ui.tutorial.SensorDiagnosticDialog
 import com.wafeer.app.presentation.ui.tutorial.TutorialBox
 import com.wafeer.app.presentation.ui.tutorial.TutorialTooltip
@@ -139,18 +138,19 @@ fun MainScreen(
     val hasNoBudget = budgetUiState.budgetSettings == null || budgetUiState.budgetSettings?.endDate == null
     val tutorialWalkOrder = remember(hasNoBudget) {
         if (hasNoBudget) {
-            listOf(1, 0, 2, 3, 4, 8, 5, 6, 7)
+            listOf(1, 0, 2, 5)
         } else {
-            listOf(0, 1, 2, 3, 4, 8, 5, 6, 7)
+            listOf(0, 1, 2, 5)
         }
     }
-    var isFreePracticeActive by remember { mutableStateOf(false) }
-    var showSensorDiagnostic by remember { mutableStateOf(false) }
-    val showNumpadTutorial = !tutorialBoxCompleted && !mainScreenState.showBudgetPeriodSheet
+    val showSpotlightTour = !mainScreenState.spotlightTourV2Completed &&
+        !mainScreenState.showBudgetPeriodSheet &&
+        !isHistoryVisible &&
+        !isCategoryGridVisible
     val tutorialBoxState = rememberTutorialBoxState(order = tutorialWalkOrder)
 
-    LaunchedEffect(tutorialBoxCompleted) {
-        if (!tutorialBoxCompleted && tutorialBoxState.isCompleted) {
+    LaunchedEffect(mainScreenState.spotlightTourV2Completed) {
+        if (!mainScreenState.spotlightTourV2Completed && tutorialBoxState.isCompleted) {
             tutorialBoxState.resetForReplay()
         }
     }
@@ -169,19 +169,19 @@ fun MainScreen(
         },
     ) {
         TutorialBox(
-            showTutorial = showNumpadTutorial && !isFreePracticeActive && !mainScreenState.demoModeActive,
-            onFreePractice = { isFreePracticeActive = true },
+            showTutorial = showSpotlightTour,
+            onFreePractice = null,
             onTutorialCompleted = {
-                logcat(TAG) { "TutorialBox completed → persisting tutorialBoxCompleted=true" }
+                logcat(TAG) { "TutorialBox completed → persisting spotlightTourV2Completed=true" }
                 mainScreenViewModel.processIntent(
-                    MainScreenUiIntent.SetTutorialBoxCompleted(true),
+                    MainScreenUiIntent.SetSpotlightTourCompleted(true),
                     tutorialStage,
                 )
             },
             onTutorialReopened = {
-                logcat(TAG) { "TutorialBox reopened (gated target became measurable) → persisting tutorialBoxCompleted=false" }
+                logcat(TAG) { "TutorialBox reopened → persisting spotlightTourV2Completed=false" }
                 mainScreenViewModel.processIntent(
-                    MainScreenUiIntent.SetTutorialBoxCompleted(false),
+                    MainScreenUiIntent.SetSpotlightTourCompleted(false),
                     tutorialStage,
                 )
             },
@@ -204,12 +204,6 @@ fun MainScreen(
                         icon = Icons.Rounded.Dialpad,
                         badgeText = practiceBadge,
                     )
-                    2 -> TutorialTooltip(
-                        title = stringResource(R.string.tutorial_settings_title),
-                        description = stringResource(R.string.tutorial_settings_description),
-                        icon = Icons.Rounded.Tune,
-                        badgeText = practiceBadge,
-                    )
                     1 -> TutorialTooltip(
                         title = if (hasNoBudget) {
                             stringResource(R.string.tutorial_budget_pill_setup_title)
@@ -224,87 +218,16 @@ fun MainScreen(
                         icon = Icons.Rounded.AccountBalanceWallet,
                         badgeText = practiceBadge,
                     )
-                    3 -> TutorialTooltip(
-                        title = stringResource(R.string.tutorial_comment_title),
-                        description = stringResource(R.string.tutorial_comment_description),
-                        icon = Icons.AutoMirrored.Rounded.Label,
-                        badgeText = practiceBadge,
-                    )
-                    4 -> TutorialTooltip(
-                        title = stringResource(R.string.tutorial_recurrent_title),
-                        description = stringResource(R.string.tutorial_recurrent_description),
-                        icon = Icons.Rounded.EventRepeat,
+                    2 -> TutorialTooltip(
+                        title = stringResource(R.string.tutorial_settings_title),
+                        description = stringResource(R.string.tutorial_settings_description),
+                        icon = Icons.Rounded.Tune,
                         badgeText = practiceBadge,
                     )
                     5 -> TutorialTooltip(
                         title = stringResource(R.string.tutorial_analytics_title),
                         description = stringResource(R.string.tutorial_analytics_description),
                         icon = Icons.Rounded.BarChart,
-                        badgeText = practiceBadge,
-                    )
-                    6 -> TutorialTooltip(
-                        title = stringResource(R.string.tutorial_privacy_title),
-                        description = stringResource(R.string.tutorial_privacy_description),
-                        icon = Icons.Rounded.VisibilityOff,
-                        badgeText = stringResource(R.string.tutorial_interactive_test_mode),
-                        actionContent = {
-                            Column(
-                                modifier = Modifier.fillMaxWidth(),
-                                verticalArrangement = Arrangement.spacedBy(8.dp)
-                            ) {
-                                Button(
-                                    onClick = { mainScreenViewModel.toggleCensor() },
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .height(36.dp),
-                                    contentPadding = PaddingValues(horizontal = 12.dp, vertical = 0.dp),
-                                    colors = ButtonDefaults.buttonColors(
-                                        containerColor = MaterialTheme.colorScheme.primary,
-                                        contentColor = MaterialTheme.colorScheme.onPrimary
-                                    )
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Rounded.Visibility,
-                                        contentDescription = null,
-                                        modifier = Modifier.size(16.dp)
-                                    )
-                                    Spacer(Modifier.width(6.dp))
-                                    Text(
-                                        text = stringResource(R.string.tutorial_test_censor_action),
-                                        style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold)
-                                    )
-                                }
-                                OutlinedButton(
-                                    onClick = { showSensorDiagnostic = true },
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .height(36.dp),
-                                    contentPadding = PaddingValues(horizontal = 12.dp, vertical = 0.dp)
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Rounded.Sensors,
-                                        contentDescription = null,
-                                        modifier = Modifier.size(16.dp)
-                                    )
-                                    Spacer(Modifier.width(6.dp))
-                                    Text(
-                                        text = stringResource(R.string.tutorial_diagnose_sensor_action),
-                                        style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold)
-                                    )
-                                }
-                            }
-                        }
-                    )
-                    7 -> TutorialTooltip(
-                        title = stringResource(R.string.tutorial_calc_title),
-                        description = stringResource(R.string.tutorial_calc_description),
-                        icon = Icons.Rounded.Calculate,
-                        badgeText = practiceBadge,
-                    )
-                    8 -> TutorialTooltip(
-                        title = stringResource(R.string.tutorial_credit_toggle_title),
-                        description = stringResource(R.string.tutorial_credit_toggle_description),
-                        icon = Icons.Rounded.CreditCard,
                         badgeText = practiceBadge,
                     )
                     else -> Text(text = "")
@@ -361,134 +284,8 @@ fun MainScreen(
                         tutorialBoxState = tutorialBoxState,
                     )
 
-                    val showDemoBanner = mainScreenState.demoModeActive &&
-                        !mainScreenState.showBudgetPeriodSheet &&
-                        !showSmartToolsBottomSheet &&
-                        !showSensorDiagnostic &&
-                        !isHistoryVisible &&
-                        !isCategoryGridVisible
-
-                    androidx.compose.animation.AnimatedVisibility(
-                        visible = showDemoBanner,
-                        enter = androidx.compose.animation.fadeIn() + androidx.compose.animation.expandVertically(),
-                        exit = androidx.compose.animation.fadeOut() + androidx.compose.animation.shrinkVertically(),
-                        modifier = Modifier
-                            .align(Alignment.TopCenter)
-                            .padding(
-                                top = LocalWindowInsets.current.calculateTopPadding() + 74.dp,
-                                start = 16.dp,
-                                end = 16.dp,
-                            ),
-                    ) {
-                        SimulationDemoBanner(
-                            demoMissionCompleted = mainScreenState.demoMissionCompleted,
-                            onStartRealBudget = {
-                                mainScreenViewModel.processIntent(
-                                    MainScreenUiIntent.ExitDemoModeAndStartRealBudget,
-                                    tutorialStage,
-                                )
-                            },
-                        )
-                    }
-
-                    val showPracticeBanner = !mainScreenState.demoModeActive &&
-                        !tutorialBoxCompleted &&
-                        isFreePracticeActive &&
-                        !mainScreenState.showBudgetPeriodSheet &&
-                        !showSmartToolsBottomSheet &&
-                        !showSensorDiagnostic &&
-                        !isHistoryVisible &&
-                        !isCategoryGridVisible
-
-                    androidx.compose.animation.AnimatedVisibility(
-                        visible = showPracticeBanner,
-                        enter = androidx.compose.animation.fadeIn() + androidx.compose.animation.expandVertically(),
-                        exit = androidx.compose.animation.fadeOut() + androidx.compose.animation.shrinkVertically(),
-                        modifier = Modifier
-                            .align(Alignment.TopCenter)
-                            .padding(
-                                top = LocalWindowInsets.current.calculateTopPadding() + 74.dp,
-                                start = 16.dp,
-                                end = 16.dp,
-                            ),
-                    ) {
-                        Surface(
-                            shape = RoundedCornerShape(16.dp),
-                            color = MaterialTheme.colorScheme.primaryContainer,
-                            tonalElevation = 6.dp,
-                            shadowElevation = 8.dp,
-                        ) {
-                            Column(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(14.dp),
-                                verticalArrangement = Arrangement.spacedBy(8.dp),
-                            ) {
-                                Row(
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Rounded.Tune,
-                                        contentDescription = null,
-                                        tint = MaterialTheme.colorScheme.primary,
-                                        modifier = Modifier.size(20.dp)
-                                    )
-                                    Text(
-                                        text = stringResource(R.string.tutorial_sandbox_banner_title),
-                                        style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
-                                        color = MaterialTheme.colorScheme.onPrimaryContainer,
-                                    )
-                                }
-                                Text(
-                                    text = stringResource(R.string.tutorial_sandbox_banner_desc),
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.85f),
-                                )
-                                Row(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                                ) {
-                                    OutlinedButton(
-                                        onClick = { isFreePracticeActive = false },
-                                        modifier = Modifier.weight(1f),
-                                        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 0.dp),
-                                    ) {
-                                        Text(
-                                            text = stringResource(R.string.tutorial_sandbox_resume_guide),
-                                            style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold)
-                                        )
-                                    }
-                                    Button(
-                                        onClick = {
-                                            isFreePracticeActive = false
-                                            mainScreenViewModel.processIntent(
-                                                MainScreenUiIntent.SetTutorialBoxCompleted(true),
-                                                tutorialStage,
-                                            )
-                                        },
-                                        modifier = Modifier.weight(1.5f),
-                                        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 0.dp),
-                                    ) {
-                                        Text(
-                                            text = stringResource(R.string.tutorial_sandbox_finish),
-                                            style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold)
-                                        )
-                                    }
-                                }
-                            }
-                        }
-                    }
                 }
             }
-        }
-
-        if (showSensorDiagnostic) {
-            SensorDiagnosticDialog(
-                diagnosticState = censorDiagnosticState,
-                onToggleCensor = { mainScreenViewModel.toggleCensor() },
-                onDismiss = { showSensorDiagnostic = false },
-            )
         }
 
         if (showSmartToolsBottomSheet) {

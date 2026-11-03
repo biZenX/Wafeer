@@ -28,6 +28,7 @@ data class UserSettings(
     val reserveUpcomingChargesEnabled: Boolean = false,
     val newCategoryTagEnabled: Boolean = false,
     val tutorialBoxCompleted: Boolean = false,
+    val spotlightTourV2Completed: Boolean = false,
     val firstLaunchTutorialStage: FirstLaunchTutorialStage = FirstLaunchTutorialStage.COMPLETED,
     val analyticsTutorialCompleted: Boolean = false,
     val analyticsSpendsTutorialCompleted: Boolean = false,

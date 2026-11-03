@@ -31,6 +31,7 @@ sealed interface MainScreenUiIntent {
     data object MarkWalletSheetOpened : MainScreenUiIntent
 
     data class SetTutorialBoxCompleted(val completed: Boolean) : MainScreenUiIntent
+    data class SetSpotlightTourCompleted(val completed: Boolean) : MainScreenUiIntent
 
     data object ExitDemoModeAndStartRealBudget : MainScreenUiIntent
 
@@ -70,6 +71,7 @@ data class MainScreenUiState(
     val onboardingCompleted: Boolean = false,
     val tutorialStage: FirstLaunchTutorialStage = FirstLaunchTutorialStage.COMPLETED,
     val tutorialBoxCompleted: Boolean = false,
+    val spotlightTourV2Completed: Boolean = false,
     val showCreditQuickToggleFeature: Boolean = false,
     val directCategoryPopupEnabled: Boolean = false,
     val categoryGridModeEnabled: Boolean = false,
