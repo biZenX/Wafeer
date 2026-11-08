@@ -1061,6 +1061,7 @@
     <!-- Smart Saving Tools -->
     <string name="smart_tools_title">أدوات التوفير الذكية</string>
     <string name="smart_tools_subtitle">أدوات عملية لقرارات مالية أهدى وأذكى</string>
+    <string name="smart_tool_ocr_desc">مسح الفواتير الورقية واستخراج المبالغ تلقائياً بدون إنترنت</string>
     <string name="smart_tools_close">إغلاق</string>
     <string name="smart_tab_affordability">أقدر أشتريها؟</string>
     <string name="smart_tab_micro_goals">برطمان الأهداف</string>

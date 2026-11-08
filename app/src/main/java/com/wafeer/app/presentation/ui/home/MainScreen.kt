@@ -335,6 +335,10 @@ fun MainScreen(
                 onMarkWishlistPurchased = smartToolsViewModel::markWishlistPurchased,
                 onDeleteWishlistItem = smartToolsViewModel::deleteWishlistItem,
                 onSetFunFundRatio = smartToolsViewModel::setFunFundRatio,
+                onScanReceipt = {
+                    showSmartToolsBottomSheet = false
+                    receiptScanner.launch()
+                },
                 onDismiss = { showSmartToolsBottomSheet = false },
             )
         }

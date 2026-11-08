@@ -1030,6 +1030,7 @@
     <!-- Smart Saving Tools -->
     <string name="smart_tools_title">Smart Saving Tools</string>
     <string name="smart_tools_subtitle">Practical tools for calmer financial choices</string>
+    <string name="smart_tool_ocr_desc">Scan receipts offline to automatically extract amounts</string>
     <string name="smart_tools_close">Close</string>
     <string name="smart_tab_affordability">Can I Afford It?</string>
     <string name="smart_tab_micro_goals">Goal Jars</string>

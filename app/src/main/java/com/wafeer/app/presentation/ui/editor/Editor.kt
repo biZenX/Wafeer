@@ -45,6 +45,7 @@ import androidx.compose.material.icons.rounded.BarChart
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.CreditCard
 import androidx.compose.material.icons.rounded.CreditScore
+import androidx.compose.material.icons.rounded.DocumentScanner
 import androidx.compose.material.icons.rounded.EventRepeat
 import androidx.compose.material.icons.rounded.HourglassTop
 import androidx.compose.material.icons.rounded.NotificationsActive
@@ -172,6 +173,7 @@ fun Editor(
     onOpenSettings: () -> Unit,
     onOpenAnalytics: () -> Unit = {},
     onOpenSmartTools: () -> Unit = {},
+    onOpenReceiptScanner: (() -> Unit)? = null,
     onOpenWallet: () -> Unit = {},
     onUnresolvedSurplusBannerClick: () -> Unit = {},
     onPendingLeftoverClick: () -> Unit = {},
@@ -343,6 +345,24 @@ fun Editor(
                         modifier = Modifier.fillMaxHeight(),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
+                        if (onOpenReceiptScanner != null) {
+                            IconButton(
+                                onClick = {
+                                    onOpenReceiptScanner()
+                                    view.weakHapticFeedback()
+                                },
+                                modifier = Modifier.size(40.dp),
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Rounded.DocumentScanner,
+                                    contentDescription = stringResource(R.string.receipt_scan_button),
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    modifier = Modifier.size(24.dp),
+                                )
+                            }
+                            Spacer(Modifier.width(4.dp))
+                        }
+
                         val walletDescription = stringResource(R.string.wallet_mode_tooltip)
                         val recurrentDescription = "Recurrent payment"
                         val creditDescription = "Credit card payment"
@@ -585,6 +605,23 @@ fun Editor(
                     }
                 } else {
                     Row(verticalAlignment = Alignment.CenterVertically) {
+                        if (onOpenReceiptScanner != null) {
+                            IconButton(
+                                onClick = {
+                                    onOpenReceiptScanner()
+                                    view.weakHapticFeedback()
+                                },
+                                modifier = Modifier.size(48.dp),
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Rounded.DocumentScanner,
+                                    contentDescription = stringResource(R.string.receipt_scan_button),
+                                    tint = MaterialTheme.colorScheme.onSurface,
+                                    modifier = Modifier.size(26.dp),
+                                )
+                            }
+                        }
+
                         IconButton(
                             onClick = {
                                 onOpenSmartTools()
