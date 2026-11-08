@@ -125,5 +125,5 @@ Please check out our developer guides:
 
 ## License & Attribution
 
-- **Wafeer (وفير):** Free and open-source software maintained by **TAtz**. Released under the **[GNU General Public License v3.0 (GPLv3)](LICENSE)**.
+- **Wafeer (وفير):** Free and open-source software maintained by **Abdulrhman**. Released under the **[GNU General Public License v3.0 (GPLv3)](LICENSE)**.
 - **Core Architecture & Foundation:** Forked and derived from **[Minus](https://github.com/isaacsa51/Minus)** by **Isaac Serrano**, licensed under the **[Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0)**.

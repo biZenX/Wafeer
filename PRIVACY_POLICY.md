@@ -2,9 +2,9 @@
 
 **تطبيق وفير (Wafeer)**
 
-تنطبق سياسة الخصوصية هذه على تطبيق **وفير (Wafeer)** وجميع الخدمات ذات الصلة التي يديرها المطور **TAtz** (المشار إليه هنا بـ "مقدم الخدمة").
+تنطبق سياسة الخصوصية هذه على تطبيق **وفير (Wafeer)** وجميع الخدمات ذات الصلة التي يديرها المطور **عبدالرحمن** (المشار إليه هنا بـ "مقدم الخدمة").
 
-This privacy policy applies to the **Wafeer (وفير)** app and any related services operated by developer **TAtz** (collectively, the "Application"). TAtz is hereby referred to as the "Service Provider".
+This privacy policy applies to the **Wafeer (وفير)** app and any related services operated by developer **Abdulrhman** (collectively, the "Application"). Abdulrhman is hereby referred to as the "Service Provider".
 
 ---
 

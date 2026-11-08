@@ -1034,8 +1034,9 @@
     <string name="smart_dialog_start_cooldown">Start 48h Cooldown</string>
     <string name="about_app_title">Wafeer</string>
     <string name="about_app_version">Version: v%1$s</string>
-    <string name="about_developer">Developer: TAtz</string>
+    <string name="about_developer_name">Abdulrhman</string>
+    <string name="about_developer">Developer: Abdulrhman</string>
     <!-- Credits -->
     <string name="about_foss_badge">100% 自由及开源</string>
-    <string name="about_credits_summary">由 TAtz (@biZenX) 开发 • 基于 Isaac Serrano 的 Minus 应用</string>
+    <string name="about_credits_summary">由 Abdulrhman (@biZenX) 开发 • 基于 Isaac Serrano 的 Minus 应用</string>
 </resources>

@@ -523,7 +523,7 @@
     <string name="settings_time_picker_cancel">إلغاء</string>
     <string name="settings_time_picker_confirm">تأكيد</string>
     <string name="settings_about_title">حول التطبيق</string>
-    <string name="settings_about_subtitle">تطبيق وفير — المطور TAtz</string>
+    <string name="settings_about_subtitle">تطبيق وفير — المطور عبدالرحمن</string>
     <string name="settings_bug_report_title">إرسال ملاحظات أو إبلاغ عن مشكلة</string>
     <string name="settings_bug_report_subtitle">شاركنا اقتراحك أو مشكلة واجهتك وسنعمل على حلها سريعاً</string>
     <string name="settings_what_is_this_for">ما فائدة هذا الإجراء؟</string>
@@ -1105,7 +1105,8 @@
     <!-- About & Credits -->
     <string name="about_app_title">تطبيق وفير</string>
     <string name="about_app_version">الإصدار: v%1$s</string>
-    <string name="about_developer">المطور: TAtz</string>
+    <string name="about_developer_name">عبدالرحمن</string>
+    <string name="about_developer">المطور: عبدالرحمن</string>
     <string name="about_developer_title">مطور التطبيق</string>
     <string name="about_developer_handle">@biZenX</string>
     <string name="about_developer_tagline"></string>
@@ -1120,5 +1121,5 @@
     <string name="about_architecture_tag">M3 Expressive</string>
     <string name="about_foss_badge">مفتوح المصدر 100%</string>
     <!-- Credits -->
-    <string name="about_credits_summary">تطوير وفير بواسطة TAtz (@biZenX) • مبني على تطبيق Minus للمطور Isaac Serrano</string>
+    <string name="about_credits_summary">تطوير وفير بواسطة عبدالرحمن (@biZenX) • مبني على تطبيق Minus للمطور Isaac Serrano</string>
 </resources>

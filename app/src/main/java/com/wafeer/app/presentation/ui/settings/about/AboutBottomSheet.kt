@@ -166,7 +166,7 @@ fun AboutBottomSheet(
                 horizontalArrangement = Arrangement.Center
             ) {
                 Text(
-                    text = "TAtz",
+                    text = stringResource(R.string.about_developer_name),
                     style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onSurface

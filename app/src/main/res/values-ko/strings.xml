@@ -1036,8 +1036,9 @@
     <string name="smart_dialog_start_cooldown">Start 48h Cooldown</string>
     <string name="about_app_title">Wafeer</string>
     <string name="about_app_version">Version: v%1$s</string>
-    <string name="about_developer">Developer: TAtz</string>
+    <string name="about_developer_name">Abdulrhman</string>
+    <string name="about_developer">Developer: Abdulrhman</string>
     <!-- Credits -->
     <string name="about_foss_badge">100% 자용 및 오폨소스</string>
-    <string name="about_credits_summary">TAtz(@biZenX) 개발 • Isaac Serrano의 Minus 앱 기반</string>
+    <string name="about_credits_summary">Abdulrhman(@biZenX) 개발 • Isaac Serrano의 Minus 앱 기반</string>
 </resources>

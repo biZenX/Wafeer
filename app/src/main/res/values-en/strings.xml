@@ -1100,7 +1100,8 @@
     <!-- About & Credits -->
     <string name="about_app_title">Wafeer</string>
     <string name="about_app_version">Version: v%1$s</string>
-    <string name="about_developer">Developer: TAtz</string>
+    <string name="about_developer_name">Abdulrhman</string>
+    <string name="about_developer">Developer: Abdulrhman</string>
     <string name="about_developer_title">App Developer</string>
     <string name="about_developer_handle">@biZenX</string>
     <string name="about_developer_tagline"></string>
@@ -1115,5 +1116,5 @@
     <string name="about_architecture_tag">M3 Expressive</string>
     <string name="about_foss_badge">100% Free &amp; Open Source</string>
     <!-- Credits -->
-    <string name="about_credits_summary">Wafeer developed by TAtz (@biZenX) • Built on the Minus app by Isaac Serrano</string>
+    <string name="about_credits_summary">Wafeer developed by Abdulrhman (@biZenX) • Built on the Minus app by Isaac Serrano</string>
 </resources>

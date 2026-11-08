@@ -1035,8 +1035,9 @@
     <string name="smart_dialog_start_cooldown">Start 48h Cooldown</string>
     <string name="about_app_title">Wafeer</string>
     <string name="about_app_version">Version: v%1$s</string>
-    <string name="about_developer">Developer: TAtz</string>
+    <string name="about_developer_name">Abdulrhman</string>
+    <string name="about_developer">Developer: Abdulrhman</string>
     <!-- Credits -->
     <string name="about_foss_badge">100% отворен код</string>
-    <string name="about_credits_summary">Разработено от TAtz (@biZenX) • Базирировано на приложението Minus от Isaac Serrano</string>
+    <string name="about_credits_summary">Разработено от Abdulrhman (@biZenX) • Базирировано на приложението Minus от Isaac Serrano</string>
 </resources>
