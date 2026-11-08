@@ -1,0 +1,4 @@
+- feat: Direct Receipt Scanner (OCR) Access: Added dedicated Top Bar action button and Smart Tools quick card for 1-tap offline scanning.
+- improve: Quick receipt scan shortcut available directly in the amount editor while logging transactions.
+- improve: Updated developer identity, licenses, and localized credits across Arabic and English.
+- fix: Interface stability fixes and smoother camera scanner transitions.
