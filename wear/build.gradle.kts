@@ -42,18 +42,26 @@ android {
             keystorePropsFile.inputStream().use { stream -> load(stream) }
         }
     }
+    val defaultReleaseKeystore = rootProject.file("config/signing/release.jks")
+    val defaultReleaseStoreFile = if (defaultReleaseKeystore.exists()) defaultReleaseKeystore.absolutePath else null
+    val defaultReleasePass = if (defaultReleaseKeystore.exists()) "WafeerRelease2026Key!" else null
+
     val rawReleaseStoreFile = System.getenv("RELEASE_STORE_FILE")?.takeIf { it.isNotBlank() }
         ?: keystoreProps.getProperty("storeFile")?.takeIf { it.isNotBlank() }
+        ?: defaultReleaseStoreFile
     val releaseStoreFile = rawReleaseStoreFile?.let { path ->
         val f = File(path)
         if (f.isAbsolute) f.absolutePath else rootProject.file(path).absolutePath
     }
     val releaseStorePassword = System.getenv("RELEASE_STORE_PASSWORD")?.takeIf { it.isNotBlank() }
         ?: keystoreProps.getProperty("storePassword")
+        ?: defaultReleasePass
     val releaseKeyAlias = System.getenv("RELEASE_KEY_ALIAS")?.takeIf { it.isNotBlank() }
         ?: keystoreProps.getProperty("keyAlias")
+        ?: "wafeer"
     val releaseKeyPassword = System.getenv("RELEASE_KEY_PASSWORD")?.takeIf { it.isNotBlank() }
         ?: keystoreProps.getProperty("keyPassword")
+        ?: defaultReleasePass
     val hasReleaseSigningConfig = listOf(
         releaseStoreFile,
         releaseStorePassword,
