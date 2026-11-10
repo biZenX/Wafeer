@@ -32,14 +32,16 @@ object ReceiptParser {
     private const val MERCHANT_MAX_LENGTH = 40
     private const val MERCHANT_MIN_LETTER_WEIGHT = 3
 
-    private val MAX_ITEM_PRICE = BigDecimal(100000)
-    private val MAX_TOTAL_AMOUNT = BigDecimal(1000000)
+    private val MAX_ITEM_PRICE = BigDecimal(50000)
+    private val MAX_INTEGER_ITEM_PRICE = BigDecimal(10000)
+    private val MAX_TOTAL_AMOUNT = BigDecimal(500000)
 
     private val DECIMAL_AMOUNT = Regex("""(?<![\d.,])(?:\d{1,3}(?:[.,]\d{3})+|\d+)[.,]\d{1,2}(?![.,]?\d)""")
     private val INTEGER_AMOUNT = Regex("""(?<![\d.,])\b[1-9]\d{0,4}\b(?![\d.,])""")
     private val SPACED_DECIMAL = Regex("""(\d)\s*([.,])\s*(\d{1,2})(?!\d)""")
     private val ONE_OR_ZERO_NEAR_DIGIT = Regex("""(?<=[\d.,])[OoIl|]|[OoIl|](?=\d)""")
     private val FIVE_OR_EIGHT_AFTER_DIGIT = Regex("""(?<=\d|\d[.,])[SB]""")
+    private val SYMBOLS_REGEX = Regex("""[#*_~|\\/\[\]{}()<>=+:;!?@$%^&-]""")
 
     private val UNIT_AND_WEIGHT_REGEX = Regex(
         """(?i)\b\d+(?:[.,]\d+)?\s*(?:kg|g|gm|gram|ltr|l|ml|pcs|pc|كجم|جم|جرام|لتر|مل|قطع|قطعة)\b""",
@@ -50,9 +52,8 @@ object ReceiptParser {
         val lines = ReceiptVocabulary.asciiDigits(text).lines().map { it.trim() }.filter { it.isNotEmpty() }
         if (lines.isEmpty()) return null
 
-        val totalLineIndex = lines.indices.firstOrNull { isTotalLine(lines[it]) }
         val total = totalFrom(lines)
-        val items = itemsFrom(lines, totalLineIndex)
+        val items = itemsFrom(lines)
 
         val calculatedSum = if (items.isNotEmpty()) {
             items.fold(BigDecimal.ZERO) { acc, item ->
@@ -64,8 +65,9 @@ object ReceiptParser {
 
         val finalTotal = when {
             total != null && calculatedSum != null -> {
-                // If total is wildly greater than calculated sum (e.g. 4x sum and > 5000), total is likely an ID/phone number that slipped through
-                if (total > calculatedSum.multiply(BigDecimal(4)) && total > BigDecimal(5000)) {
+                // If total is wildly greater than calculated sum (e.g. > 3x sum, or total > sum + 1000 while having multiple items),
+                // total is likely an invoice/serial/tax/phone number misidentified on a total line
+                if (calculatedSum > BigDecimal.ZERO && (total > calculatedSum.multiply(BigDecimal(3)) || (items.size >= 2 && total > calculatedSum + BigDecimal(1000)))) {
                     calculatedSum
                 } else {
                     total
@@ -85,12 +87,12 @@ object ReceiptParser {
         )
     }
 
-    private fun itemsFrom(lines: List<String>, totalLineIndex: Int?): List<ReceiptItem> {
-        val endLimit = totalLineIndex ?: lines.size
+    private fun itemsFrom(lines: List<String>): List<ReceiptItem> {
         val items = mutableListOf<ReceiptItem>()
+        val merchant = merchantFrom(lines)
         var i = 0
 
-        while (i < endLimit) {
+        while (i < lines.size) {
             val line = lines[i]
 
             // Skip total, payment, tax, noise, or metadata lines (tax IDs, CR, dates, phone, cashier, etc.)
@@ -101,7 +103,7 @@ object ReceiptParser {
                 continue
             }
 
-            val isMerchantLine = i == 0 && line == merchantFrom(lines)
+            val isMerchantLine = i < 3 && line == merchant
             if (isMerchantLine) {
                 i++
                 continue
@@ -110,7 +112,7 @@ object ReceiptParser {
             val priceCandidate = extractPriceFromLine(line)
             if (priceCandidate != null) {
                 val rawName = cleanItemName(line)
-                if (rawName.length >= 2 && rawName.any { it.isLetter() }) {
+                if (isValidItemName(rawName)) {
                     val norm = ReceiptItemNormalizer.normalize(rawName)
                     items.add(
                         ReceiptItem(
@@ -123,14 +125,15 @@ object ReceiptParser {
                     )
                 }
                 i++
-            } else if (i + 1 < endLimit) {
+            } else if (i + 1 < lines.size) {
                 // Check if product name is on current line and price is on the next line
                 val nextLine = lines[i + 1]
                 val nextPrice = extractPriceFromLine(nextLine)
                 val currentCleanName = cleanItemName(line)
 
-                if (nextPrice != null && currentCleanName.length >= 2 && currentCleanName.any { it.isLetter() } &&
-                    !isTotalLine(nextLine) && !ReceiptVocabulary.isMetadata(nextLine) && !isSubtotalOrPayment(nextLine)
+                if (nextPrice != null && isValidItemName(currentCleanName) &&
+                    !isTotalLine(nextLine) && !ReceiptVocabulary.isMetadata(nextLine) && !isSubtotalOrPayment(nextLine) &&
+                    !ReceiptVocabulary.isNoise(line) && line != merchant
                 ) {
                     val norm = ReceiptItemNormalizer.normalize(currentCleanName)
                     items.add(
@@ -153,6 +156,15 @@ object ReceiptParser {
         return items
     }
 
+    private fun isValidItemName(name: String): Boolean {
+        if (name.length < 2 || !name.any { it.isLetter() }) return false
+        if (ReceiptVocabulary.isMetadata(name)) return false
+        if (ReceiptVocabulary.isNoise(name)) return false
+        if (ReceiptVocabulary.isTaxOrCount(name)) return false
+        if (ReceiptVocabulary.isSubtotal(name) || ReceiptVocabulary.isPayment(name)) return false
+        return true
+    }
+
     private fun extractPriceFromLine(line: String): BigDecimal? {
         val cleaned = stripNonPriceTokens(line)
 
@@ -165,7 +177,7 @@ object ReceiptParser {
 
         // 2. Try integer amounts (e.g. 350, 120, 45) if no decimal amount present
         val integers = integerAmountsIn(cleaned)
-            .filter { it.signum() > 0 && it <= MAX_ITEM_PRICE }
+            .filter { it.signum() > 0 && it <= MAX_INTEGER_ITEM_PRICE }
         if (integers.isNotEmpty()) {
             return integers.last()
         }
@@ -177,6 +189,7 @@ object ReceiptParser {
         var result = stripNonPriceTokens(line)
         result = DECIMAL_AMOUNT.replace(result, "")
         result = INTEGER_AMOUNT.replace(result, "")
+        result = SYMBOLS_REGEX.replace(result, " ")
         return result.trim().replace(Regex("""\s+"""), " ")
     }
 
@@ -185,6 +198,7 @@ object ReceiptParser {
         s = ReceiptVocabulary.DATE_REGEX.replace(s, " ")
         s = ReceiptVocabulary.TIME_REGEX.replace(s, " ")
         s = ReceiptVocabulary.PHONE_REGEX.replace(s, " ")
+        s = ReceiptVocabulary.TAX_ID_REGEX.replace(s, " ")
         s = ReceiptVocabulary.LONG_ID_REGEX.replace(s, " ")
         s = UNIT_AND_WEIGHT_REGEX.replace(s, " ")
         s = CODE_OR_SKU_REGEX.replace(s, " ")
@@ -215,18 +229,20 @@ object ReceiptParser {
     private fun totalFrom(lines: List<String>): BigDecimal? {
         val keyed = lines.indices
             .filter { isTotalLine(lines[it]) }
-            .flatMap { i ->
-                extractTotalFromLine(lines[i]).let { if (it != null) listOf(it) else emptyList() }.ifEmpty {
+            .mapNotNull { i ->
+                extractTotalFromLine(lines[i]) ?: run {
                     val next = lines.getOrNull(i + 1)
                     if (next != null && !isSubtotalOrPayment(next) && !ReceiptVocabulary.isMetadata(next)) {
-                        extractTotalFromLine(next)?.let { listOf(it) }.orEmpty()
+                        extractTotalFromLine(next)
                     } else {
-                        emptyList()
+                        null
                     }
                 }
             }
+            .filter { it.signum() > 0 && it <= MAX_TOTAL_AMOUNT }
 
-        return keyed.filter { it.signum() > 0 && it <= MAX_TOTAL_AMOUNT }.maxOrNull()
+        // The true receipt total is the LAST explicit total line (e.g. net grand total after discounts and tax)
+        return keyed.lastOrNull()
     }
 
     private fun extractTotalFromLine(line: String): BigDecimal? {
@@ -248,12 +264,27 @@ object ReceiptParser {
                 !ReceiptVocabulary.isNoise(line)
         }
 
+        // 1. Prefer lines with explicit currency (e.g. "150.00 EGP", "ج.م 250")
         val withCurrency = eligible.filter(ReceiptVocabulary::hasCurrency)
-            .flatMap { extractTotalFromLine(it)?.let { amt -> listOf(amt) }.orEmpty() }
-        if (withCurrency.isNotEmpty()) return withCurrency.maxOrNull()
+            .mapNotNull(::extractTotalFromLine)
+            .filter { it.signum() > 0 && it <= MAX_TOTAL_AMOUNT }
+        if (withCurrency.isNotEmpty()) return withCurrency.lastOrNull()
 
-        val candidates = eligible.flatMap { extractTotalFromLine(it)?.let { amt -> listOf(amt) }.orEmpty() }
-        return candidates.filter { it.signum() > 0 && it <= MAX_TOTAL_AMOUNT }.maxOrNull()
+        // 2. Prefer decimal amounts from the bottom half of eligible lines (where receipt totals are located)
+        val decimalCandidates = eligible.takeLast(maxOf(3, eligible.size / 2))
+            .mapNotNull { line ->
+                val cleaned = stripNonPriceTokens(line)
+                amountsIn(cleaned).filter { it.signum() > 0 && it <= MAX_TOTAL_AMOUNT }.lastOrNull()
+            }
+        if (decimalCandidates.isNotEmpty()) return decimalCandidates.lastOrNull()
+
+        // 3. Last resort: integer amounts in a sensible total range (<= 50,000) from the bottom lines
+        val integerCandidates = eligible.takeLast(maxOf(2, eligible.size / 3))
+            .mapNotNull { line ->
+                val cleaned = stripNonPriceTokens(line)
+                integerAmountsIn(cleaned).filter { it.signum() > 0 && it <= BigDecimal(50000) }.lastOrNull()
+            }
+        return integerCandidates.lastOrNull()
     }
 
     private fun merchantFrom(lines: List<String>): String? =

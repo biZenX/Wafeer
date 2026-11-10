@@ -6,22 +6,23 @@ import org.json.JSONObject
 object ReceiptQrParser {
 
     private val EXPLICIT_TOTAL_REGEX = Regex(
-        """(?i)(?:^|[\s,;:])(?:total|grand\s+total|amount\s+due|balance\s+due|to\s+pay|المجموع(?:\s+الكلي)?|الإجمالي|الاجمالي|صافي\s+المطلوب|المبلغ\s+(?:المطلوب|الكلي|المستحق)|الحساب)\s*[:=]?\s*([1-9]\d{0,5}(?:[.,]\d{1,2})?)(?!\d)""",
+        """(?i)(?:^|[#\s,;:])(?:total|grand\s+total|amount\s+due|balance\s+due|to\s+pay|المجموع(?:\s+الكلي)?|الإجمالي|الاجمالي|صافي\s+المطلوب|المبلغ\s+(?:المطلوب|الكلي|المستحق)|الحساب)\s*[:=]?\s*([1-9]\d{0,5}(?:[.,]\d{1,3})?)(?!\d)""",
     )
 
     private val CURRENCY_AMOUNT_REGEX = Regex(
-        """(?i)(?:EGP|ج\.م|LE|L\.E|SAR|ر\.س|USD|\$|EUR|€)\s*([1-9]\d{0,5}(?:[.,]\d{1,2})?)|([1-9]\d{0,5}(?:[.,]\d{1,2})?)\s*(?:EGP|ج\.م|LE|L\.E|SAR|ر\.س|USD|\$|EUR|€)""",
+        """(?i)(?:EGP|ج\.م|LE|L\.E|SAR|ر\.س|USD|\$|EUR|€)\s*([1-9]\d{0,5}(?:[.,]\d{1,3})?)|([1-9]\d{0,5}(?:[.,]\d{1,3})?)\s*(?:EGP|ج\.م|LE|L\.E|SAR|ر\.س|USD|\$|EUR|€)""",
     )
 
-    private val STANDALONE_PRICE_REGEX = Regex("""^([1-9]\d{0,5}(?:[.,]\d{1,2})?)$""")
+    private val STANDALONE_PRICE_REGEX = Regex("""^([1-9]\d{0,5}(?:[.,]\d{1,3})?)$""")
 
     /**
      * Parses a scanned QR payload, supporting:
      * 1. Saudi ZATCA e-invoicing QR codes (Base64 TLV format)
-     * 2. EMVCo payment QR codes (InstaPay / Meeza / Arab POS QRs)
-     * 3. JSON e-receipt payloads
-     * 4. URLs with receipt amount parameters
-     * 5. Structured text with explicit total keyword or currency
+     * 2. Egyptian ETA e-receipt QR codes (URL with #Total:{total},IssuerRIN:{rin})
+     * 3. EMVCo payment QR codes (InstaPay / Meeza / Arab POS QRs)
+     * 4. JSON e-receipt payloads
+     * 5. URLs with receipt amount in query or fragment parameters
+     * 6. Structured text with explicit total keyword or currency
      */
     fun parse(raw: String): ReceiptScan? {
         val trimmed = raw.trim()
@@ -58,16 +59,18 @@ object ReceiptQrParser {
             if (jsonScan != null) return jsonScan
         }
 
-        // 4. Try URL with explicit amount parameters
-        if (trimmed.startsWith("http://", ignoreCase = true) || trimmed.startsWith("https://", ignoreCase = true)) {
+        // 4. Try URL or fragment with explicit amount parameters (e.g. ETA e-receipt QR)
+        if (trimmed.startsWith("http://", ignoreCase = true) || trimmed.startsWith("https://", ignoreCase = true) || trimmed.startsWith("#")) {
             val urlScan = parseUrlParameters(trimmed)
             if (urlScan != null) return urlScan
-            // If the QR is a URL (like ETA verification link) without amount query params,
-            // strictly return null so we don't extract numbers from UUIDs or paths!
-            return null
+            if (trimmed.startsWith("http://", ignoreCase = true) || trimmed.startsWith("https://", ignoreCase = true)) {
+                // If the QR is a URL (like ETA verification link) without amount query/fragment params,
+                // strictly return null so we don't extract numbers from UUIDs or paths!
+                return null
+            }
         }
 
-        // 5. Try structured text with explicit total keyword
+        // 5. Try structured text with explicit total keyword (including #Total:...)
         val totalMatch = EXPLICIT_TOTAL_REGEX.findAll(trimmed).lastOrNull()
         if (totalMatch != null) {
             val amountStr = totalMatch.groupValues[1]
@@ -115,18 +118,28 @@ object ReceiptQrParser {
     }
 
     private fun parseUrlParameters(url: String): ReceiptScan? {
-        val query = url.substringAfter('?', "")
-        if (query.isEmpty()) return null
+        val queryPart = if (url.contains('?')) url.substringAfter('?').substringBefore('#') else ""
+        val fragmentPart = if (url.contains('#')) url.substringAfter('#') else ""
+        val combined = when {
+            queryPart.isNotEmpty() && fragmentPart.isNotEmpty() -> "$queryPart&$fragmentPart"
+            queryPart.isNotEmpty() -> queryPart
+            fragmentPart.isNotEmpty() -> fragmentPart
+            else -> ""
+        }
+        if (combined.isEmpty()) return null
 
         var total: BigDecimal? = null
         var merchant: String? = null
 
-        val params = query.split('&')
-        for (p in params) {
-            val pair = p.split('=', limit = 2)
-            if (pair.size != 2) continue
-            val key = pair[0].lowercase().trim()
-            val value = java.net.URLDecoder.decode(pair[1], "UTF-8").trim()
+        val tokens = combined.split(Regex("[&,;]"))
+        for (token in tokens) {
+            val t = token.trim()
+            if (t.isEmpty()) continue
+            val delimiterIndex = t.indexOfAny(charArrayOf('=', ':'))
+            if (delimiterIndex <= 0) continue
+            val key = t.substring(0, delimiterIndex).lowercase().trim()
+            val rawValue = t.substring(delimiterIndex + 1).trim()
+            val value = runCatching { java.net.URLDecoder.decode(rawValue, "UTF-8").trim() }.getOrDefault(rawValue)
 
             when (key) {
                 "total", "amount", "amt", "sum", "price", "invoicetotal" -> {
@@ -137,6 +150,11 @@ object ReceiptQrParser {
                 }
                 "merchant", "store", "vendor", "seller", "shop", "name" -> {
                     if (value.isNotBlank()) merchant = value
+                }
+                "issuerrin", "rin" -> {
+                    if (merchant == null && value.isNotBlank()) {
+                        merchant = "Tax ID: $value"
+                    }
                 }
             }
         }

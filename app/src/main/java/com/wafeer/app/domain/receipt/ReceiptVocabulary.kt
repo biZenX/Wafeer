@@ -77,24 +77,32 @@ internal object ReceiptVocabulary {
 
     private val METADATA_WORDS = listOf(
         // Commercial register
-        "سجل تجاري", "س.ت", "ست:", "cr:", "c.r", "c.r.", "commercial reg", "registration no",
+        "سجل تجاري", "سجل", "س.ت", "س.ت.", "س ت", "ست", "ست:", "cr", "cr:", "c.r", "c.r.", "commercial reg", "registration no", "reg no",
         // Tax & VAT
-        "الرقم الضريبي", "رقم ضريبي", "بطاقة ضريبية", "تسجيل ضريبي", "رقم التسجيل", "ض.ق.م", "ضريبة مبيعات",
-        "vat no", "vat reg", "vat id", "tax id", "trn", "tin", "rfc", "cif", "nif", "steuernummer",
+        "الرقم الضريبي", "رقم ضريبي", "بطاقة ضريبية", "بطاقه ضريبيه", "بطاقة ضريبيه", "تسجيل ضريبي", "رقم التسجيل", "ملف ضريبي", "مأمورية ضرائب", "مامورية ضرائب", "مأمورية", "مامورية", "ض.ق.م", "ضريبة مبيعات", "ضرائب", "الضرائب", "ب.ض", "ب.ض.", "ب ض",
+        "vat no", "vat reg", "vat id", "tax id", "tax no", "tax #", "trn", "tin", "rfc", "cif", "nif", "steuernummer",
         // Phone & Contact
-        "هاتف", "تليفون", "موبايل", "جوال", "فاكس", "خدمة العملاء", "خدمه العملاء", "خدمة عملاء", "خط ساخن", "اتصل بنا",
-        "tel:", "phone:", "mobile:", "hotline:", "call:",
+        "هاتف", "تليفون", "تلفون", "موبايل", "جوال", "فاكس", "واتساب", "whatsapp", "خدمة العملاء", "خدمه العملاء", "خدمة عملاء", "خدمه عملاء", "خط ساخن", "اتصل بنا", "تواصل معنا",
+        "tel", "tel:", "phone", "phone:", "mob", "mobile", "mobile:", "hotline", "hotline:", "fax", "call", "call:",
         // Date & Time
-        "تاريخ", "التاريخ", "وقت", "الوقت", "ساعة", "الساعة", "date:", "time:",
-        // Invoice / Order / Reference / Cashier / Branch / Table
-        "رقم الفاتورة", "فاتورة رقم", "رقم الإيصال", "ايصال رقم", "إيصال رقم", "رقم الطلب", "طلب رقم",
-        "رقم الشيك", "شيك رقم", "رقم العملية", "رقم المرجع", "المرجع", "كود الفاتورة", "رقم الحساب",
-        "كاشير", "الكاشير", "نقطة بيع", "وردية", "فرع", "الفرع", "طاولة", "ترابيزة", "صالة", "تيك اواي", "دليفري", "توصيل",
-        "invoice no", "inv no", "invoice #", "receipt no", "receipt #", "order no", "order #", "bill no", "check no",
-        "ref no", "reference", "cashier", "terminal", "pos", "branch", "table", "shift", "server", "account no",
+        "تاريخ", "التاريخ", "بتاريخ", "وقت", "الوقت", "ساعة", "الساعة", "ساعه", "date", "date:", "time", "time:", "datetime",
+        // Invoice / Order / Reference / Cashier / Branch / Table / Token / Boun
+        "رقم الفاتورة", "فاتورة رقم", "فاتورة", "فاتوره", "الفاتورة", "الفاتوره", "رقم الإيصال", "ايصال رقم", "إيصال رقم", "إيصال", "ايصال", "الإيصال", "الايصال",
+        "رقم الطلب", "طلب رقم", "طلب", "أوردر", "اوردر", "order", "order no", "order #",
+        "رقم الشيك", "شيك رقم", "شيك", "check", "check no", "check #",
+        "بون", "البون", "بون رقم", "رقم البون",
+        "رقم العملية", "عملية رقم", "عملية", "رقم المرجع", "المرجع", "مرجع", "ref", "ref no", "reference",
+        "كود الفاتورة", "كود", "رقم الكود", "كود:", "code", "code:",
+        "مسلسل", "سيريال", "رقم المسلسل", "serial", "serial no", "seq", "sequence",
+        "رقم الحساب", "حساب رقم", "حساب العميل", "كود العميل", "إذن صرف", "اذن صرف", "إذن استلام", "اذن استلام",
+        "كاشير", "الكاشير", "كاشير:", "بائع", "مستخدم", "user", "clerk", "نقطة بيع", "نقطه بيع", "وردية", "ورديه", "فرع", "الفرع", "طاولة", "طاوله", "ترابيزة", "ترابيزه", "صالة", "صاله", "تيك اواي", "تيك أواي", "takeaway", "دليفري", "توصيل", "delivery",
+        "invoice no", "inv no", "invoice #", "inv #", "receipt no", "receipt #", "bill no",
+        "cashier", "terminal", "pos", "branch", "table", "shift", "server", "station", "account no",
         // Address & Location
-        "street", "st.", "road", "rd.", "avenue", "ave.", "building", "bldg", "floor", "suite", "po box", "p.o. box",
-        "شارع", "طريق", "ميدان", "حي", "عمارة", "مبنى", "ص.ب", "صندوق بريد",
+        "street", "st.", "st", "road", "rd.", "rd", "avenue", "ave.", "ave", "building", "bldg", "floor", "suite", "po box", "p.o. box",
+        "شارع", "طريق", "ميدان", "حي", "منطقة", "منطقه", "مدينة", "مدينه", "محافظة", "محافظه", "عمارة", "عماره", "مبنى", "دور", "شقة", "شقه", "مكتب", "ص.ب", "صندوق بريد", "العنوان", "عنوان",
+        // Customer / Vendor
+        "عميل", "العميل", "مورد", "المورد", "customer", "client", "guest",
         // Greetings & Policies & Web
         "شكرا لزيارتكم", "شكراً لزيارتكم", "شكرا لك", "شكراً لك", "البضاعة المباعة", "لا ترد ولا تستبدل", "يسعدنا خدمتكم",
         "thank you", "thanks for visiting", "welcome", "visit again", "www.", ".com", ".net", ".org", "facebook", "instagram",
@@ -121,10 +129,11 @@ internal object ReceiptVocabulary {
     private val CURRENCY_WORDS = SupportedCurrency.ALL.flatMap { listOf(it.code, it.symbol) } +
         listOf("¥", "￥", "円", "元", "₩", "원", "₹", "₽", "руб", "лв", "ریال", "تومان", "ج.م", "ريال", "درهم", "د.ك", "د.إ", "ر.س", "ر.ع", "د.ب")
 
-    val DATE_REGEX = Regex("""(?<!\d)\d{1,4}[/\-.](?:0?[1-9]|1[0-2])[/\-.](?:\d{2,4}|\d{1,2})(?!\d)""")
-    val TIME_REGEX = Regex("""(?<!\d)(?:0?[1-9]|1[0-2]|2[0-3]):[0-5]\d(?::[0-5]\d)?(?:\s*(?:am|pm|ص|م))?(?!\d)""", RegexOption.IGNORE_CASE)
-    val PHONE_REGEX = Regex("""(?<!\d)(?:01[0125]\d{8}|0[2345]\d{7,8}|\+?\d{1,3}[- ]?\d{7,10})(?!\d)""")
-    val LONG_ID_REGEX = Regex("""(?<![\d.,])\d{8,16}(?![\d.,])""")
+    val DATE_REGEX = Regex("""(?<!\d)\d{1,4}\s*[/\-.]\s*(?:0?[1-9]|1[0-2])\s*[/\-.]\s*(?:\d{2,4}|\d{1,2})(?!\d)""")
+    val TIME_REGEX = Regex("""(?<!\d)(?:0?[1-9]|1[0-2]|2[0-3])\s*:\s*[0-5]\d(?:\s*:\s*[0-5]\d)?(?:\s*(?:am|pm|ص|م))?(?!\d)""", RegexOption.IGNORE_CASE)
+    val PHONE_REGEX = Regex("""(?<!\d)(?:01[0125][\s\-]?\d{3,4}[\s\-]?\d{4}|0[2345][\s\-]?\d{3,4}[\s\-]?\d{4}|\+?\d{1,3}[- ]?\d{7,10})(?!\d)""")
+    val TAX_ID_REGEX = Regex("""(?<!\d)\d{3}[\s\-.]\d{3}[\s\-.]\d{3}(?!\d)""")
+    val LONG_ID_REGEX = Regex("""(?<![\d.,])\d{7,16}(?![\d.,])""")
 
     private val totals = TOTAL_WORDS.map(::normalize)
     private val subtotals = SUBTOTAL_WORDS.map(::normalize)
@@ -148,7 +157,10 @@ internal object ReceiptVocabulary {
     fun isMetadata(line: String): Boolean {
         if (containsAny(line, metadata)) return true
         val stripped = line.trim()
-        if (DATE_REGEX.matches(stripped) || PHONE_REGEX.matches(stripped) || LONG_ID_REGEX.matches(stripped)) return true
+        if (DATE_REGEX.containsMatchIn(stripped) && (TIME_REGEX.containsMatchIn(stripped) || stripped.none { it.isLetter() })) return true
+        if (PHONE_REGEX.containsMatchIn(stripped) && stripped.none { it.isLetter() }) return true
+        if (LONG_ID_REGEX.containsMatchIn(stripped) && stripped.none { it.isLetter() }) return true
+        if (TAX_ID_REGEX.containsMatchIn(stripped)) return true
         return false
     }
 
@@ -208,6 +220,12 @@ internal object ReceiptVocabulary {
             decomposed.forEach { c ->
                 when (c) {
                     in '̀'..'ͯ' -> Unit
+                    // Arabic Tatweel / Kashida
+                    'ـ' -> Unit
+                    // Arabic Harakat (Fathatan, Dammatan, Kasratan, Fatha, Damma, Kasra, Shadda, Sukun)
+                    in '\u064B'..'\u0652' -> Unit
+                    // Arabic small vowels / Quranic marks
+                    in '\u0653'..'\u0670' -> Unit
                     'ς' -> append('σ')
                     'ك' -> append('ک')
                     'ي', 'ى' -> append('ی')

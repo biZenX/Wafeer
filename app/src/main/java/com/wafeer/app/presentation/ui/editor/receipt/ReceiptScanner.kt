@@ -258,26 +258,27 @@ private class ReceiptCameraSession(
             val downscaled = ReceiptOcr.downscale(bitmap)
             val text = ocr.read(downscaled)
             val parsedScan = ReceiptParser.parse(text)
-            if (parsedScan != null) {
-                if (!downscaled.isRecycled) downscaled.recycle()
-                if (!bitmap.isRecycled && bitmap != downscaled) bitmap.recycle()
-                return@withContext parsedScan
-            }
 
-            // Fallback: If OCR found nothing on the image, check if the image has a valid receipt QR
+            // Check if image also contains a valid receipt QR code
             val qrText = BarcodeReader.read(bitmap)
-            if (qrText != null) {
-                val qrScan = ReceiptQrParser.parse(qrText)
-                if (qrScan != null) {
-                    if (!downscaled.isRecycled) downscaled.recycle()
-                    if (!bitmap.isRecycled && bitmap != downscaled) bitmap.recycle()
-                    return@withContext qrScan
+            val qrScan = qrText?.let { ReceiptQrParser.parse(it) }
+
+            val finalScan = when {
+                parsedScan != null && parsedScan.items.isNotEmpty() -> {
+                    if (qrScan != null && qrScan.total > java.math.BigDecimal.ZERO) {
+                        parsedScan.copy(total = qrScan.total, qrPayload = qrText)
+                    } else {
+                        parsedScan
+                    }
                 }
+                qrScan != null -> qrScan
+                parsedScan != null -> parsedScan
+                else -> null
             }
 
-            if (!downscaled.isRecycled) downscaled.recycle()
-            if (!bitmap.isRecycled && bitmap != downscaled) bitmap.recycle()
-            null
+            if (downscaled != bitmap && !downscaled.isRecycled) downscaled.recycle()
+            if (!bitmap.isRecycled) bitmap.recycle()
+            finalScan
         } catch (e: CancellationException) {
             throw e
         } catch (e: Exception) {
@@ -564,34 +565,35 @@ object ReceiptOcr {
     suspend fun read(context: Context, uri: Uri): ReceiptScan? = withContext(Dispatchers.Default) {
         val bitmap = decodeUpright(context, uri) ?: return@withContext null
 
-        // 1. Perform OCR on the receipt image first
         val scaled = downscale(bitmap)
         val engine = ReceiptOcrEngine(context)
         val ocrScan = try {
             val text = engine.read(scaled)
             ReceiptParser.parse(text)
         } finally {
-            if (!scaled.isRecycled) scaled.recycle()
+            if (scaled != bitmap && !scaled.isRecycled) scaled.recycle()
             engine.close()
         }
 
-        if (ocrScan != null) {
-            if (!bitmap.isRecycled && bitmap != scaled) bitmap.recycle()
-            return@withContext ocrScan
-        }
-
-        // 2. Fallback: if OCR found no receipt, check if image is a QR code
+        // Check if image also contains a QR code
         val qrText = BarcodeReader.read(bitmap)
-        if (qrText != null) {
-            val qrScan = ReceiptQrParser.parse(qrText)
-            if (qrScan != null) {
-                if (!bitmap.isRecycled && bitmap != scaled) bitmap.recycle()
-                return@withContext qrScan
+        val qrScan = qrText?.let { ReceiptQrParser.parse(it) }
+
+        val finalScan = when {
+            ocrScan != null && ocrScan.items.isNotEmpty() -> {
+                if (qrScan != null && qrScan.total > java.math.BigDecimal.ZERO) {
+                    ocrScan.copy(total = qrScan.total, qrPayload = qrText)
+                } else {
+                    ocrScan
+                }
             }
+            qrScan != null -> qrScan
+            ocrScan != null -> ocrScan
+            else -> null
         }
 
-        if (!bitmap.isRecycled && bitmap != scaled) bitmap.recycle()
-        null
+        if (!bitmap.isRecycled) bitmap.recycle()
+        finalScan
     }
 
     fun installTessdata(context: Context, languages: List<String>): String {
@@ -613,14 +615,12 @@ object ReceiptOcr {
         val longest = maxOf(bitmap.width, bitmap.height)
         if (longest <= MAX_SIDE_PX) return bitmap
         val scale = MAX_SIDE_PX.toFloat() / longest
-        val scaled = Bitmap.createScaledBitmap(
+        return Bitmap.createScaledBitmap(
             bitmap,
             (bitmap.width * scale).toInt(),
             (bitmap.height * scale).toInt(),
             true,
         )
-        if (scaled != bitmap) bitmap.recycle()
-        return scaled
     }
 
     private fun decodeUpright(context: Context, uri: Uri): Bitmap? {

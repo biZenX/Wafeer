@@ -78,6 +78,17 @@ class ReceiptQrParserTest {
     }
 
     @Test
+    fun parses_eta_official_ereceipt_qr_code() {
+        val etaQr = "http://invoicing.eta.gov.eg/receipts/search/68e656b251e67e8358bef8483ab0d51c6619f3e7a1a9f0e75838d41ff368f320/share/2022-02-19T02:00Z#Total:1000.000,IssuerRIN:674859545"
+        val scan = ReceiptQrParser.parse(etaQr)
+
+        assertThat(scan).isNotNull()
+        assertThat(scan?.total).isEqualTo(BigDecimal("1000.000"))
+        assertThat(scan?.merchant).isEqualTo("Tax ID: 674859545")
+        assertThat(scan?.scanMode).isEqualTo(ScanMode.QR_CODE)
+    }
+
+    @Test
     fun rejects_eta_verification_url_without_amount() {
         val etaUrl = "https://invoicing.eta.gov.eg/receipts/search/38b82941-8402-48a1-9481-998248102847"
         val scan = ReceiptQrParser.parse(etaUrl)

@@ -151,4 +151,72 @@ class ReceiptParserMultiItemTest {
         assertThat(scan?.total).isEqualTo(BigDecimal("500.00"))
         assertThat(scan?.items).hasSize(2)
     }
+
+    @Test
+    fun recognizes_arabic_with_tatweel_and_harakat() {
+        val receiptText = """
+            سوبرماركت المدينة
+            فَاتُورَة ضريبية
+            شَاي لِيبْتُون 30.00
+            جُبْنَة دُومْتِي 45.00
+            المَجْمُـوع 75.00
+            الإجْمَـالِي 75.00
+        """.trimIndent()
+
+        val scan = ReceiptParser.parse(receiptText)
+
+        assertThat(scan).isNotNull()
+        assertThat(scan?.total).isEqualTo(BigDecimal("75.00"))
+        assertThat(scan?.items).hasSize(2)
+    }
+
+    @Test
+    fun rejects_boun_table_cashier_branch_and_street_from_becoming_items() {
+        val receiptText = """
+            مطعم الشرق
+            فرع رقم 12
+            شارع 9 المعادي
+            كاشير: أحمد 3
+            طاولة: 7
+            بون رقم: 9845
+            مسلسل: 12345
+            ب.ض : 456-789-123
+            وجبة برجر 120.00
+            عصير برتقال 40.00
+            المجموع 160.00
+            شكرا لزيارتكم
+        """.trimIndent()
+
+        val scan = ReceiptParser.parse(receiptText)
+
+        assertThat(scan).isNotNull()
+        assertThat(scan?.total).isEqualTo(BigDecimal("160.00"))
+        assertThat(scan?.items).hasSize(2)
+        val itemNames = scan!!.items.map { it.rawName }
+        assertThat(itemNames).doesNotContain("فرع")
+        assertThat(itemNames).doesNotContain("شارع")
+        assertThat(itemNames).doesNotContain("كاشير")
+        assertThat(itemNames).doesNotContain("طاولة")
+        assertThat(itemNames).doesNotContain("بون")
+        assertThat(itemNames).doesNotContain("مسلسل")
+        assertThat(itemNames).doesNotContain("ب.ض")
+    }
+
+    @Test
+    fun selects_last_net_total_over_prediscount_subtotal() {
+        val receiptText = """
+            هايبر ماركت
+            قميص قطن 300.00
+            المجموع: 300.00
+            خصم: 50.00
+            صافي المطلوب: 250.00
+            كاش: 300.00
+            الباقي: 50.00
+        """.trimIndent()
+
+        val scan = ReceiptParser.parse(receiptText)
+
+        assertThat(scan).isNotNull()
+        assertThat(scan?.total).isEqualTo(BigDecimal("250.00"))
+    }
 }

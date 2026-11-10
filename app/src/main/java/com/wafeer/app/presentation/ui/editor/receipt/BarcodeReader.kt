@@ -61,7 +61,36 @@ object BarcodeReader {
                 false,
             )
 
-            decodeLuminanceSource(source)
+            val directResult = decodeLuminanceSource(source)
+            if (directResult != null) return directResult
+
+            // If high resolution preview frame, downsample 2x to help ZXing finder pattern detection
+            val maxSide = maxOf(finalWidth, finalHeight)
+            if (maxSide > 1200) {
+                val downW = finalWidth / 2
+                val downH = finalHeight / 2
+                val downBytes = ByteArray(downW * downH)
+                for (y in 0 until downH) {
+                    val srcRow = y * 2 * finalWidth
+                    val dstRow = y * downW
+                    for (x in 0 until downW) {
+                        downBytes[dstRow + x] = finalBytes[srcRow + x * 2]
+                    }
+                }
+                val downSource = PlanarYUVLuminanceSource(
+                    downBytes,
+                    downW,
+                    downH,
+                    0, 0,
+                    downW,
+                    downH,
+                    false,
+                )
+                val downResult = decodeLuminanceSource(downSource)
+                if (downResult != null) return downResult
+            }
+
+            null
         } catch (_: Exception) {
             null
         }
@@ -121,9 +150,43 @@ object BarcodeReader {
             reader.reset()
         }
 
-        // 3. Try center crop (60% of framing area)
         val w = source.width
         val h = source.height
+
+        // 3. Try bottom crop (bottom 45% where receipt QR codes are usually printed)
+        if (h > 100 && w > 100) {
+            val bottomH = (h * 0.45f).toInt()
+            val bottomTop = h - bottomH
+            val bottomCropped = source.crop(0, bottomTop, w, bottomH)
+            try {
+                return reader.decodeWithState(BinaryBitmap(HybridBinarizer(bottomCropped))).text
+            } catch (_: Exception) {
+                reader.reset()
+            }
+            try {
+                return reader.decodeWithState(BinaryBitmap(GlobalHistogramBinarizer(bottomCropped))).text
+            } catch (_: Exception) {
+                reader.reset()
+            }
+        }
+
+        // 4. Try top crop (top 45% where receipt QR codes are printed in header)
+        if (h > 100 && w > 100) {
+            val topH = (h * 0.45f).toInt()
+            val topCropped = source.crop(0, 0, w, topH)
+            try {
+                return reader.decodeWithState(BinaryBitmap(HybridBinarizer(topCropped))).text
+            } catch (_: Exception) {
+                reader.reset()
+            }
+            try {
+                return reader.decodeWithState(BinaryBitmap(GlobalHistogramBinarizer(topCropped))).text
+            } catch (_: Exception) {
+                reader.reset()
+            }
+        }
+
+        // 5. Try center crop (60% of framing area)
         val cropW = (w * 0.6f).toInt()
         val cropH = (h * 0.6f).toInt()
         if (cropW > 50 && cropH > 50) {
