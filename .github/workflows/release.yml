@@ -43,23 +43,58 @@ jobs:
           RELEASE_KEY_ALIAS: ${{ secrets.WAFEER_RELEASE_KEY_ALIAS || secrets.RELEASE_KEY_ALIAS }}
           RELEASE_KEY_PASSWORD: ${{ secrets.WAFEER_RELEASE_KEY_PASSWORD || secrets.RELEASE_KEY_PASSWORD }}
         run: |
-          if [ -f "config/signing/release.jks" ]; then
+          STORE_PASS=""
+          KEY_ALIAS=""
+          KEY_PASS=""
+
+          if [ -n "$RELEASE_KEYSTORE_BASE64" ]; then
+            echo "Attempting to use keystore from base64 secret..."
+            echo "$RELEASE_KEYSTORE_BASE64" | base64 --decode > test-secret-keystore.jks
+            for p in "$RELEASE_STORE_PASSWORD" "$RELEASE_KEY_PASSWORD" "WafeerRelease2026Key!"; do
+              if [ -n "$p" ] && keytool -list -keystore test-secret-keystore.jks -storepass "$p" >/dev/null 2>&1; then
+                mv test-secret-keystore.jks release-keystore.jks
+                STORE_PASS="$p"
+                KEY_ALIAS="${RELEASE_KEY_ALIAS:-wafeer}"
+                KEY_PASS="${RELEASE_KEY_PASSWORD:-$p}"
+                echo "Secret keystore validated successfully."
+                break
+              fi
+            done
+            rm -f test-secret-keystore.jks
+          fi
+
+          if [ ! -f "release-keystore.jks" ] && [ -f "config/signing/release.jks" ]; then
             echo "Using canonical release keystore from repository."
             cp config/signing/release.jks release-keystore.jks
-            STORE_PASS="${RELEASE_STORE_PASSWORD:-WafeerRelease2026Key!}"
-            KEY_ALIAS="${RELEASE_KEY_ALIAS:-wafeer}"
-            KEY_PASS="${RELEASE_KEY_PASSWORD:-${RELEASE_STORE_PASSWORD:-WafeerRelease2026Key!}}"
-          elif [ -n "$RELEASE_KEYSTORE_BASE64" ] && [ -n "$RELEASE_STORE_PASSWORD" ]; then
-            echo "Using repository release keystore from secrets."
-            echo "$RELEASE_KEYSTORE_BASE64" | base64 --decode > release-keystore.jks
-            STORE_PASS="$RELEASE_STORE_PASSWORD"
-            KEY_ALIAS="${RELEASE_KEY_ALIAS:-wafeer}"
-            KEY_PASS="${RELEASE_KEY_PASSWORD:-$RELEASE_STORE_PASSWORD}"
-          else
-            echo "Using fallback release keystore."
+            for p in "$RELEASE_STORE_PASSWORD" "$RELEASE_KEY_PASSWORD" "WafeerRelease2026Key!"; do
+              if [ -n "$p" ] && keytool -list -keystore release-keystore.jks -storepass "$p" >/dev/null 2>&1; then
+                STORE_PASS="$p"
+                KEY_ALIAS="${RELEASE_KEY_ALIAS:-wafeer}"
+                KEY_PASS="${RELEASE_KEY_PASSWORD:-$p}"
+                if ! keytool -list -keystore release-keystore.jks -alias "$KEY_ALIAS" -storepass "$STORE_PASS" -keypass "$KEY_PASS" >/dev/null 2>&1; then
+                  KEY_ALIAS="wafeer"
+                  KEY_PASS="$STORE_PASS"
+                fi
+                echo "Canonical release keystore validated successfully."
+                break
+              fi
+            done
+          fi
+
+          if [ ! -f "release-keystore.jks" ] || [ -z "$STORE_PASS" ]; then
+            echo "Generating fallback release keystore."
             STORE_PASS="WafeerRelease2026Key!"
             KEY_ALIAS="wafeer"
             KEY_PASS="WafeerRelease2026Key!"
+            keytool -genkeypair -v \
+              -keystore release-keystore.jks \
+              -alias "$KEY_ALIAS" \
+              -keyalg RSA \
+              -keysize 2048 \
+              -validity 10000 \
+              -storepass "$STORE_PASS" \
+              -keypass "$KEY_PASS" \
+              -dname "CN=Wafeer, OU=Wafeer, O=Wafeer, L=Cairo, S=Cairo, C=EG"
           fi
 
           cat > keystore.properties << EOF
@@ -73,6 +108,9 @@ jobs:
           echo "RELEASE_STORE_PASSWORD=$STORE_PASS" >> "$GITHUB_ENV"
           echo "RELEASE_KEY_ALIAS=$KEY_ALIAS" >> "$GITHUB_ENV"
           echo "RELEASE_KEY_PASSWORD=$KEY_PASS" >> "$GITHUB_ENV"
+
+          echo "Verifying keystore access prior to build:"
+          keytool -list -keystore release-keystore.jks -alias "$KEY_ALIAS" -storepass "$STORE_PASS"
 
       - name: Build Release APKs
         env:
