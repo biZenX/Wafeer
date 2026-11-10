@@ -3,9 +3,27 @@ package com.wafeer.app.domain.receipt
 import com.wafeer.app.domain.notification.ExpenseNotificationParser
 import java.math.BigDecimal
 
+data class ReceiptItem(
+    val rawName: String,
+    val name: String,
+    val price: BigDecimal,
+    val quantity: Int = 1,
+    val suggestedCategory: String? = null,
+)
+
+enum class ScanMode {
+    RECEIPT,
+    QR_CODE,
+}
+
 data class ReceiptScan(
     val merchant: String?,
     val total: BigDecimal,
+    val items: List<ReceiptItem> = emptyList(),
+    val subtotal: BigDecimal? = null,
+    val tax: BigDecimal? = null,
+    val scanMode: ScanMode = ScanMode.RECEIPT,
+    val qrPayload: String? = null,
 )
 
 object ReceiptParser {
@@ -22,8 +40,93 @@ object ReceiptParser {
 
     fun parse(text: String): ReceiptScan? {
         val lines = ReceiptVocabulary.asciiDigits(text).lines().map { it.trim() }.filter { it.isNotEmpty() }
-        val total = totalFrom(lines) ?: return null
-        return ReceiptScan(merchant = merchantFrom(lines), total = total)
+        val totalIndex = lines.indices.firstOrNull { isTotalLine(lines[it]) }
+        val total = totalFrom(lines)
+        val items = itemsFrom(lines, totalIndex)
+        val calculatedSum = if (items.isNotEmpty()) {
+            items.fold(BigDecimal.ZERO) { acc, item ->
+                acc + item.price.multiply(BigDecimal(item.quantity))
+            }
+        } else {
+            null
+        }
+        val finalTotal = when {
+            totalIndex != null && total != null -> total
+            calculatedSum != null && items.isNotEmpty() -> {
+                if (total != null && total > calculatedSum) total else calculatedSum
+            }
+            else -> total ?: calculatedSum ?: return null
+        }
+
+        return ReceiptScan(
+            merchant = merchantFrom(lines),
+            total = finalTotal,
+            items = items,
+            subtotal = if (total != null && calculatedSum != null && calculatedSum < total) calculatedSum else null,
+            scanMode = ScanMode.RECEIPT,
+        )
+    }
+
+    private fun itemsFrom(lines: List<String>, totalLineIndex: Int?): List<ReceiptItem> {
+        val endLimit = totalLineIndex ?: lines.size
+        val items = mutableListOf<ReceiptItem>()
+        var i = 0
+
+        while (i < endLimit) {
+            val line = lines[i]
+            if (isTotalLine(line) || isSubtotalOrPayment(line) || ReceiptVocabulary.isNoise(line) || ReceiptVocabulary.isTaxOrCount(line)) {
+                i++
+                continue
+            }
+            if (i < 3 && amountsIn(line).isEmpty()) {
+                i++
+                continue
+            }
+
+            val amounts = amountsIn(line)
+            if (amounts.isNotEmpty()) {
+                val price = amounts.last()
+                val rawName = repairOcrDigits(line)
+                    .replace(AMOUNT, "")
+                    .replace(TOTAL_AMOUNT, "")
+                    .trim()
+                if (rawName.length >= 2 && rawName.any { it.isLetter() }) {
+                    val norm = ReceiptItemNormalizer.normalize(rawName)
+                    items.add(
+                        ReceiptItem(
+                            rawName = rawName,
+                            name = norm.canonicalName,
+                            price = price,
+                            quantity = 1,
+                            suggestedCategory = norm.suggestedCategory,
+                        ),
+                    )
+                }
+                i++
+            } else if (i + 1 < endLimit) {
+                // Name on current line, price on next line
+                val nextAmounts = amountsIn(lines[i + 1])
+                if (nextAmounts.isNotEmpty() && line.length >= 2 && line.any { it.isLetter() } && !isTotalLine(lines[i + 1])) {
+                    val price = nextAmounts.last()
+                    val norm = ReceiptItemNormalizer.normalize(line)
+                    items.add(
+                        ReceiptItem(
+                            rawName = line,
+                            name = norm.canonicalName,
+                            price = price,
+                            quantity = 1,
+                            suggestedCategory = norm.suggestedCategory,
+                        ),
+                    )
+                    i += 2
+                } else {
+                    i++
+                }
+            } else {
+                i++
+            }
+        }
+        return items
     }
 
     private fun amountsIn(line: String, pattern: Regex = AMOUNT): List<BigDecimal> =

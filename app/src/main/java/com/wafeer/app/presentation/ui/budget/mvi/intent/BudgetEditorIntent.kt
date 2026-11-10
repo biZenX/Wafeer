@@ -38,5 +38,10 @@ sealed interface BudgetEditorIntent : BudgetUiIntent {
     data class UpdateAllowanceDays(val enabled: Boolean, val days: Set<Int>) : BudgetEditorIntent
     data class SetWalletIncomeEnabled(val enabled: Boolean) : BudgetEditorIntent
     data class DismissFinancialTip(val tipId: Int) : BudgetEditorIntent
-    data class ReceiptScanned(val amount: String, val merchant: String?) : BudgetEditorIntent
+    data class ReceiptScanned(
+        val amount: String,
+        val merchant: String?,
+        val suggestedCategory: String? = null,
+        val items: List<com.wafeer.app.domain.receipt.ReceiptItem> = emptyList(),
+    ) : BudgetEditorIntent
 }

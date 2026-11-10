@@ -86,10 +86,14 @@ fun MainScreen(
 
     val receiptScanner = com.wafeer.app.presentation.ui.editor.receipt.rememberReceiptScanner(
         onScanned = { scan ->
+            val suggestedCategory = scan.items.firstOrNull { !it.suggestedCategory.isNullOrBlank() }?.suggestedCategory
+                ?: scan.merchant?.let { com.wafeer.app.domain.receipt.ReceiptItemNormalizer.normalize(it).suggestedCategory }
             budgetViewModel.processIntent(
                 com.wafeer.app.presentation.ui.budget.mvi.intent.BudgetEditorIntent.ReceiptScanned(
                     amount = scan.total.toPlainString(),
                     merchant = scan.merchant,
+                    suggestedCategory = suggestedCategory,
+                    items = scan.items,
                 ),
             )
         },
@@ -335,6 +339,17 @@ fun MainScreen(
                 onMarkWishlistPurchased = smartToolsViewModel::markWishlistPurchased,
                 onDeleteWishlistItem = smartToolsViewModel::deleteWishlistItem,
                 onSetFunFundRatio = smartToolsViewModel::setFunFundRatio,
+                onSaveInstallment = smartToolsViewModel::saveInstallment,
+                onPayInstallment = smartToolsViewModel::payInstallmentMonth,
+                onDeleteInstallment = smartToolsViewModel::deleteInstallment,
+                onSaveGameya = smartToolsViewModel::saveGameya,
+                onAdvanceGameya = smartToolsViewModel::advanceGameyaMonth,
+                onToggleGameyaCollected = smartToolsViewModel::toggleGameyaCollected,
+                onDeleteGameya = smartToolsViewModel::deleteGameya,
+                onSaveGoldPortfolio = smartToolsViewModel::saveGoldPortfolio,
+                onSaveZakatSettings = smartToolsViewModel::saveZakatSettings,
+                onWalletInputChanged = smartToolsViewModel::onWalletInputChanged,
+                onClearWalletInput = smartToolsViewModel::clearWalletInput,
                 onScanReceipt = {
                     showSmartToolsBottomSheet = false
                     receiptScanner.launch()

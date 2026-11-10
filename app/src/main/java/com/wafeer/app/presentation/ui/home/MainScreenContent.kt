@@ -1267,6 +1267,9 @@ private fun ReceiptCameraHost(
         onPickImage = scanner.pickImage,
         onSwitchCamera = scanner.switchCamera,
         onToggleTorch = scanner.toggleTorch,
+        onToggleScanMode = scanner.toggleScanMode,
+        onSwitchToQrMode = scanner.switchToQrMode,
+        onDismissQrPrompt = scanner.dismissQrPrompt,
         cameraPreview = scanner.preview,
         modifier = Modifier.zIndex(2f),
     )

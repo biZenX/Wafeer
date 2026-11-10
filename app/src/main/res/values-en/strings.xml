@@ -146,6 +146,15 @@
     <string name="settings_savings_reminder_subtitle">Remind me what to set aside when a new period starts</string>
     <string name="analytics_title">Analytics</string>
     <string name="receipt_scan_button">Scan receipt</string>
+    <string name="receipt_scan_mode_receipt">Receipt</string>
+    <string name="receipt_scan_mode_qr">QR Code</string>
+    <string name="receipt_qr_detected_prompt">QR Code detected — Read via QR?</string>
+    <string name="receipt_qr_switch_action">Read QR</string>
+    <string name="receipt_qr_dismiss">Dismiss</string>
+    <string name="receipt_category_suggest_title">Category Suggestion</string>
+    <string name="receipt_category_suggest_message">Item belongs to \"%1$s\". Add it automatically?</string>
+    <string name="receipt_category_add_action">Add \"%1$s\"</string>
+    <string name="receipt_category_custom_action">Choose other</string>
     <string name="receipt_scan_failed">Couldn\'t read a total from the receipt</string>
     <string name="receipt_camera_point_at_total">Point at the total</string>
     <string name="receipt_camera_detected">%1$s detected</string>
@@ -1096,6 +1105,79 @@
     <string name="smart_dialog_approx_price">Approximate Price (%1$s)</string>
     <string name="smart_dialog_approx_price_hint">e.g. 30</string>
     <string name="smart_dialog_start_cooldown">Start 48h Cooldown</string>
+
+    <!-- Smart Installments -->
+    <string name="smart_tab_installments">Installments &amp; BNPL</string>
+    <string name="smart_installments_subtitle">Schedule and track ValU, Tabby, Tamara, and bank payments</string>
+    <string name="smart_installments_btn_add">Add Installment</string>
+    <string name="smart_installments_empty_title">No active installments</string>
+    <string name="smart_installments_empty_desc">Track your installment commitments to stay aware of fixed monthly deductions and remaining payments!</string>
+    <string name="smart_installment_total_monthly">Total Monthly Installments:</string>
+    <string name="smart_installment_progress_format">Paid %1$d of %2$d months</string>
+    <string name="smart_installment_remaining_amount">Remaining: %1$s %2$s</string>
+    <string name="smart_installment_due_day">Due on day %1$d every month</string>
+    <string name="smart_installment_btn_pay_month">Pay Monthly Installment</string>
+    <string name="smart_installment_completed_badge">Fully Paid!</string>
+    <string name="smart_dialog_add_installment_title">Add New Installment</string>
+    <string name="smart_dialog_installment_name">Item / Commitment Name</string>
+    <string name="smart_dialog_installment_name_hint">e.g. Phone, Washing Machine, Laptop</string>
+    <string name="smart_dialog_installment_provider">Provider (Optional)</string>
+    <string name="smart_dialog_installment_provider_hint">e.g. ValU, Tabby, Tamara, Aman, Bank</string>
+    <string name="smart_dialog_installment_monthly">Monthly Installment (%1$s)</string>
+    <string name="smart_dialog_installment_months_count">Total Months</string>
+    <string name="smart_dialog_installment_paid_months">Already Paid Months</string>
+    <string name="smart_dialog_installment_save">Save Installment</string>
+
+    <!-- Smart Gam\'eya -->
+    <string name="smart_tab_gameya">Gam\'eya (Savings Club)</string>
+    <string name="smart_gameya_subtitle">Track rotating savings shares and payout collection month</string>
+    <string name="smart_gameya_btn_add">Add Gam\'eya</string>
+    <string name="smart_gameya_empty_title">No active Gam\'eyas</string>
+    <string name="smart_gameya_empty_desc">Organize family or office rotating savings circles, track your collection turn, and manage monthly shares.</string>
+    <string name="smart_gameya_total_monthly">Total Monthly Shares:</string>
+    <string name="smart_gameya_payout_target">Payout Month: Turn #%1$d (%2$s %3$s)</string>
+    <string name="smart_gameya_due_now">Your payout turn is ready this month! 🎉</string>
+    <string name="smart_gameya_collected_badge">Payout Collected ✅</string>
+    <string name="smart_gameya_btn_pay_share">Record Monthly Share</string>
+    <string name="smart_gameya_btn_toggle_collected">Mark as Collected</string>
+    <string name="smart_dialog_add_gameya_title">Add Gam\'eya</string>
+    <string name="smart_dialog_gameya_name">Gam\'eya Name</string>
+    <string name="smart_dialog_gameya_name_hint">e.g. Office Circle, Family Circle</string>
+    <string name="smart_dialog_gameya_share">Monthly Share (%1$s)</string>
+    <string name="smart_dialog_gameya_total_months">Total Months</string>
+    <string name="smart_dialog_gameya_payout_month">Your Turn (Month #)</string>
+    <string name="smart_dialog_gameya_save">Save Gam\'eya</string>
+
+    <!-- Smart Gold & Zakat -->
+    <string name="smart_tab_gold_zakat">Gold &amp; Zakat</string>
+    <string name="smart_gold_title">Gold Portfolio &amp; Safe Haven</string>
+    <string name="smart_gold_subtitle">Track bullion, sovereign coins, and current market worth</string>
+    <string name="smart_gold_grams_21_label">21K Grams</string>
+    <string name="smart_gold_grams_24_label">24K Grams (Ingots)</string>
+    <string name="smart_gold_coins_label">Gold Coins Count (8g 21k)</string>
+    <string name="smart_gold_price_21_label">Current 21K Price/Gram (%1$s)</string>
+    <string name="smart_gold_total_weight">Total 21K Equivalent: %1$s g</string>
+    <string name="smart_gold_market_value">Estimated Market Value: %1$s %2$s</string>
+    <string name="smart_gold_btn_save">Update Gold Portfolio</string>
+
+    <string name="smart_zakat_title">Zakat &amp; Sadaqah Calculator</string>
+    <string name="smart_zakat_subtitle">Calculate 2.5%% annual Zakat upon reaching Nisab threshold</string>
+    <string name="smart_zakat_nisab_info">Sharia Gold Nisab: 85g 24k (or 97.14g 21k). Current Nisab estimate: %1$s %2$s.</string>
+    <string name="smart_zakat_eligible_badge">Nisab threshold reached! Due Zakat: %1$s %2$s (2.5%%)</string>
+    <string name="smart_zakat_not_eligible_badge">Total wealth has not reached Nisab or 1 lunar year has not passed.</string>
+    <string name="smart_zakat_hawl_checkbox">One full lunar year (Hawl) has passed</string>
+
+    <!-- Smart InstaPay & Digital Wallets -->
+    <string name="smart_tab_wallet_parser">InstaPay &amp; Wallets</string>
+    <string name="smart_wallet_parser_subtitle">Paste SMS or InstaPay text to parse amounts instantly</string>
+    <string name="smart_wallet_input_placeholder">Paste payment or transfer SMS from InstaPay, Vodafone Cash, or bank here...</string>
+    <string name="smart_wallet_parsed_title">Detected Transfer Details:</string>
+    <string name="smart_wallet_transfer_party">Party: %1$s</string>
+    <string name="smart_wallet_transfer_platform">Platform: %1$s</string>
+    <string name="smart_wallet_transfer_ref">Ref: %1$s</string>
+    <string name="smart_wallet_btn_paste">Paste Clipboard</string>
+    <string name="smart_wallet_btn_clear">Clear</string>
+    <string name="smart_wallet_unrecognized">No valid wallet transfer was recognized in the entered text.</string>
 
     <!-- About & Credits -->
     <string name="about_app_title">Wafeer</string>

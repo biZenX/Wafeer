@@ -1,0 +1,4 @@
+- Smart Receipt & QR Scanner: Instantly extract items, prices, and e-invoices (ZATCA/QR) completely offline.
+- Real-World Installments & Gam'eya: Track monthly installments (BNPL) and organize rotating savings circles with payout alerts.
+- Gold Portfolio & Zakat Calculator: Evaluate gold holdings in real-time and calculate wealth Zakat (2.5%) upon reaching Nisab.
+- InstaPay & Digital Wallets Import: One-tap parsing for wallet transfer messages, plus full stability fixes for seamless tracking.

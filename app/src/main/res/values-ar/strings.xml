@@ -175,6 +175,15 @@
     <string name="settings_savings_reminder_subtitle">تذكيري بالمبلغ الذي يجب ادخاره عند بداية كل دورة جديدة</string>
     <string name="analytics_title">الإحصائيات</string>
     <string name="receipt_scan_button">مسح الفاتورة</string>
+    <string name="receipt_scan_mode_receipt">فاتورة</string>
+    <string name="receipt_scan_mode_qr">رمز QR</string>
+    <string name="receipt_qr_detected_prompt">تم رصد رمز QR للفاتورة — هل تريد القراءة عبر QR؟</string>
+    <string name="receipt_qr_switch_action">قراءة بالـ QR</string>
+    <string name="receipt_qr_dismiss">إغلاق</string>
+    <string name="receipt_category_suggest_title">اقتراح فئة للمشتريات</string>
+    <string name="receipt_category_suggest_message">المنتج يتبع فئة \"%1$s\". هل ترغب في إضافتها تلقائيًا؟</string>
+    <string name="receipt_category_add_action">إضافة \"%1$s\"</string>
+    <string name="receipt_category_custom_action">اختيار فئة أخرى</string>
     <string name="receipt_scan_failed">تعذر قراءة المبلغ الإجمالي من الفاتورة</string>
     <string name="receipt_camera_point_at_total">وجّه الكاميرا نحو المبلغ الإجمالي</string>
     <string name="receipt_camera_detected">تم رصد %1$s</string>
@@ -1101,6 +1110,79 @@
     <string name="smart_dialog_approx_price">السعر التقريبي (%1$s)</string>
     <string name="smart_dialog_approx_price_hint">مثلاً: 250</string>
     <string name="smart_dialog_start_cooldown">بدء التهدئة (48h)</string>
+
+    <!-- Smart Installments -->
+    <string name="smart_tab_installments">الأقساط و BNPL</string>
+    <string name="smart_installments_subtitle">جدولة ومتابعة أقساط فاليو، تابي، تمارا والبنوك</string>
+    <string name="smart_installments_btn_add">إضافة قسط</string>
+    <string name="smart_installments_empty_title">لا توجد أقساط نشطة حالياً</string>
+    <string name="smart_installments_empty_desc">سجل أقساط مشترياتك عشان تعرف التزامك الشهري الثابت ومتبقي كام شهر بدون ما تتفاجئ!</string>
+    <string name="smart_installment_total_monthly">إجمالي الأقساط الشهرية:</string>
+    <string name="smart_installment_progress_format">دُفع %1$d من %2$d شهر</string>
+    <string name="smart_installment_remaining_amount">المتبقي: %1$s %2$s</string>
+    <string name="smart_installment_due_day">يستحق يوم %1$d من كل شهر</string>
+    <string name="smart_installment_btn_pay_month">دفع قسط الشهر</string>
+    <string name="smart_installment_completed_badge">تم سداد القسط بالكامل!</string>
+    <string name="smart_dialog_add_installment_title">إضافة التزام قسط جديد</string>
+    <string name="smart_dialog_installment_name">اسم القسط أو السلعة</string>
+    <string name="smart_dialog_installment_name_hint">مثلاً: موبايل، غسالة، شاشة</string>
+    <string name="smart_dialog_installment_provider">الجهة أو التطبيق (اختياري)</string>
+    <string name="smart_dialog_installment_provider_hint">مثلاً: ValU، Tabby، تمارا، أمان، بنك مصر</string>
+    <string name="smart_dialog_installment_monthly">القسط الشهري (%1$s)</string>
+    <string name="smart_dialog_installment_months_count">عدد الشهور الإجمالي</string>
+    <string name="smart_dialog_installment_paid_months">عدد الشهور المدفوعة مسبقاً</string>
+    <string name="smart_dialog_installment_save">حفظ القسط</string>
+
+    <!-- Smart Gam\'eya -->
+    <string name="smart_tab_gameya">الجمعيات الشهرية</string>
+    <string name="smart_gameya_subtitle">متابعة أسهم الجمعيات وموعد قبض الدور</string>
+    <string name="smart_gameya_btn_add">إضافة جمعية</string>
+    <string name="smart_gameya_empty_title">لا توجد جمعيات نشطة حالياً</string>
+    <string name="smart_gameya_empty_desc">نظم جمعياتك العائلية ومع الزملاء، تابع شهر قبضك وإجمالي السهم المدفوع شهرياً بسهولة.</string>
+    <string name="smart_gameya_total_monthly">إجمالي الأسهم الشهرية:</string>
+    <string name="smart_gameya_payout_target">شهر القبض: الشهر رقم %1$d (مبلغ %2$s %3$s)</string>
+    <string name="smart_gameya_due_now">حان موعد قبض الجمعية هذا الشهر! 🎉</string>
+    <string name="smart_gameya_collected_badge">تم استلام القبض بنجاح ✅</string>
+    <string name="smart_gameya_btn_pay_share">تسجيل سهم الشهر</string>
+    <string name="smart_gameya_btn_toggle_collected">تحديد كمستلمة</string>
+    <string name="smart_dialog_add_gameya_title">إضافة جمعية شهرية</string>
+    <string name="smart_dialog_gameya_name">اسم الجمعية</string>
+    <string name="smart_dialog_gameya_name_hint">مثلاً: جمعية الشغل، جمعية العيلة</string>
+    <string name="smart_dialog_gameya_share">قيمة السهم الشهري (%1$s)</string>
+    <string name="smart_dialog_gameya_total_months">مدة الجمعية بالشهور</string>
+    <string name="smart_dialog_gameya_payout_month">شهر قبضك (رقم كم؟)</string>
+    <string name="smart_dialog_gameya_save">حفظ الجمعية</string>
+
+    <!-- Smart Gold & Zakat -->
+    <string name="smart_tab_gold_zakat">الذهب والزكاة</string>
+    <string name="smart_gold_title">محفظة الذهب وملاذ الادخار</string>
+    <string name="smart_gold_subtitle">متابعة سبائك وجنيهات الذهب وقيمتها السوقية</string>
+    <string name="smart_gold_grams_21_label">جرام عيار 21</string>
+    <string name="smart_gold_grams_24_label">جرام عيار 24 (سبائك)</string>
+    <string name="smart_gold_coins_label">عدد الجنيهات الذهب (8 جم)</string>
+    <string name="smart_gold_price_21_label">سعر جرام 21 الحالي (%1$s)</string>
+    <string name="smart_gold_total_weight">إجمالي الوزن بما يعادل عيار 21: %1$s جم</string>
+    <string name="smart_gold_market_value">القيمة السوقية التقريبية: %1$s %2$s</string>
+    <string name="smart_gold_btn_save">تحديث محفظة الذهب</string>
+
+    <string name="smart_zakat_title">حاسبة زكاة المال والصدقات</string>
+    <string name="smart_zakat_subtitle">حساب نسبة 2.5%% عند بلوغ النصاب الشرعي ومرور الحول</string>
+    <string name="smart_zakat_nisab_info">نصاب الذهب الشرعي: 85 جم عيار 24 (أو 97.14 جم عيار 21). النصاب التقريبي حالياً: %1$s %2$s.</string>
+    <string name="smart_zakat_eligible_badge">بلغت أموالك النصاب الشرعي! مقدار الزكاة الواجبة: %1$s %2$s (2.5%%)</string>
+    <string name="smart_zakat_not_eligible_badge">إجمالي أموالك لم يبلغ النصاب بعد، أو لم يكتمل الحول.</string>
+    <string name="smart_zakat_hawl_checkbox">مرّ حول هجري كامل على بلوغ النصاب</string>
+
+    <!-- Smart InstaPay & Digital Wallets -->
+    <string name="smart_tab_wallet_parser">تحويلات إنستاباي</string>
+    <string name="smart_wallet_parser_subtitle">لصق رسائل تحويل إنستاباي والمحافظ وقراءتها بضغطة زر</string>
+    <string name="smart_wallet_input_placeholder">انسخ رسالة التحويل من إنستاباي أو فودافون كاش أو البنك والصقها هنا...</string>
+    <string name="smart_wallet_parsed_title">تفاصيل التحويل المكتشف:</string>
+    <string name="smart_wallet_transfer_party">الطرف: %1$s</string>
+    <string name="smart_wallet_transfer_platform">المنصة: %1$s</string>
+    <string name="smart_wallet_transfer_ref">رقم المرجع: %1$s</string>
+    <string name="smart_wallet_btn_paste">لصق من الحافظة</string>
+    <string name="smart_wallet_btn_clear">مسح النص</string>
+    <string name="smart_wallet_unrecognized">لم يتم التعرف على تفاصيل عملية تحويل واضحة في النص المدخل.</string>
 
     <!-- About & Credits -->
     <string name="about_app_title">تطبيق وفير</string>

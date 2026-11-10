@@ -577,17 +577,78 @@ class BudgetViewModel @Inject constructor(
                 hasCreditCardCutoffDay = uiState.value.budgetSettings?.creditCardCutoffDay != null,
             )
             is BudgetEditorIntent.DismissFinancialTip -> handleDismissFinancialTip(intent.tipId)
-            is BudgetEditorIntent.ReceiptScanned -> handleReceiptScanned(intent.amount, intent.merchant)
+            is BudgetEditorIntent.ReceiptScanned -> handleReceiptScanned(
+                amount = intent.amount,
+                merchant = intent.merchant,
+                suggestedCategory = intent.suggestedCategory,
+                items = intent.items,
+            )
         }
     }
 
-    private fun handleReceiptScanned(amount: String, merchant: String?) {
-        numpadController.setInput(amount)
-        if (merchant.isNullOrBlank()) return
-        editorStateController.process(
-            EditorIntent.NoteUpdated(merchant),
-            hasCreditCardCutoffDay = uiState.value.budgetSettings?.creditCardCutoffDay != null,
-        )
+    private fun handleReceiptScanned(
+        amount: String,
+        merchant: String?,
+        suggestedCategory: String? = null,
+        items: List<com.wafeer.app.domain.receipt.ReceiptItem> = emptyList(),
+    ) {
+        val hasCreditCardCutoffDay = uiState.value.budgetSettings?.creditCardCutoffDay != null
+
+        if (items.size > 1) {
+            // Multi-calculation & Multi-category split
+            val multiAmount = items.map { it.price.stripTrailingZeros().toPlainString() }.joinToString("+")
+            numpadController.setInput(multiAmount)
+
+            val categories = items.mapNotNull { it.suggestedCategory?.ifBlank { null } }
+                .ifEmpty { listOfNotNull(suggestedCategory?.ifBlank { null }) }
+                .distinct()
+            val multiCategory = categories.joinToString("+")
+
+            // Format note with the normalized product names (e.g. بنطلون جينز (350) • جيبة (200))
+            val itemsSummary = items.joinToString(" • ") { "${it.name} (${it.price.stripTrailingZeros().toPlainString()})" }
+            val note = if (!merchant.isNullOrBlank()) "$merchant: $itemsSummary" else itemsSummary
+            editorStateController.process(
+                EditorIntent.NoteUpdated(note),
+                hasCreditCardCutoffDay = hasCreditCardCutoffDay,
+            )
+
+            if (multiCategory.isNotBlank()) {
+                viewModelScope.launch {
+                    categories.forEach { cat ->
+                        budgetRepository.findOrCreateCategory(cat)
+                    }
+                    editorStateController.process(
+                        EditorIntent.CommentUpdated(multiCategory),
+                        hasCreditCardCutoffDay = hasCreditCardCutoffDay,
+                    )
+                }
+            }
+        } else {
+            // Single amount & category
+            numpadController.setInput(amount)
+            val note = if (items.isNotEmpty()) {
+                val item = items.first()
+                if (!merchant.isNullOrBlank()) "$merchant: ${item.name}" else item.name
+            } else {
+                merchant
+            }
+            if (!note.isNullOrBlank()) {
+                editorStateController.process(
+                    EditorIntent.NoteUpdated(note),
+                    hasCreditCardCutoffDay = hasCreditCardCutoffDay,
+                )
+            }
+            val effectiveCategory = suggestedCategory ?: items.firstOrNull()?.suggestedCategory
+            if (!effectiveCategory.isNullOrBlank()) {
+                viewModelScope.launch {
+                    budgetRepository.findOrCreateCategory(effectiveCategory)
+                    editorStateController.process(
+                        EditorIntent.CommentUpdated(effectiveCategory),
+                        hasCreditCardCutoffDay = hasCreditCardCutoffDay,
+                    )
+                }
+            }
+        }
     }
 
     private fun handleDismissFinancialTip(tipId: Int) {

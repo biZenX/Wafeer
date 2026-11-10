@@ -7,8 +7,6 @@ import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -17,13 +15,12 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -39,6 +36,7 @@ import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.FlashOff
 import androidx.compose.material.icons.rounded.FlashOn
 import androidx.compose.material.icons.rounded.PhotoLibrary
+import androidx.compose.material.icons.rounded.QrCodeScanner
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -48,9 +46,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -60,17 +56,15 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.scale
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.liveRegion
-import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
@@ -81,6 +75,7 @@ import com.wafeer.app.domain.model.BudgetPeriod
 import com.wafeer.app.domain.model.BudgetSplitMode
 import com.wafeer.app.domain.model.BudgetState
 import com.wafeer.app.domain.model.SupportedCurrency
+import com.wafeer.app.domain.receipt.ScanMode
 import com.wafeer.app.presentation.ui.theme.WafeerTheme
 import com.wafeer.app.presentation.ui.theme.component.budget.pill.calculateBudgetMetrics
 import com.wafeer.app.presentation.util.combineColors
@@ -107,6 +102,9 @@ fun ReceiptCameraSheet(
     onPickImage: () -> Unit,
     onSwitchCamera: () -> Unit,
     onToggleTorch: () -> Unit,
+    onToggleScanMode: () -> Unit = {},
+    onSwitchToQrMode: () -> Unit = {},
+    onDismissQrPrompt: () -> Unit = {},
     modifier: Modifier = Modifier,
     cameraPreview: @Composable (Modifier) -> Unit,
 ) {
@@ -168,12 +166,14 @@ fun ReceiptCameraSheet(
             cameraPreview(Modifier.fillMaxSize())
 
             FramingSquare(
+                isQr = state.scanMode == ScanMode.QR_CODE,
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(bottom = ShutterAreaHeight)
                     .graphicsLayer { alpha = alphaAnim.value },
             )
 
+            // Top control header: Close, Mode Selector, Flash
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -188,8 +188,23 @@ fun ReceiptCameraSheet(
                     description = stringResource(R.string.close),
                     onClick = onClose,
                 )
+
+                ScanModeSelector(
+                    mode = state.scanMode,
+                    onModeSelected = { selected ->
+                        if (selected == ScanMode.QR_CODE) onSwitchToQrMode() else onToggleScanMode()
+                    },
+                )
+
+                SheetControlButton(
+                    icon = if (state.torchOn) Icons.Rounded.FlashOn else Icons.Rounded.FlashOff,
+                    description = stringResource(R.string.receipt_camera_flash),
+                    enabled = state.hasFlash,
+                    onClick = onToggleTorch,
+                )
             }
 
+            // Bottom control section
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -199,35 +214,163 @@ fun ReceiptCameraSheet(
                     .navigationBarsPadding()
                     .padding(horizontal = 24.dp, vertical = 16.dp),
             ) {
-                DetectionPill(
-                    state = state,
-                    budgetState = budgetState,
-                    viewPeriod = viewPeriod,
-                    splitMode = splitMode,
-                    currencyCode = currencyCode,
-                    modifier = Modifier.align(Alignment.TopCenter),
-                )
-
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 64.dp),
-                    horizontalArrangement = Arrangement.SpaceEvenly,
-                    verticalAlignment = Alignment.CenterVertically,
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
-                    SheetControlButton(
-                        icon = Icons.Rounded.PhotoLibrary,
-                        description = stringResource(R.string.receipt_camera_pick_image),
-                        onClick = onPickImage,
+                    // QR Detected Prompt Banner
+                    if (state.suggestQrPrompt && state.scanMode == ScanMode.RECEIPT) {
+                        QrDetectedBanner(
+                            onAccept = onSwitchToQrMode,
+                            onDismiss = onDismissQrPrompt,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(bottom = 12.dp),
+                        )
+                    }
+
+                    DetectionPill(
+                        state = state,
+                        budgetState = budgetState,
+                        viewPeriod = viewPeriod,
+                        splitMode = splitMode,
+                        currencyCode = currencyCode,
                     )
 
-                    ShutterButton(isCapturing = state.isCapturing, onCapture = onCapture)
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 24.dp),
+                        horizontalArrangement = Arrangement.SpaceEvenly,
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        SheetControlButton(
+                            icon = Icons.Rounded.PhotoLibrary,
+                            description = stringResource(R.string.receipt_camera_pick_image),
+                            onClick = onPickImage,
+                        )
 
-                    SheetControlButton(
-                        icon = Icons.Rounded.Cameraswitch,
-                        description = stringResource(R.string.receipt_camera_switch),
-                        enabled = state.canSwitchCamera,
-                        onClick = onSwitchCamera,
+                        ShutterButton(isCapturing = state.isCapturing, onCapture = onCapture)
+
+                        SheetControlButton(
+                            icon = Icons.Rounded.Cameraswitch,
+                            description = stringResource(R.string.receipt_camera_switch),
+                            enabled = state.canSwitchCamera,
+                            onClick = onSwitchCamera,
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun ScanModeSelector(
+    mode: ScanMode,
+    onModeSelected: (ScanMode) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Row(
+        modifier = modifier
+            .clip(CircleShape)
+            .background(Color.Black.copy(alpha = 0.5f))
+            .border(1.dp, Color.White.copy(alpha = 0.2f), CircleShape)
+            .padding(3.dp),
+        horizontalArrangement = Arrangement.spacedBy(4.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        val receiptBg = if (mode == ScanMode.RECEIPT) MaterialTheme.colorScheme.primary else Color.Transparent
+        val receiptText = if (mode == ScanMode.RECEIPT) MaterialTheme.colorScheme.onPrimary else Color.White
+        Box(
+            modifier = Modifier
+                .clip(CircleShape)
+                .background(receiptBg)
+                .clickable { onModeSelected(ScanMode.RECEIPT) }
+                .padding(horizontal = 14.dp, vertical = 6.dp),
+            contentAlignment = Alignment.Center,
+        ) {
+            Text(
+                text = stringResource(R.string.receipt_scan_mode_receipt),
+                color = receiptText,
+                style = MaterialTheme.typography.labelMedium,
+            )
+        }
+
+        val qrBg = if (mode == ScanMode.QR_CODE) MaterialTheme.colorScheme.primary else Color.Transparent
+        val qrText = if (mode == ScanMode.QR_CODE) MaterialTheme.colorScheme.onPrimary else Color.White
+        Box(
+            modifier = Modifier
+                .clip(CircleShape)
+                .background(qrBg)
+                .clickable { onModeSelected(ScanMode.QR_CODE) }
+                .padding(horizontal = 14.dp, vertical = 6.dp),
+            contentAlignment = Alignment.Center,
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(4.dp),
+            ) {
+                Icon(
+                    imageVector = Icons.Rounded.QrCodeScanner,
+                    contentDescription = null,
+                    tint = qrText,
+                    modifier = Modifier.size(16.dp),
+                )
+                Text(
+                    text = stringResource(R.string.receipt_scan_mode_qr),
+                    color = qrText,
+                    style = MaterialTheme.typography.labelMedium,
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun QrDetectedBanner(
+    onAccept: () -> Unit,
+    onDismiss: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Box(
+        modifier = modifier
+            .clip(RoundedCornerShape(20.dp))
+            .background(MaterialTheme.colorScheme.primaryContainer)
+            .padding(horizontal = 16.dp, vertical = 10.dp),
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text(
+                text = stringResource(R.string.receipt_qr_detected_prompt),
+                color = MaterialTheme.colorScheme.onPrimaryContainer,
+                style = MaterialTheme.typography.bodyMedium,
+                modifier = Modifier.weight(1f),
+            )
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
+                Box(
+                    modifier = Modifier
+                        .clip(CircleShape)
+                        .background(MaterialTheme.colorScheme.primary)
+                        .clickable(onClick = onAccept)
+                        .padding(horizontal = 12.dp, vertical = 6.dp),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Text(
+                        text = stringResource(R.string.receipt_qr_switch_action),
+                        color = MaterialTheme.colorScheme.onPrimary,
+                        style = MaterialTheme.typography.labelMedium,
+                    )
+                }
+                IconButton(onClick = onDismiss, modifier = Modifier.size(28.dp)) {
+                    Icon(
+                        imageVector = Icons.Rounded.Close,
+                        contentDescription = stringResource(R.string.receipt_qr_dismiss),
+                        tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                        modifier = Modifier.size(16.dp),
                     )
                 }
             }
@@ -289,6 +432,7 @@ private fun DetectionPill(
     val label = when {
         state.captureFailed -> stringResource(R.string.receipt_camera_retry)
         detectedTotal != null -> stringResource(R.string.receipt_camera_detected, currencyFormat.format(detectedTotal))
+        state.scanMode == ScanMode.QR_CODE -> stringResource(R.string.receipt_scan_mode_qr)
         else -> stringResource(R.string.receipt_camera_point_at_total)
     }
 
@@ -366,9 +510,13 @@ private fun ShutterButton(isCapturing: Boolean, onCapture: () -> Unit) {
 }
 
 @Composable
-private fun FramingSquare(modifier: Modifier = Modifier) {
+private fun FramingSquare(
+    isQr: Boolean = false,
+    modifier: Modifier = Modifier,
+) {
     Canvas(modifier = modifier) {
-        val side = minOf(size.width, size.height) * RECEIPT_FRAME_FRACTION
+        val fraction = if (isQr) 0.50f else RECEIPT_FRAME_FRACTION
+        val side = minOf(size.width, size.height) * fraction
         val left = center.x - side / 2f
         val top = center.y - side / 2f
         val arm = FrameArmLength.toPx()
