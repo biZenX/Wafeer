@@ -54,6 +54,42 @@ class ZatcaQrParserTest {
     }
 
     @Test
+    fun decodes_zatca_with_whitespace_and_newlines() {
+        val base64 = buildTlv(
+            sellerName = "سوبرماركت التميمي",
+            vatNumber = "310122393500003",
+            timestamp = "2026-11-10T12:00:00Z",
+            totalWithVat = "120.00",
+            vatAmount = "15.65",
+        )
+
+        val formattedWithNewlines = "  \n" + base64.chunked(20).joinToString("\n") + "\n "
+        val invoice = ZatcaQrParser.parse(formattedWithNewlines)
+
+        assertThat(invoice).isNotNull()
+        assertThat(invoice?.sellerName).isEqualTo("سوبرماركت التميمي")
+        assertThat(invoice?.invoiceTotal).isEqualTo(BigDecimal("120.00"))
+    }
+
+    @Test
+    fun decodes_zatca_from_url_query_parameter() {
+        val base64 = buildTlv(
+            sellerName = "بنده",
+            vatNumber = "310122393500003",
+            timestamp = "2026-11-10T12:00:00Z",
+            totalWithVat = "85.50",
+            vatAmount = "11.15",
+        )
+
+        val url = "https://zatca.gov.eg/verify?data=$base64"
+        val invoice = ZatcaQrParser.parse(url)
+
+        assertThat(invoice).isNotNull()
+        assertThat(invoice?.sellerName).isEqualTo("بنده")
+        assertThat(invoice?.invoiceTotal).isEqualTo(BigDecimal("85.50"))
+    }
+
+    @Test
     fun returns_null_on_invalid_or_non_zatca_input() {
         assertThat(ZatcaQrParser.parse("hello world")).isNull()
         assertThat(ZatcaQrParser.parse("")).isNull()

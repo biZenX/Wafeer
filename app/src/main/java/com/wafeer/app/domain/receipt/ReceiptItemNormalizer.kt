@@ -111,6 +111,54 @@ object ReceiptItemNormalizer {
             categoryAr = "مواصلات",
             categoryEn = "Transportation",
         ),
+        // Fruits & Vegetables
+        ProductRule(
+            triggers = listOf("fruits", "vegetables", "خضار", "فاكهة", "طماطم", "خيار", "تفاح", "موز", "برتقال", "ليمون", "بصل", "ثوم"),
+            canonicalAr = "خضار وفاكهة",
+            canonicalEn = "Fruits & Veggies",
+            categoryAr = "بقالة",
+            categoryEn = "Groceries",
+        ),
+        // Meat & Poultry
+        ProductRule(
+            triggers = listOf("meat", "chicken", "beef", "fish", "tuna", "لحم", "لحوم", "فراخ", "دجاج", "كفتة", "سمك", "تونة"),
+            canonicalAr = "لحوم ودواجن",
+            canonicalEn = "Meat & Poultry",
+            categoryAr = "بقالة",
+            categoryEn = "Groceries",
+        ),
+        // Snacks & Confectionery
+        ProductRule(
+            triggers = listOf("chips", "chocolate", "biscuit", "candy", "cake", "ice cream", "cookies", "شيبسي", "شيبس", "شوكولاتة", "بسكويت", "كيك", "ايس كريم", "حلويات", "لب", "مكسرات"),
+            canonicalAr = "تسالي وحلويات",
+            canonicalEn = "Snacks & Sweets",
+            categoryAr = "بقالة",
+            categoryEn = "Groceries",
+        ),
+        // Household & Cleaning
+        ProductRule(
+            triggers = listOf("detergent", "soap", "shampoo", "tissue", "bleach", "منظفات", "مسحوق", "صابون", "كلور", "مناديل", "بريل", "اريال", "تايد"),
+            canonicalAr = "منظفات ومستلزمات منزلية",
+            canonicalEn = "Household & Cleaning",
+            categoryAr = "بقالة",
+            categoryEn = "Groceries",
+        ),
+        // Electronics & Accessories
+        ProductRule(
+            triggers = listOf("charger", "cable", "headphone", "airpods", "case", "mobile", "phone", "laptop", "battery", "شاحن", "كابل", "سلك", "سماعة", "جراب", "موبايل", "هاتف", "بطارية"),
+            canonicalAr = "إلكترونيات وملحقاتها",
+            canonicalEn = "Electronics",
+            categoryAr = "إلكترونيات",
+            categoryEn = "Electronics",
+        ),
+        // Utilities & Telecom
+        ProductRule(
+            triggers = listOf("vodafone", "orange", "etisalat", "we", "stc", "mobily", "zain", "recharge", "electricity", "water bill", "gas bill", "فودافون", "اورانج", "اتصالات", "وي", "شحن رصيد", "كهرباء", "غاز", "فاتورة نت"),
+            canonicalAr = "فواتير وشحن",
+            canonicalEn = "Bills & Top-up",
+            categoryAr = "فواتير",
+            categoryEn = "Bills",
+        ),
         // Health & Personal Care
         ProductRule(
             triggers = listOf("pharmacy", "صيدلية", "medicine", "دواء", "علاج", "panadol", "بنادول", "vitamin", "فيتامين", "shampoo", "شامبو", "soap", "صابون", "toothpaste", "معجون"),

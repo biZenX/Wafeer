@@ -68,4 +68,31 @@ class ReceiptItemNormalizerTest {
 
         assertThat(cleaned).isEqualTo("Jeans")
     }
+
+    @Test
+    fun normalizes_fruits_and_veggies() {
+        val raw = "طماطم 2كجم"
+        val norm = ReceiptItemNormalizer.normalize(raw)
+
+        assertThat(norm.canonicalName).isEqualTo("خضار وفاكهة")
+        assertThat(norm.suggestedCategory).isEqualTo("بقالة")
+    }
+
+    @Test
+    fun normalizes_electronics() {
+        val raw = "شاحن سريع 20w"
+        val norm = ReceiptItemNormalizer.normalize(raw)
+
+        assertThat(norm.canonicalName).isEqualTo("إلكترونيات وملحقاتها")
+        assertThat(norm.suggestedCategory).isEqualTo("إلكترونيات")
+    }
+
+    @Test
+    fun normalizes_telecom_and_bills() {
+        val raw = "كارت شحن فودافون"
+        val norm = ReceiptItemNormalizer.normalize(raw)
+
+        assertThat(norm.canonicalName).isEqualTo("فواتير وشحن")
+        assertThat(norm.suggestedCategory).isEqualTo("فواتير")
+    }
 }

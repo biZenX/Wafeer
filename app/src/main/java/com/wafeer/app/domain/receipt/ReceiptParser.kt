@@ -28,21 +28,32 @@ data class ReceiptScan(
 
 object ReceiptParser {
 
-    private const val MERCHANT_LOOKAHEAD = 6
+    private const val MERCHANT_LOOKAHEAD = 8
     private const val MERCHANT_MAX_LENGTH = 40
     private const val MERCHANT_MIN_LETTER_WEIGHT = 3
 
-    private val AMOUNT = Regex("""(?<![\d.,])(?:\d{1,3}(?:[.,]\d{3})+|\d+)[.,]\d{1,2}(?![.,]?\d)""")
-    private val TOTAL_AMOUNT = Regex("""(?<![\d.,])(?:\d{1,3}(?:[.,]\d{3})+|\d+)(?:[.,]\d{1,2})?(?![.,]?\d)""")
+    private val MAX_ITEM_PRICE = BigDecimal(100000)
+    private val MAX_TOTAL_AMOUNT = BigDecimal(1000000)
+
+    private val DECIMAL_AMOUNT = Regex("""(?<![\d.,])(?:\d{1,3}(?:[.,]\d{3})+|\d+)[.,]\d{1,2}(?![.,]?\d)""")
+    private val INTEGER_AMOUNT = Regex("""(?<![\d.,])\b[1-9]\d{0,4}\b(?![\d.,])""")
     private val SPACED_DECIMAL = Regex("""(\d)\s*([.,])\s*(\d{1,2})(?!\d)""")
     private val ONE_OR_ZERO_NEAR_DIGIT = Regex("""(?<=[\d.,])[OoIl|]|[OoIl|](?=\d)""")
     private val FIVE_OR_EIGHT_AFTER_DIGIT = Regex("""(?<=\d|\d[.,])[SB]""")
 
+    private val UNIT_AND_WEIGHT_REGEX = Regex(
+        """(?i)\b\d+(?:[.,]\d+)?\s*(?:kg|g|gm|gram|ltr|l|ml|pcs|pc|كجم|جم|جرام|لتر|مل|قطع|قطعة)\b""",
+    )
+    private val CODE_OR_SKU_REGEX = Regex("""(?i)\b(?:art|sku|ref|code|item|no|كود|رقم|صنف)[:#\-]?\s*\w+\b""")
+
     fun parse(text: String): ReceiptScan? {
         val lines = ReceiptVocabulary.asciiDigits(text).lines().map { it.trim() }.filter { it.isNotEmpty() }
-        val totalIndex = lines.indices.firstOrNull { isTotalLine(lines[it]) }
+        if (lines.isEmpty()) return null
+
+        val totalLineIndex = lines.indices.firstOrNull { isTotalLine(lines[it]) }
         val total = totalFrom(lines)
-        val items = itemsFrom(lines, totalIndex)
+        val items = itemsFrom(lines, totalLineIndex)
+
         val calculatedSum = if (items.isNotEmpty()) {
             items.fold(BigDecimal.ZERO) { acc, item ->
                 acc + item.price.multiply(BigDecimal(item.quantity))
@@ -50,12 +61,19 @@ object ReceiptParser {
         } else {
             null
         }
+
         val finalTotal = when {
-            totalIndex != null && total != null -> total
-            calculatedSum != null && items.isNotEmpty() -> {
-                if (total != null && total > calculatedSum) total else calculatedSum
+            total != null && calculatedSum != null -> {
+                // If total is wildly greater than calculated sum (e.g. 4x sum and > 5000), total is likely an ID/phone number that slipped through
+                if (total > calculatedSum.multiply(BigDecimal(4)) && total > BigDecimal(5000)) {
+                    calculatedSum
+                } else {
+                    total
+                }
             }
-            else -> total ?: calculatedSum ?: return null
+            total != null -> total
+            calculatedSum != null -> calculatedSum
+            else -> fallbackTotal(lines) ?: return null
         }
 
         return ReceiptScan(
@@ -74,29 +92,31 @@ object ReceiptParser {
 
         while (i < endLimit) {
             val line = lines[i]
-            if (isTotalLine(line) || isSubtotalOrPayment(line) || ReceiptVocabulary.isNoise(line) || ReceiptVocabulary.isTaxOrCount(line)) {
-                i++
-                continue
-            }
-            if (i < 3 && amountsIn(line).isEmpty()) {
+
+            // Skip total, payment, tax, noise, or metadata lines (tax IDs, CR, dates, phone, cashier, etc.)
+            if (isTotalLine(line) || isSubtotalOrPayment(line) || ReceiptVocabulary.isNoise(line) ||
+                ReceiptVocabulary.isTaxOrCount(line) || ReceiptVocabulary.isMetadata(line)
+            ) {
                 i++
                 continue
             }
 
-            val amounts = amountsIn(line)
-            if (amounts.isNotEmpty()) {
-                val price = amounts.last()
-                val rawName = repairOcrDigits(line)
-                    .replace(AMOUNT, "")
-                    .replace(TOTAL_AMOUNT, "")
-                    .trim()
+            val isMerchantLine = i == 0 && line == merchantFrom(lines)
+            if (isMerchantLine) {
+                i++
+                continue
+            }
+
+            val priceCandidate = extractPriceFromLine(line)
+            if (priceCandidate != null) {
+                val rawName = cleanItemName(line)
                 if (rawName.length >= 2 && rawName.any { it.isLetter() }) {
                     val norm = ReceiptItemNormalizer.normalize(rawName)
                     items.add(
                         ReceiptItem(
                             rawName = rawName,
                             name = norm.canonicalName,
-                            price = price,
+                            price = priceCandidate,
                             quantity = 1,
                             suggestedCategory = norm.suggestedCategory,
                         ),
@@ -104,16 +124,20 @@ object ReceiptParser {
                 }
                 i++
             } else if (i + 1 < endLimit) {
-                // Name on current line, price on next line
-                val nextAmounts = amountsIn(lines[i + 1])
-                if (nextAmounts.isNotEmpty() && line.length >= 2 && line.any { it.isLetter() } && !isTotalLine(lines[i + 1])) {
-                    val price = nextAmounts.last()
-                    val norm = ReceiptItemNormalizer.normalize(line)
+                // Check if product name is on current line and price is on the next line
+                val nextLine = lines[i + 1]
+                val nextPrice = extractPriceFromLine(nextLine)
+                val currentCleanName = cleanItemName(line)
+
+                if (nextPrice != null && currentCleanName.length >= 2 && currentCleanName.any { it.isLetter() } &&
+                    !isTotalLine(nextLine) && !ReceiptVocabulary.isMetadata(nextLine) && !isSubtotalOrPayment(nextLine)
+                ) {
+                    val norm = ReceiptItemNormalizer.normalize(currentCleanName)
                     items.add(
                         ReceiptItem(
-                            rawName = line,
+                            rawName = currentCleanName,
                             name = norm.canonicalName,
-                            price = price,
+                            price = nextPrice,
                             quantity = 1,
                             suggestedCategory = norm.suggestedCategory,
                         ),
@@ -129,10 +153,53 @@ object ReceiptParser {
         return items
     }
 
-    private fun amountsIn(line: String, pattern: Regex = AMOUNT): List<BigDecimal> =
-        pattern.findAll(repairOcrDigits(line)).mapNotNull { ExpenseNotificationParser.normalize(it.value) }.toList()
+    private fun extractPriceFromLine(line: String): BigDecimal? {
+        val cleaned = stripNonPriceTokens(line)
 
-    private fun totalAmountsIn(line: String) = amountsIn(line, TOTAL_AMOUNT)
+        // 1. Prefer decimal amounts (e.g. 350.00, 45.50)
+        val decimals = amountsIn(cleaned)
+            .filter { it.signum() > 0 && it <= MAX_ITEM_PRICE }
+        if (decimals.isNotEmpty()) {
+            return decimals.last()
+        }
+
+        // 2. Try integer amounts (e.g. 350, 120, 45) if no decimal amount present
+        val integers = integerAmountsIn(cleaned)
+            .filter { it.signum() > 0 && it <= MAX_ITEM_PRICE }
+        if (integers.isNotEmpty()) {
+            return integers.last()
+        }
+
+        return null
+    }
+
+    private fun cleanItemName(line: String): String {
+        var result = stripNonPriceTokens(line)
+        result = DECIMAL_AMOUNT.replace(result, "")
+        result = INTEGER_AMOUNT.replace(result, "")
+        return result.trim().replace(Regex("""\s+"""), " ")
+    }
+
+    private fun stripNonPriceTokens(line: String): String {
+        var s = repairOcrDigits(line)
+        s = ReceiptVocabulary.DATE_REGEX.replace(s, " ")
+        s = ReceiptVocabulary.TIME_REGEX.replace(s, " ")
+        s = ReceiptVocabulary.PHONE_REGEX.replace(s, " ")
+        s = ReceiptVocabulary.LONG_ID_REGEX.replace(s, " ")
+        s = UNIT_AND_WEIGHT_REGEX.replace(s, " ")
+        s = CODE_OR_SKU_REGEX.replace(s, " ")
+        return s.trim()
+    }
+
+    private fun amountsIn(line: String): List<BigDecimal> =
+        DECIMAL_AMOUNT.findAll(repairOcrDigits(line))
+            .mapNotNull { ExpenseNotificationParser.normalize(it.value) }
+            .toList()
+
+    private fun integerAmountsIn(line: String): List<BigDecimal> =
+        INTEGER_AMOUNT.findAll(repairOcrDigits(line))
+            .mapNotNull { it.value.toBigDecimalOrNull() }
+            .toList()
 
     private fun repairOcrDigits(line: String): String {
         val digits = ONE_OR_ZERO_NEAR_DIGIT.replace(line) { if (it.value in "Oo") "0" else "1" }
@@ -145,24 +212,48 @@ object ReceiptParser {
     private fun isSubtotalOrPayment(line: String) =
         ReceiptVocabulary.isSubtotal(line) || ReceiptVocabulary.isPayment(line)
 
-    private fun isFallbackLine(line: String) = !isSubtotalOrPayment(line) && !ReceiptVocabulary.isTaxOrCount(line)
-
     private fun totalFrom(lines: List<String>): BigDecimal? {
         val keyed = lines.indices
             .filter { isTotalLine(lines[it]) }
             .flatMap { i ->
-                totalAmountsIn(lines[i]).ifEmpty {
-                    lines.getOrNull(i + 1)?.takeIf(::isFallbackLine)?.let(::totalAmountsIn).orEmpty()
+                extractTotalFromLine(lines[i]).let { if (it != null) listOf(it) else emptyList() }.ifEmpty {
+                    val next = lines.getOrNull(i + 1)
+                    if (next != null && !isSubtotalOrPayment(next) && !ReceiptVocabulary.isMetadata(next)) {
+                        extractTotalFromLine(next)?.let { listOf(it) }.orEmpty()
+                    } else {
+                        emptyList()
+                    }
                 }
             }
-        val candidates = keyed.ifEmpty { fallbackAmounts(lines) }
-        return candidates.filter { it.signum() > 0 }.maxOrNull()
+
+        return keyed.filter { it.signum() > 0 && it <= MAX_TOTAL_AMOUNT }.maxOrNull()
     }
 
-    private fun fallbackAmounts(lines: List<String>): List<BigDecimal> {
-        val eligible = lines.filter(::isFallbackLine)
-        val withCurrency = eligible.filter(ReceiptVocabulary::hasCurrency).flatMap(::amountsIn)
-        return withCurrency.ifEmpty { eligible.flatMap(::amountsIn) }
+    private fun extractTotalFromLine(line: String): BigDecimal? {
+        val cleaned = stripNonPriceTokens(line)
+        val decimals = amountsIn(cleaned).filter { it.signum() > 0 && it <= MAX_TOTAL_AMOUNT }
+        if (decimals.isNotEmpty()) return decimals.last()
+
+        val integers = integerAmountsIn(cleaned).filter { it.signum() > 0 && it <= MAX_TOTAL_AMOUNT }
+        if (integers.isNotEmpty()) return integers.last()
+
+        return null
+    }
+
+    private fun fallbackTotal(lines: List<String>): BigDecimal? {
+        val eligible = lines.filter { line ->
+            !isSubtotalOrPayment(line) &&
+                !ReceiptVocabulary.isTaxOrCount(line) &&
+                !ReceiptVocabulary.isMetadata(line) &&
+                !ReceiptVocabulary.isNoise(line)
+        }
+
+        val withCurrency = eligible.filter(ReceiptVocabulary::hasCurrency)
+            .flatMap { extractTotalFromLine(it)?.let { amt -> listOf(amt) }.orEmpty() }
+        if (withCurrency.isNotEmpty()) return withCurrency.maxOrNull()
+
+        val candidates = eligible.flatMap { extractTotalFromLine(it)?.let { amt -> listOf(amt) }.orEmpty() }
+        return candidates.filter { it.signum() > 0 && it <= MAX_TOTAL_AMOUNT }.maxOrNull()
     }
 
     private fun merchantFrom(lines: List<String>): String? =
@@ -172,6 +263,10 @@ object ReceiptParser {
             weight >= MERCHANT_MIN_LETTER_WEIGHT &&
                 letterLike * 2 > line.length &&
                 !ReceiptVocabulary.isNoise(line) &&
-                amountsIn(line).isEmpty()
+                !ReceiptVocabulary.isMetadata(line) &&
+                !ReceiptVocabulary.isTotal(line) &&
+                !isSubtotalOrPayment(line) &&
+                amountsIn(line).isEmpty() &&
+                integerAmountsIn(line).isEmpty()
         }?.take(MERCHANT_MAX_LENGTH)
 }

@@ -36,16 +36,26 @@ data class ReceiptCameraUiState(
         return if (scanMode == ScanMode.QR_CODE) {
             copy(detected = qrScan, detectedQr = rawQr, suggestQrPrompt = false)
         } else {
-            // In RECEIPT OCR mode: show prompt to ask user if they want to read via QR
-            copy(detectedQr = rawQr, suggestQrPrompt = true, detected = qrScan ?: detected)
+            // In RECEIPT OCR mode: only suggest QR prompt if the QR is actually a valid receipt
+            if (qrScan != null) {
+                copy(detectedQr = rawQr, suggestQrPrompt = true)
+            } else {
+                this
+            }
         }
     }
 
-    fun switchToQrMode(): ReceiptCameraUiState =
-        copy(scanMode = ScanMode.QR_CODE, suggestQrPrompt = false)
+    fun switchToQrMode(): ReceiptCameraUiState {
+        val qrScan = detectedQr?.let { ReceiptQrParser.parse(it) }
+        return copy(
+            scanMode = ScanMode.QR_CODE,
+            suggestQrPrompt = false,
+            detected = qrScan ?: detected,
+        )
+    }
 
     fun switchToReceiptMode(): ReceiptCameraUiState =
-        copy(scanMode = ScanMode.RECEIPT, suggestQrPrompt = false)
+        copy(scanMode = ScanMode.RECEIPT, suggestQrPrompt = false, detected = null)
 
     fun dismissQrPrompt(): ReceiptCameraUiState =
         copy(suggestQrPrompt = false)
@@ -56,7 +66,7 @@ data class ReceiptCameraUiState(
     fun capturing(): ReceiptCameraUiState = copy(isCapturing = true, captureFailed = false)
 
     fun captured(scan: ReceiptScan?): Pair<ReceiptCameraUiState, ReceiptScan?> {
-        val result = scan ?: detected
+        val result = scan ?: if (scanMode == ScanMode.QR_CODE) detected else null
         return copy(isCapturing = false, captureFailed = result == null) to result
     }
 }

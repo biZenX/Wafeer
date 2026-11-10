@@ -75,6 +75,31 @@ internal object ReceiptVocabulary {
         "税额", "稅額", "税金", "数量",
     )
 
+    private val METADATA_WORDS = listOf(
+        // Commercial register
+        "سجل تجاري", "س.ت", "ست:", "cr:", "c.r", "c.r.", "commercial reg", "registration no",
+        // Tax & VAT
+        "الرقم الضريبي", "رقم ضريبي", "بطاقة ضريبية", "تسجيل ضريبي", "رقم التسجيل", "ض.ق.م", "ضريبة مبيعات",
+        "vat no", "vat reg", "vat id", "tax id", "trn", "tin", "rfc", "cif", "nif", "steuernummer",
+        // Phone & Contact
+        "هاتف", "تليفون", "موبايل", "جوال", "فاكس", "خدمة العملاء", "خدمه العملاء", "خدمة عملاء", "خط ساخن", "اتصل بنا",
+        "tel:", "phone:", "mobile:", "hotline:", "call:",
+        // Date & Time
+        "تاريخ", "التاريخ", "وقت", "الوقت", "ساعة", "الساعة", "date:", "time:",
+        // Invoice / Order / Reference / Cashier / Branch / Table
+        "رقم الفاتورة", "فاتورة رقم", "رقم الإيصال", "ايصال رقم", "إيصال رقم", "رقم الطلب", "طلب رقم",
+        "رقم الشيك", "شيك رقم", "رقم العملية", "رقم المرجع", "المرجع", "كود الفاتورة", "رقم الحساب",
+        "كاشير", "الكاشير", "نقطة بيع", "وردية", "فرع", "الفرع", "طاولة", "ترابيزة", "صالة", "تيك اواي", "دليفري", "توصيل",
+        "invoice no", "inv no", "invoice #", "receipt no", "receipt #", "order no", "order #", "bill no", "check no",
+        "ref no", "reference", "cashier", "terminal", "pos", "branch", "table", "shift", "server", "account no",
+        // Address & Location
+        "street", "st.", "road", "rd.", "avenue", "ave.", "building", "bldg", "floor", "suite", "po box", "p.o. box",
+        "شارع", "طريق", "ميدان", "حي", "عمارة", "مبنى", "ص.ب", "صندوق بريد",
+        // Greetings & Policies & Web
+        "شكرا لزيارتكم", "شكراً لزيارتكم", "شكرا لك", "شكراً لك", "البضاعة المباعة", "لا ترد ولا تستبدل", "يسعدنا خدمتكم",
+        "thank you", "thanks for visiting", "welcome", "visit again", "www.", ".com", ".net", ".org", "facebook", "instagram",
+    )
+
     private val NOISE_WORDS = listOf(
         "ticket", "receipt", "welcome", "invoice",
         "factura", "rfc", "recibo", "bienvenido", "bienvenida",
@@ -86,7 +111,7 @@ internal object ReceiptVocabulary {
         "касов бон", "фискален бон",
         "απόδειξη",
         "رسید", "فاکتور",
-        "فاتورة", "فاتورة ضريبية", "إيصال", "ايصال", "مرحباً", "مرحبا", "سجل تجاري", "رقم الفاتورة",
+        "فاتورة", "فاتورة ضريبية", "إيصال", "ايصال", "مرحباً", "مرحبا",
         "रसीद", "बिल",
         "レシート", "領収書",
         "영수증",
@@ -96,20 +121,36 @@ internal object ReceiptVocabulary {
     private val CURRENCY_WORDS = SupportedCurrency.ALL.flatMap { listOf(it.code, it.symbol) } +
         listOf("¥", "￥", "円", "元", "₩", "원", "₹", "₽", "руб", "лв", "ریال", "تومان", "ج.م", "ريال", "درهم", "د.ك", "د.إ", "ر.س", "ر.ع", "د.ب")
 
+    val DATE_REGEX = Regex("""(?<!\d)\d{1,4}[/\-.](?:0?[1-9]|1[0-2])[/\-.](?:\d{2,4}|\d{1,2})(?!\d)""")
+    val TIME_REGEX = Regex("""(?<!\d)(?:0?[1-9]|1[0-2]|2[0-3]):[0-5]\d(?::[0-5]\d)?(?:\s*(?:am|pm|ص|م))?(?!\d)""", RegexOption.IGNORE_CASE)
+    val PHONE_REGEX = Regex("""(?<!\d)(?:01[0125]\d{8}|0[2345]\d{7,8}|\+?\d{1,3}[- ]?\d{7,10})(?!\d)""")
+    val LONG_ID_REGEX = Regex("""(?<![\d.,])\d{8,16}(?![\d.,])""")
+
     private val totals = TOTAL_WORDS.map(::normalize)
     private val subtotals = SUBTOTAL_WORDS.map(::normalize)
     private val payments = PAYMENT_WORDS.map(::normalize)
     private val taxesOrCounts = TAX_OR_COUNT_WORDS.map(::normalize)
+    private val metadata = METADATA_WORDS.map(::normalize)
     private val noise = NOISE_WORDS.map(::normalize)
     private val currencies = CURRENCY_WORDS.map(::normalize).filter { it.isNotBlank() }.distinct()
 
-    fun isTotal(line: String) = containsAny(line, totals)
+    fun isTotal(line: String): Boolean {
+        if (isMetadata(line)) return false
+        return containsAny(line, totals)
+    }
 
     fun isSubtotal(line: String) = containsAny(line, subtotals)
 
     fun isPayment(line: String) = containsAny(line, payments)
 
     fun isTaxOrCount(line: String) = containsAny(line, taxesOrCounts)
+
+    fun isMetadata(line: String): Boolean {
+        if (containsAny(line, metadata)) return true
+        val stripped = line.trim()
+        if (DATE_REGEX.matches(stripped) || PHONE_REGEX.matches(stripped) || LONG_ID_REGEX.matches(stripped)) return true
+        return false
+    }
 
     fun isNoise(line: String) = containsAny(line, noise)
 

@@ -241,25 +241,43 @@ private class ReceiptCameraSession(
 
         try {
             val bitmap = proxy.toBitmap().rotated(proxy.imageInfo.rotationDegrees)
-            // 1. Try decoding QR / Barcode first (if present on the receipt)
-            val qrText = BarcodeReader.read(bitmap)
-            if (qrText != null) {
-                val qrScan = ReceiptQrParser.parse(qrText)
-                if (qrScan != null) return@withContext qrScan
-            }
-
-            // 2. If in explicit QR mode and no QR found, return null
             if (scanMode == ScanMode.QR_CODE) {
+                val qrText = BarcodeReader.read(bitmap)
+                if (qrText != null) {
+                    val qrScan = ReceiptQrParser.parse(qrText)
+                    if (qrScan != null) {
+                        if (!bitmap.isRecycled) bitmap.recycle()
+                        return@withContext qrScan
+                    }
+                }
                 if (!bitmap.isRecycled) bitmap.recycle()
                 return@withContext null
             }
 
-            // 3. Fallback to thread-safe Tesseract OCR
+            // In RECEIPT mode: execute OCR on the receipt text
             val downscaled = ReceiptOcr.downscale(bitmap)
             val text = ocr.read(downscaled)
+            val parsedScan = ReceiptParser.parse(text)
+            if (parsedScan != null) {
+                if (!downscaled.isRecycled) downscaled.recycle()
+                if (!bitmap.isRecycled && bitmap != downscaled) bitmap.recycle()
+                return@withContext parsedScan
+            }
+
+            // Fallback: If OCR found nothing on the image, check if the image has a valid receipt QR
+            val qrText = BarcodeReader.read(bitmap)
+            if (qrText != null) {
+                val qrScan = ReceiptQrParser.parse(qrText)
+                if (qrScan != null) {
+                    if (!downscaled.isRecycled) downscaled.recycle()
+                    if (!bitmap.isRecycled && bitmap != downscaled) bitmap.recycle()
+                    return@withContext qrScan
+                }
+            }
+
             if (!downscaled.isRecycled) downscaled.recycle()
             if (!bitmap.isRecycled && bitmap != downscaled) bitmap.recycle()
-            ReceiptParser.parse(text)
+            null
         } catch (e: CancellationException) {
             throw e
         } catch (e: Exception) {
@@ -461,15 +479,29 @@ private class ReceiptOcrEngine(
             val primaryLang = languages.firstOrNull() ?: ReceiptOcr.FALLBACK_LANGUAGE
             val text = runPass(bitmap, primaryLang)
 
-            // If primary language yielded text containing recognized amount or items, return it
-            if (text.isNotBlank() && (primaryLang == ReceiptOcr.FALLBACK_LANGUAGE || ReceiptParser.parse(text) != null)) {
+            val parsedPrimary = if (text.isNotBlank()) ReceiptParser.parse(text) else null
+            // If primary language yielded a complete receipt with items, return it
+            if (parsedPrimary != null && parsedPrimary.items.isNotEmpty()) {
                 return@withContext text
             }
 
-            // Fallback pass with English if primary was non-English and didn't find a valid receipt
+            // Fallback pass with English if primary was non-English
             if (primaryLang != ReceiptOcr.FALLBACK_LANGUAGE) {
                 val engText = runPass(bitmap, ReceiptOcr.FALLBACK_LANGUAGE)
-                if (engText.isNotBlank()) return@withContext engText
+                if (engText.isNotBlank()) {
+                    val combined = if (text.isNotBlank()) "$text\n$engText" else engText
+                    val parsedCombined = ReceiptParser.parse(combined)
+                    val parsedEng = ReceiptParser.parse(engText)
+
+                    return@withContext when {
+                        parsedCombined != null && parsedCombined.items.isNotEmpty() -> combined
+                        parsedPrimary != null -> text
+                        parsedEng != null && parsedEng.items.isNotEmpty() -> engText
+                        parsedCombined != null -> combined
+                        text.isNotBlank() -> text
+                        else -> engText
+                    }
+                }
             }
 
             text
@@ -532,27 +564,34 @@ object ReceiptOcr {
     suspend fun read(context: Context, uri: Uri): ReceiptScan? = withContext(Dispatchers.Default) {
         val bitmap = decodeUpright(context, uri) ?: return@withContext null
 
-        // 1. Check if the image contains a QR code or barcode
-        val qrText = BarcodeReader.read(bitmap)
-        if (qrText != null) {
-            val qrScan = ReceiptQrParser.parse(qrText)
-            if (qrScan != null) {
-                if (!bitmap.isRecycled) bitmap.recycle()
-                return@withContext qrScan
-            }
-        }
-
-        // 2. Perform OCR
+        // 1. Perform OCR on the receipt image first
         val scaled = downscale(bitmap)
         val engine = ReceiptOcrEngine(context)
-        try {
+        val ocrScan = try {
             val text = engine.read(scaled)
             ReceiptParser.parse(text)
         } finally {
             if (!scaled.isRecycled) scaled.recycle()
-            if (!bitmap.isRecycled && bitmap != scaled) bitmap.recycle()
             engine.close()
         }
+
+        if (ocrScan != null) {
+            if (!bitmap.isRecycled && bitmap != scaled) bitmap.recycle()
+            return@withContext ocrScan
+        }
+
+        // 2. Fallback: if OCR found no receipt, check if image is a QR code
+        val qrText = BarcodeReader.read(bitmap)
+        if (qrText != null) {
+            val qrScan = ReceiptQrParser.parse(qrText)
+            if (qrScan != null) {
+                if (!bitmap.isRecycled && bitmap != scaled) bitmap.recycle()
+                return@withContext qrScan
+            }
+        }
+
+        if (!bitmap.isRecycled && bitmap != scaled) bitmap.recycle()
+        null
     }
 
     fun installTessdata(context: Context, languages: List<String>): String {
