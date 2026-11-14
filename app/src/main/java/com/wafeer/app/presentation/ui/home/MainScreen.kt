@@ -84,24 +84,6 @@ fun MainScreen(
     var isHistoryVisible by remember { mutableStateOf(false) }
     var isCategoryGridVisible by remember { mutableStateOf(false) }
 
-    val receiptScanner = com.wafeer.app.presentation.ui.editor.receipt.rememberReceiptScanner(
-        onScanned = { scan ->
-            val suggestedCategory = scan.items.firstOrNull { !it.suggestedCategory.isNullOrBlank() }?.suggestedCategory
-                ?: scan.merchant?.let { com.wafeer.app.domain.receipt.ReceiptItemNormalizer.normalize(it).suggestedCategory }
-            budgetViewModel.processIntent(
-                com.wafeer.app.presentation.ui.budget.mvi.intent.BudgetEditorIntent.ReceiptScanned(
-                    amount = scan.total.toPlainString(),
-                    merchant = scan.merchant,
-                    suggestedCategory = suggestedCategory,
-                    items = scan.items,
-                ),
-            )
-        },
-        onFailed = {
-            android.widget.Toast.makeText(context, R.string.receipt_scan_failed, android.widget.Toast.LENGTH_SHORT).show()
-        },
-    )
-
     val tutorialStage = mainScreenState.tutorialStage
     val tutorialBoxCompleted = mainScreenState.tutorialBoxCompleted
 
@@ -292,7 +274,7 @@ fun MainScreen(
                                 onCreateCategory = budgetViewModel::createCategory,
                                 onHistoryVisibilityChanged = { isHistoryVisible = it },
                                 onCategoryGridVisibilityChanged = { isCategoryGridVisible = it },
-                                receiptScanner = receiptScanner,
+                                receiptScanner = null,
                                 onPeriodSelected = { period ->
                                     mainScreenViewModel.processIntent(
                                         MainScreenUiIntent.SetSelectedPeriod(period), tutorialStage
@@ -346,14 +328,8 @@ fun MainScreen(
                 onAdvanceGameya = smartToolsViewModel::advanceGameyaMonth,
                 onToggleGameyaCollected = smartToolsViewModel::toggleGameyaCollected,
                 onDeleteGameya = smartToolsViewModel::deleteGameya,
-                onSaveGoldPortfolio = smartToolsViewModel::saveGoldPortfolio,
-                onSaveZakatSettings = smartToolsViewModel::saveZakatSettings,
                 onWalletInputChanged = smartToolsViewModel::onWalletInputChanged,
                 onClearWalletInput = smartToolsViewModel::clearWalletInput,
-                onScanReceipt = {
-                    showSmartToolsBottomSheet = false
-                    receiptScanner.launch()
-                },
                 onDismiss = { showSmartToolsBottomSheet = false },
             )
         }

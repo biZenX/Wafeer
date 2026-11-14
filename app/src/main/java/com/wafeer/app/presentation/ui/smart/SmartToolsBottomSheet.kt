@@ -90,12 +90,10 @@ import androidx.compose.ui.window.Dialog
 import com.wafeer.app.R
 import com.wafeer.app.domain.model.smart.AffordabilityVerdictLevel
 import com.wafeer.app.domain.model.smart.GameyaItem
-import com.wafeer.app.domain.model.smart.GoldPortfolio
 import com.wafeer.app.domain.model.smart.InstallmentItem
 import com.wafeer.app.domain.model.smart.MicroGoal
 import com.wafeer.app.domain.model.smart.WishlistItem
 import com.wafeer.app.domain.model.smart.WishlistStatus
-import com.wafeer.app.domain.model.smart.ZakatState
 import com.wafeer.app.presentation.util.haptic.HapticUtil.performUIHaptic
 import java.math.BigDecimal
 import java.math.RoundingMode
@@ -125,11 +123,8 @@ fun SmartToolsBottomSheet(
     onAdvanceGameya: (String) -> Unit = {},
     onToggleGameyaCollected: (String) -> Unit = {},
     onDeleteGameya: (String) -> Unit = {},
-    onSaveGoldPortfolio: (GoldPortfolio) -> Unit = {},
-    onSaveZakatSettings: (ZakatState) -> Unit = {},
     onWalletInputChanged: (String) -> Unit = {},
     onClearWalletInput: () -> Unit = {},
-    onScanReceipt: (() -> Unit)? = null,
     onDismiss: () -> Unit,
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
@@ -177,64 +172,7 @@ fun SmartToolsBottomSheet(
                 }
             }
 
-            if (onScanReceipt != null) {
-                Card(
-                    onClick = {
-                        onDismiss()
-                        onScanReceipt()
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 4.dp),
-                    shape = RoundedCornerShape(16.dp),
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.45f),
-                    ),
-                ) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 14.dp, vertical = 10.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                    ) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier.weight(1f),
-                        ) {
-                            Icon(
-                                imageVector = Icons.Rounded.DocumentScanner,
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.primary,
-                                modifier = Modifier.size(24.dp),
-                            )
-                            Spacer(modifier = Modifier.width(12.dp))
-                            Column {
-                                Text(
-                                    text = stringResource(R.string.receipt_scan_button),
-                                    style = MaterialTheme.typography.titleSmall,
-                                    fontWeight = FontWeight.SemiBold,
-                                    color = MaterialTheme.colorScheme.onPrimaryContainer,
-                                )
-                                Text(
-                                    text = stringResource(R.string.smart_tool_ocr_desc),
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.8f),
-                                )
-                            }
-                        }
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Rounded.ArrowForwardIos,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.size(14.dp),
-                        )
-                    }
-                }
-                Spacer(modifier = Modifier.height(6.dp))
-            } else {
-                Spacer(modifier = Modifier.height(8.dp))
-            }
+            Spacer(modifier = Modifier.height(8.dp))
 
             // Horizontally Scrollable Category Pills
             LazyRow(
@@ -255,33 +193,11 @@ fun SmartToolsBottomSheet(
                 }
                 item {
                     CategoryPill(
-                        selected = uiState.selectedTab == SmartToolTab.INSTALLMENTS,
+                        selected = uiState.selectedTab == SmartToolTab.COMMITMENTS,
                         icon = Icons.Rounded.CreditCard,
-                        label = stringResource(R.string.smart_tab_installments),
+                        label = stringResource(R.string.smart_tab_commitments),
                         onClick = {
-                            onTabSelected(SmartToolTab.INSTALLMENTS)
-                            performUIHaptic(view)
-                        },
-                    )
-                }
-                item {
-                    CategoryPill(
-                        selected = uiState.selectedTab == SmartToolTab.GAMEYA,
-                        icon = Icons.Rounded.Groups,
-                        label = stringResource(R.string.smart_tab_gameya),
-                        onClick = {
-                            onTabSelected(SmartToolTab.GAMEYA)
-                            performUIHaptic(view)
-                        },
-                    )
-                }
-                item {
-                    CategoryPill(
-                        selected = uiState.selectedTab == SmartToolTab.GOLD_ZAKAT,
-                        icon = Icons.Rounded.MonetizationOn,
-                        label = stringResource(R.string.smart_tab_gold_zakat),
-                        onClick = {
-                            onTabSelected(SmartToolTab.GOLD_ZAKAT)
+                            onTabSelected(SmartToolTab.COMMITMENTS)
                             performUIHaptic(view)
                         },
                     )
@@ -367,33 +283,19 @@ fun SmartToolsBottomSheet(
                             },
                         )
                     }
-                    SmartToolTab.INSTALLMENTS -> {
-                        InstallmentsTab(
+                    SmartToolTab.COMMITMENTS -> {
+                        CommitmentsTab(
                             installments = uiState.installments,
-                            currencyCode = currencyCode,
-                            onSave = onSaveInstallment,
-                            onPayMonth = onPayInstallment,
-                            onDelete = onDeleteInstallment,
-                        )
-                    }
-                    SmartToolTab.GAMEYA -> {
-                        GameyaTab(
                             gameyas = uiState.gameyas,
-                            currencyCode = currencyCode,
-                            onSave = onSaveGameya,
-                            onAdvanceMonth = onAdvanceGameya,
-                            onToggleCollected = onToggleGameyaCollected,
-                            onDelete = onDeleteGameya,
-                        )
-                    }
-                    SmartToolTab.GOLD_ZAKAT -> {
-                        GoldZakatTab(
-                            goldPortfolio = uiState.goldPortfolio,
-                            zakatSettings = uiState.zakatSettings,
                             remainingBudget = remainingBudget,
                             currencyCode = currencyCode,
-                            onSaveGold = onSaveGoldPortfolio,
-                            onSaveZakat = onSaveZakatSettings,
+                            onSaveInstallment = onSaveInstallment,
+                            onPayInstallment = onPayInstallment,
+                            onDeleteInstallment = onDeleteInstallment,
+                            onSaveGameya = onSaveGameya,
+                            onAdvanceGameya = onAdvanceGameya,
+                            onToggleGameyaCollected = onToggleGameyaCollected,
+                            onDeleteGameya = onDeleteGameya,
                         )
                     }
                     SmartToolTab.WALLET_PARSER -> {
@@ -641,56 +543,187 @@ private fun AffordabilityCalculatorTab(
 }
 
 // ==========================================
-// 2. INSTALLMENTS TAB (الأقساط و BNPL)
+// 2. COMMITMENTS & BUDGET DEDUCTION TAB (الالتزامات والأقساط)
 // ==========================================
 @Composable
-private fun InstallmentsTab(
+private fun CommitmentsTab(
     installments: List<InstallmentItem>,
+    gameyas: List<GameyaItem>,
+    remainingBudget: BigDecimal,
     currencyCode: String,
-    onSave: (InstallmentItem) -> Unit,
-    onPayMonth: (String) -> Unit,
-    onDelete: (String) -> Unit,
+    onSaveInstallment: (InstallmentItem) -> Unit,
+    onPayInstallment: (String) -> Unit,
+    onDeleteInstallment: (String) -> Unit,
+    onSaveGameya: (GameyaItem) -> Unit,
+    onAdvanceGameya: (String) -> Unit,
+    onToggleGameyaCollected: (String) -> Unit,
+    onDeleteGameya: (String) -> Unit,
 ) {
-    var showAddDialog by remember { mutableStateOf(false) }
+    var selectedSection by remember { mutableStateOf(0) } // 0: Installments, 1: Gam'eya
+    var showAddInstallmentDialog by remember { mutableStateOf(false) }
+    var showAddGameyaDialog by remember { mutableStateOf(false) }
 
-    val activeList = installments.filter { !it.isCompleted }
-    val completedList = installments.filter { it.isCompleted }
-    val totalMonthly = activeList.fold(BigDecimal.ZERO) { acc, item -> acc + item.monthlyAmount }
+    val activeInstallments = installments.filter { !it.isCompleted }
+    val completedInstallments = installments.filter { it.isCompleted }
+    val totalMonthlyInstallments = activeInstallments.fold(BigDecimal.ZERO) { acc, item -> acc + item.monthlyAmount }
+
+    val activeGameyas = gameyas.filter { !it.isCompleted }
+    val totalMonthlyGameyas = activeGameyas.fold(BigDecimal.ZERO) { acc, item -> acc + item.monthlyShare }
+
+    val totalCommitments = totalMonthlyInstallments + totalMonthlyGameyas
+    val netRemainingAfterCommitments = remainingBudget - totalCommitments
+    val isDeficit = netRemainingAfterCommitments < BigDecimal.ZERO
+    val commitmentRatio = if (remainingBudget > BigDecimal.ZERO) {
+        (totalCommitments.toFloat() / remainingBudget.toFloat()).coerceIn(0f, 1f)
+    } else if (totalCommitments > BigDecimal.ZERO) {
+        1f
+    } else {
+        0f
+    }
 
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 20.dp),
     ) {
-        // Summary Header Card
+        // Direct Monthly Budget Deduction Card
         Card(
             modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(18.dp),
-            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.45f)),
+            shape = RoundedCornerShape(20.dp),
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.45f)
+            ),
         ) {
-            Row(
+            Column(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(16.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
+                verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
-                Column {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = stringResource(R.string.smart_commitments_header_title),
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onSecondaryContainer,
+                        )
+                        Text(
+                            text = stringResource(R.string.smart_commitments_deduction_desc),
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.outline,
+                        )
+                    }
+
                     Text(
-                        text = stringResource(R.string.smart_installment_total_monthly),
+                        text = "${totalCommitments.toPlainString()} $currencyCode",
+                        style = MaterialTheme.typography.headlineSmall,
+                        fontWeight = FontWeight.ExtraBold,
+                        color = MaterialTheme.colorScheme.primary,
+                    )
+                }
+
+                // Sub-breakdown row
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    Text(
+                        text = stringResource(R.string.smart_commitments_installments_part, totalMonthlyInstallments.toPlainString(), currencyCode),
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                    Text(
+                        text = "•",
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.outline,
                     )
                     Text(
-                        text = "${totalMonthly.toPlainString()} $currencyCode",
-                        style = MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onSecondaryContainer,
+                        text = stringResource(R.string.smart_commitments_gameya_part, totalMonthlyGameyas.toPlainString(), currencyCode),
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
 
+                if (remainingBudget > BigDecimal.ZERO || totalCommitments > BigDecimal.ZERO) {
+                    Spacer(modifier = Modifier.height(4.dp))
+                    LinearProgressIndicator(
+                        progress = { commitmentRatio },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(6.dp)
+                            .clip(RoundedCornerShape(3.dp)),
+                        color = if (isDeficit || commitmentRatio > 0.6f) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary,
+                        trackColor = MaterialTheme.colorScheme.surfaceVariant,
+                    )
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text(
+                            text = stringResource(R.string.smart_commitments_net_remaining),
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.outline,
+                        )
+                        Text(
+                            text = "${netRemainingAfterCommitments.toPlainString()} $currencyCode",
+                            style = MaterialTheme.typography.labelSmall,
+                            fontWeight = FontWeight.Bold,
+                            color = if (isDeficit) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSecondaryContainer,
+                        )
+                    }
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(14.dp))
+
+        // Section selector chips
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            FilterChip(
+                selected = selectedSection == 0,
+                onClick = { selectedSection = 0 },
+                label = { Text(stringResource(R.string.smart_commitments_sub_installments, activeInstallments.size)) },
+                leadingIcon = {
+                    Icon(
+                        imageVector = Icons.Rounded.CreditCard,
+                        contentDescription = null,
+                        modifier = Modifier.size(16.dp)
+                    )
+                }
+            )
+            FilterChip(
+                selected = selectedSection == 1,
+                onClick = { selectedSection = 1 },
+                label = { Text(stringResource(R.string.smart_commitments_sub_gameya, activeGameyas.size)) },
+                leadingIcon = {
+                    Icon(
+                        imageVector = Icons.Rounded.Groups,
+                        contentDescription = null,
+                        modifier = Modifier.size(16.dp)
+                    )
+                }
+            )
+        }
+
+        Spacer(modifier = Modifier.height(10.dp))
+
+        if (selectedSection == 0) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 4.dp),
+                horizontalArrangement = Arrangement.End
+            ) {
                 Button(
-                    onClick = { showAddDialog = true },
+                    onClick = { showAddInstallmentDialog = true },
                     shape = RoundedCornerShape(12.dp),
                 ) {
                     Icon(Icons.Rounded.Add, contentDescription = null, modifier = Modifier.size(18.dp))
@@ -698,46 +731,83 @@ private fun InstallmentsTab(
                     Text(stringResource(R.string.smart_installments_btn_add))
                 }
             }
-        }
 
-        Spacer(modifier = Modifier.height(14.dp))
-
-        if (installments.isEmpty()) {
-            EmptyStateCard(
-                icon = Icons.Rounded.CreditCard,
-                title = stringResource(R.string.smart_installments_empty_title),
-                desc = stringResource(R.string.smart_installments_empty_desc),
-            )
-        } else {
-            LazyColumn(
-                modifier = Modifier.fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(10.dp),
-            ) {
-                items(activeList, key = { it.id }) { item ->
-                    InstallmentCard(
-                        item = item,
-                        currencyCode = currencyCode,
-                        onPayMonth = { onPayMonth(item.id) },
-                        onDelete = { onDelete(item.id) },
-                    )
-                }
-
-                if (completedList.isNotEmpty()) {
-                    item {
-                        Text(
-                            text = stringResource(R.string.smart_installment_completed_badge),
-                            style = MaterialTheme.typography.labelMedium,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.outline,
-                            modifier = Modifier.padding(top = 8.dp, bottom = 4.dp),
-                        )
-                    }
-                    items(completedList, key = { it.id }) { item ->
+            if (installments.isEmpty()) {
+                EmptyStateCard(
+                    icon = Icons.Rounded.CreditCard,
+                    title = stringResource(R.string.smart_installments_empty_title),
+                    desc = stringResource(R.string.smart_installments_empty_desc),
+                )
+            } else {
+                LazyColumn(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(10.dp),
+                ) {
+                    items(activeInstallments, key = { it.id }) { item ->
                         InstallmentCard(
                             item = item,
                             currencyCode = currencyCode,
-                            onPayMonth = {},
-                            onDelete = { onDelete(item.id) },
+                            onPayMonth = { onPayInstallment(item.id) },
+                            onDelete = { onDeleteInstallment(item.id) },
+                        )
+                    }
+
+                    if (completedInstallments.isNotEmpty()) {
+                        item {
+                            Text(
+                                text = stringResource(R.string.smart_installment_completed_badge),
+                                style = MaterialTheme.typography.labelMedium,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.outline,
+                                modifier = Modifier.padding(top = 8.dp, bottom = 4.dp),
+                            )
+                        }
+                        items(completedInstallments, key = { it.id }) { item ->
+                            InstallmentCard(
+                                item = item,
+                                currencyCode = currencyCode,
+                                onPayMonth = {},
+                                onDelete = { onDeleteInstallment(item.id) },
+                            )
+                        }
+                    }
+                }
+            }
+        } else {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 4.dp),
+                horizontalArrangement = Arrangement.End
+            ) {
+                Button(
+                    onClick = { showAddGameyaDialog = true },
+                    shape = RoundedCornerShape(12.dp),
+                ) {
+                    Icon(Icons.Rounded.Add, contentDescription = null, modifier = Modifier.size(18.dp))
+                    Spacer(Modifier.width(6.dp))
+                    Text(stringResource(R.string.smart_gameya_btn_add))
+                }
+            }
+
+            if (gameyas.isEmpty()) {
+                EmptyStateCard(
+                    icon = Icons.Rounded.Groups,
+                    title = stringResource(R.string.smart_gameya_empty_title),
+                    desc = stringResource(R.string.smart_gameya_empty_desc),
+                )
+            } else {
+                LazyColumn(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(10.dp),
+                ) {
+                    items(gameyas, key = { it.id }) { item ->
+                        GameyaCard(
+                            item = item,
+                            currencyCode = currencyCode,
+                            onAdvanceMonth = { onAdvanceGameya(item.id) },
+                            onToggleCollected = { onToggleGameyaCollected(item.id) },
+                            onDelete = { onDeleteGameya(item.id) },
                         )
                     }
                 }
@@ -745,14 +815,25 @@ private fun InstallmentsTab(
         }
     }
 
-    if (showAddDialog) {
+    if (showAddInstallmentDialog) {
         AddInstallmentDialog(
             currencyCode = currencyCode,
             onConfirm = { item ->
-                onSave(item)
-                showAddDialog = false
+                onSaveInstallment(item)
+                showAddInstallmentDialog = false
             },
-            onDismiss = { showAddDialog = false },
+            onDismiss = { showAddInstallmentDialog = false },
+        )
+    }
+
+    if (showAddGameyaDialog) {
+        AddGameyaDialog(
+            currencyCode = currencyCode,
+            onConfirm = { item ->
+                onSaveGameya(item)
+                showAddGameyaDialog = false
+            },
+            onDismiss = { showAddGameyaDialog = false },
         )
     }
 }
@@ -876,102 +957,6 @@ private fun InstallmentCard(
     }
 }
 
-// ==========================================
-// 3. GAM'EYA TAB (الجمعيات الشهرية)
-// ==========================================
-@Composable
-private fun GameyaTab(
-    gameyas: List<GameyaItem>,
-    currencyCode: String,
-    onSave: (GameyaItem) -> Unit,
-    onAdvanceMonth: (String) -> Unit,
-    onToggleCollected: (String) -> Unit,
-    onDelete: (String) -> Unit,
-) {
-    var showAddDialog by remember { mutableStateOf(false) }
-
-    val activeList = gameyas.filter { !it.isCompleted }
-    val totalMonthlyShares = activeList.fold(BigDecimal.ZERO) { acc, item -> acc + item.monthlyShare }
-
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 20.dp),
-    ) {
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(18.dp),
-            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.45f)),
-        ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Column {
-                    Text(
-                        text = stringResource(R.string.smart_gameya_total_monthly),
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.outline,
-                    )
-                    Text(
-                        text = "${totalMonthlyShares.toPlainString()} $currencyCode",
-                        style = MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onTertiaryContainer,
-                    )
-                }
-
-                Button(
-                    onClick = { showAddDialog = true },
-                    shape = RoundedCornerShape(12.dp),
-                ) {
-                    Icon(Icons.Rounded.Add, contentDescription = null, modifier = Modifier.size(18.dp))
-                    Spacer(Modifier.width(6.dp))
-                    Text(stringResource(R.string.smart_gameya_btn_add))
-                }
-            }
-        }
-
-        Spacer(modifier = Modifier.height(14.dp))
-
-        if (gameyas.isEmpty()) {
-            EmptyStateCard(
-                icon = Icons.Rounded.Groups,
-                title = stringResource(R.string.smart_gameya_empty_title),
-                desc = stringResource(R.string.smart_gameya_empty_desc),
-            )
-        } else {
-            LazyColumn(
-                modifier = Modifier.fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(10.dp),
-            ) {
-                items(gameyas, key = { it.id }) { item ->
-                    GameyaCard(
-                        item = item,
-                        currencyCode = currencyCode,
-                        onAdvanceMonth = { onAdvanceMonth(item.id) },
-                        onToggleCollected = { onToggleCollected(item.id) },
-                        onDelete = { onDelete(item.id) },
-                    )
-                }
-            }
-        }
-    }
-
-    if (showAddDialog) {
-        AddGameyaDialog(
-            currencyCode = currencyCode,
-            onConfirm = { item ->
-                onSave(item)
-                showAddDialog = false
-            },
-            onDismiss = { showAddDialog = false },
-        )
-    }
-}
 
 @Composable
 private fun GameyaCard(
@@ -1083,211 +1068,6 @@ private fun GameyaCard(
     }
 }
 
-// ==========================================
-// 4. GOLD & ZAKAT TAB (الذهب والزكاة)
-// ==========================================
-@Composable
-private fun GoldZakatTab(
-    goldPortfolio: GoldPortfolio,
-    zakatSettings: ZakatState,
-    remainingBudget: BigDecimal,
-    currencyCode: String,
-    onSaveGold: (GoldPortfolio) -> Unit,
-    onSaveZakat: (ZakatState) -> Unit,
-) {
-    var grams21 by remember(goldPortfolio) { mutableStateOf(goldPortfolio.grams21k.takeIf { it > BigDecimal.ZERO }?.toPlainString() ?: "") }
-    var grams24 by remember(goldPortfolio) { mutableStateOf(goldPortfolio.grams24k.takeIf { it > BigDecimal.ZERO }?.toPlainString() ?: "") }
-    var coins by remember(goldPortfolio) { mutableStateOf(goldPortfolio.goldCoins.takeIf { it > 0 }?.toString() ?: "") }
-    var price21 by remember(goldPortfolio) { mutableStateOf(goldPortfolio.currentPricePerGram21k.takeIf { it > BigDecimal.ZERO }?.toPlainString() ?: "") }
-    var hawlCompleted by remember(zakatSettings) { mutableStateOf(zakatSettings.isHawlCompleted) }
-
-    val currentPriceBd = price21.toBigDecimalOrNull() ?: BigDecimal.ZERO
-    val currentGold = GoldPortfolio(
-        grams21k = grams21.toBigDecimalOrNull() ?: BigDecimal.ZERO,
-        grams24k = grams24.toBigDecimalOrNull() ?: BigDecimal.ZERO,
-        goldCoins = coins.toIntOrNull() ?: 0,
-        currentPricePerGram21k = currentPriceBd,
-    )
-
-    val zakatResult = com.wafeer.app.domain.model.smart.ZakatCalculator.calculate(
-        liquidCash = remainingBudget,
-        goldHoldingsValue = currentGold.currentTotalMarketValue,
-        goldPrice21k = currentPriceBd,
-        customNisab = zakatSettings.customNisabAmount,
-        isHawlCompleted = hawlCompleted,
-    )
-
-    LazyColumn(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 20.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp),
-    ) {
-        // Gold Holdings Card
-        item {
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(20.dp),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.8f)),
-            ) {
-                Column(modifier = Modifier.padding(16.dp)) {
-                    Text(
-                        text = stringResource(R.string.smart_gold_title),
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold,
-                    )
-                    Text(
-                        text = stringResource(R.string.smart_gold_subtitle),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.outline,
-                    )
-
-                    Spacer(modifier = Modifier.height(12.dp))
-
-                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        OutlinedTextField(
-                            value = grams21,
-                            onValueChange = { grams21 = it },
-                            label = { Text(stringResource(R.string.smart_gold_grams_21_label)) },
-                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                            shape = RoundedCornerShape(12.dp),
-                            modifier = Modifier.weight(1f),
-                            singleLine = true,
-                        )
-                        OutlinedTextField(
-                            value = grams24,
-                            onValueChange = { grams24 = it },
-                            label = { Text(stringResource(R.string.smart_gold_grams_24_label)) },
-                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                            shape = RoundedCornerShape(12.dp),
-                            modifier = Modifier.weight(1f),
-                            singleLine = true,
-                        )
-                    }
-
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        OutlinedTextField(
-                            value = coins,
-                            onValueChange = { coins = it },
-                            label = { Text(stringResource(R.string.smart_gold_coins_label)) },
-                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                            shape = RoundedCornerShape(12.dp),
-                            modifier = Modifier.weight(1f),
-                            singleLine = true,
-                        )
-                        OutlinedTextField(
-                            value = price21,
-                            onValueChange = { price21 = it },
-                            label = { Text(stringResource(R.string.smart_gold_price_21_label, currencyCode)) },
-                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                            shape = RoundedCornerShape(12.dp),
-                            modifier = Modifier.weight(1f),
-                            singleLine = true,
-                        )
-                    }
-
-                    Spacer(modifier = Modifier.height(12.dp))
-
-                    Text(
-                        text = stringResource(R.string.smart_gold_total_weight, currentGold.totalEquivalent21kGrams.setScale(2, RoundingMode.HALF_UP).toPlainString()),
-                        style = MaterialTheme.typography.bodyMedium,
-                        fontWeight = FontWeight.SemiBold,
-                    )
-                    Text(
-                        text = stringResource(R.string.smart_gold_market_value, currentGold.currentTotalMarketValue.setScale(2, RoundingMode.HALF_UP).toPlainString(), currencyCode),
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.primary,
-                    )
-
-                    Spacer(modifier = Modifier.height(10.dp))
-
-                    Button(
-                        onClick = {
-                            onSaveGold(currentGold)
-                            onSaveZakat(zakatSettings.copy(goldPriceForNisab = currentPriceBd, isHawlCompleted = hawlCompleted))
-                        },
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(12.dp),
-                    ) {
-                        Text(stringResource(R.string.smart_gold_btn_save))
-                    }
-                }
-            }
-        }
-
-        // Zakat Card
-        item {
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(20.dp),
-                colors = CardDefaults.cardColors(
-                    containerColor = if (zakatResult.isEligible) Color(0xFF2E7D32).copy(alpha = 0.12f)
-                    else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
-                ),
-            ) {
-                Column(modifier = Modifier.padding(16.dp)) {
-                    Text(
-                        text = stringResource(R.string.smart_zakat_title),
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold,
-                    )
-                    Text(
-                        text = stringResource(R.string.smart_zakat_subtitle),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.outline,
-                    )
-
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    Text(
-                        text = stringResource(R.string.smart_zakat_nisab_info, zakatResult.nisabThreshold.toPlainString(), currencyCode),
-                        style = MaterialTheme.typography.bodySmall,
-                    )
-
-                    Spacer(modifier = Modifier.height(10.dp))
-
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.fillMaxWidth(),
-                    ) {
-                        Checkbox(
-                            checked = hawlCompleted,
-                            onCheckedChange = {
-                                hawlCompleted = it
-                                onSaveZakat(zakatSettings.copy(isHawlCompleted = it))
-                            },
-                        )
-                        Spacer(Modifier.width(6.dp))
-                        Text(
-                            text = stringResource(R.string.smart_zakat_hawl_checkbox),
-                            style = MaterialTheme.typography.bodyMedium,
-                        )
-                    }
-
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    if (zakatResult.isEligible) {
-                        Text(
-                            text = stringResource(R.string.smart_zakat_eligible_badge, zakatResult.zakatDue.toPlainString(), currencyCode),
-                            style = MaterialTheme.typography.titleSmall,
-                            fontWeight = FontWeight.Bold,
-                            color = Color(0xFF2E7D32),
-                        )
-                    } else {
-                        Text(
-                            text = stringResource(R.string.smart_zakat_not_eligible_badge),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.outline,
-                        )
-                    }
-                }
-            }
-        }
-    }
-}
 
 // ==========================================
 // 5. WALLET / INSTAPAY PARSER TAB

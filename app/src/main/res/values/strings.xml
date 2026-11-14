@@ -1210,6 +1210,20 @@
     <string name="smart_wallet_btn_clear">مسح النص</string>
     <string name="smart_wallet_unrecognized">لم يتم التعرف على تفاصيل عملية تحويل واضحة في النص المدخل.</string>
 
+    <!-- Smart Commitments & Budget Integration -->
+    <string name="smart_tab_commitments">الالتزامات والميزانية</string>
+    <string name="smart_commitments_header_title">خصم الالتزامات الشهرية</string>
+    <string name="smart_commitments_deduction_desc">يخصم مباشرة من ميزانية الشهر</string>
+    <string name="smart_commitments_net_remaining">صافي الميزانية بعد الالتزامات</string>
+    <string name="smart_commitments_sub_installments">الأقساط (%1$d)</string>
+    <string name="smart_commitments_sub_gameya">الجمعيات (%1$d)</string>
+    <string name="smart_commitments_installments_part">أقساط: %1$s %2$s</string>
+    <string name="smart_commitments_gameya_part">جمعيات: %1$s %2$s</string>
+
+    <!-- Editor Empty State -->
+    <string name="editor_empty_state_title">بداية هادئة وجديدة</string>
+    <string name="editor_empty_state_desc">سجّل أول مصروف لك من لوحة الأرقام بالأسفل. وفير يعمل بدون إنترنت وجميع أرقامك آمنة ومحلية 100%.</string>
+
     <!-- About & Credits -->
     <string name="about_app_title">تطبيق وفير</string>
     <string name="about_app_version">الإصدار: v%1$s</string>

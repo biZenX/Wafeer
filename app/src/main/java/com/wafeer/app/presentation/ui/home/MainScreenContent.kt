@@ -1253,26 +1253,7 @@ private fun ReceiptCameraHost(
     selectedViewPeriod: BudgetPeriod?,
     startHeightPx: Float,
 ) {
-    if (scanner == null) return
-    com.wafeer.app.presentation.ui.editor.receipt.ReceiptCameraSheet(
-        visible = scanner.isOpen,
-        state = scanner.camera,
-        startHeightPx = startHeightPx,
-        budgetState = budgetUiState.budgetState,
-        viewPeriod = selectedViewPeriod ?: BudgetPeriod.DAILY,
-        splitMode = budgetUiState.budgetSettings?.splitMode ?: com.wafeer.app.domain.model.BudgetSplitMode.DYNAMIC,
-        currencyCode = budgetUiState.budgetSettings?.currencyCode ?: "USD",
-        onClose = scanner.close,
-        onCapture = scanner.capture,
-        onPickImage = scanner.pickImage,
-        onSwitchCamera = scanner.switchCamera,
-        onToggleTorch = scanner.toggleTorch,
-        onToggleScanMode = scanner.toggleScanMode,
-        onSwitchToQrMode = scanner.switchToQrMode,
-        onDismissQrPrompt = scanner.dismissQrPrompt,
-        cameraPreview = scanner.preview,
-        modifier = Modifier.zIndex(2f),
-    )
+    // OCR camera scanner disabled to ensure ultra-fast, offline, clutter-free user experience
 }
 
 @Composable
@@ -1460,7 +1441,7 @@ private fun MainScreenNumpadSection(
             )
         },
         onShowSnackbar = actions.onShowSnackbar,
-        onApplyLongPress = if (choosingLeftover) null else actions.receiptScanner?.launch,
+        onApplyLongPress = null,
         onTestNotifications = {
             actions.onProcessIntent(
                 MainScreenUiIntent.ProcessBudgetNumpadIntent(
@@ -1493,7 +1474,7 @@ private fun MainScreenEditorSection(
     onNavigateToSettings: () -> Unit = {},
     onNavigateToAnalytics: () -> Unit = {},
     onOpenSmartTools: () -> Unit = {},
-    onOpenReceiptScanner: (() -> Unit)? = actions.receiptScanner?.launch,
+    onOpenReceiptScanner: (() -> Unit)? = null,
     openWalletOnStart: Boolean = false,
     tutorialBoxState: TutorialBoxState? = null,
     showAnalyticsButton: Boolean = true,
@@ -1511,7 +1492,7 @@ private fun MainScreenEditorSection(
         onOpenSettings = onNavigateToSettings,
         onOpenAnalytics = onNavigateToAnalytics,
         onOpenSmartTools = onOpenSmartTools,
-        onOpenReceiptScanner = onOpenReceiptScanner,
+        onOpenReceiptScanner = null,
         onUnresolvedSurplusBannerClick = actions.onUnresolvedSurplusBannerClick,
         onPendingLeftoverClick = { budgetPeriodState.onLeftoverChoiceVisible(true) },
         leftoverChoiceOpen = budgetPeriodState.showLeftoverChoice,

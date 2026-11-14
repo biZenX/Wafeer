@@ -345,24 +345,6 @@ fun Editor(
                         modifier = Modifier.fillMaxHeight(),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        if (onOpenReceiptScanner != null) {
-                            IconButton(
-                                onClick = {
-                                    onOpenReceiptScanner()
-                                    view.weakHapticFeedback()
-                                },
-                                modifier = Modifier.size(40.dp),
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Rounded.DocumentScanner,
-                                    contentDescription = stringResource(R.string.receipt_scan_button),
-                                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    modifier = Modifier.size(24.dp),
-                                )
-                            }
-                            Spacer(Modifier.width(4.dp))
-                        }
-
                         val walletDescription = stringResource(R.string.wallet_mode_tooltip)
                         val recurrentDescription = "Recurrent payment"
                         val creditDescription = "Credit card payment"
@@ -605,23 +587,6 @@ fun Editor(
                     }
                 } else {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        if (onOpenReceiptScanner != null) {
-                            IconButton(
-                                onClick = {
-                                    onOpenReceiptScanner()
-                                    view.weakHapticFeedback()
-                                },
-                                modifier = Modifier.size(48.dp),
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Rounded.DocumentScanner,
-                                    contentDescription = stringResource(R.string.receipt_scan_button),
-                                    tint = MaterialTheme.colorScheme.onSurface,
-                                    modifier = Modifier.size(26.dp),
-                                )
-                            }
-                        }
-
                         IconButton(
                             onClick = {
                                 onOpenSmartTools()
@@ -1678,7 +1643,67 @@ private fun IdleContent(
                     }
                 }
             } else {
-                Spacer(modifier = Modifier.weight(1f))
+                val isZeroDataFirstLaunch = uiState.transactions.none { !it.isDeleted } &&
+                        (budgetState == null || (budgetState.totalSpentInPeriod == BigDecimal.ZERO && budgetState.totalSpentToday == BigDecimal.ZERO))
+
+                if (isZeroDataFirstLaunch) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .weight(1f),
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                    ) {
+                        Surface(
+                            shape = RoundedCornerShape(24.dp),
+                            color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.45f),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 12.dp)
+                        ) {
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 20.dp, vertical = 22.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.spacedBy(10.dp)
+                            ) {
+                                Box(
+                                    modifier = Modifier
+                                        .size(46.dp)
+                                        .background(
+                                            color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.65f),
+                                            shape = CircleShape
+                                        ),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Rounded.AccountBalanceWallet,
+                                        contentDescription = null,
+                                        tint = MaterialTheme.colorScheme.primary,
+                                        modifier = Modifier.size(24.dp)
+                                    )
+                                }
+                                Text(
+                                    text = stringResource(R.string.editor_empty_state_title),
+                                    style = MaterialTheme.typography.titleMedium,
+                                    fontWeight = FontWeight.Bold,
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                    textAlign = TextAlign.Center
+                                )
+                                Text(
+                                    text = stringResource(R.string.editor_empty_state_desc),
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    textAlign = TextAlign.Center,
+                                    lineHeight = 18.sp
+                                )
+                            }
+                        }
+                    }
+                } else {
+                    Spacer(modifier = Modifier.weight(1f))
+                }
             }
 
             Column(

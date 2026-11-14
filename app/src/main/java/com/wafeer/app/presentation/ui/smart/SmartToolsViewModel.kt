@@ -5,15 +5,11 @@ import androidx.lifecycle.viewModelScope
 import com.wafeer.app.data.repository.SmartToolsRepository
 import com.wafeer.app.domain.model.smart.AffordabilityCalculation
 import com.wafeer.app.domain.model.smart.GameyaItem
-import com.wafeer.app.domain.model.smart.GoldPortfolio
 import com.wafeer.app.domain.model.smart.InstallmentItem
 import com.wafeer.app.domain.model.smart.MicroGoal
 import com.wafeer.app.domain.model.smart.ParsedWalletTransfer
 import com.wafeer.app.domain.model.smart.WalletTransferParser
 import com.wafeer.app.domain.model.smart.WishlistItem
-import com.wafeer.app.domain.model.smart.ZakatCalculator
-import com.wafeer.app.domain.model.smart.ZakatResult
-import com.wafeer.app.domain.model.smart.ZakatState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -27,9 +23,7 @@ import javax.inject.Inject
 
 enum class SmartToolTab {
     CALCULATOR,
-    INSTALLMENTS,
-    GAMEYA,
-    GOLD_ZAKAT,
+    COMMITMENTS,
     WALLET_PARSER,
     MICRO_GOALS,
     WISHLIST_48H,
@@ -42,8 +36,6 @@ data class SmartToolsUiState(
     val wishlist: List<WishlistItem> = emptyList(),
     val installments: List<InstallmentItem> = emptyList(),
     val gameyas: List<GameyaItem> = emptyList(),
-    val goldPortfolio: GoldPortfolio = GoldPortfolio(),
-    val zakatSettings: ZakatState = ZakatState(),
     val totalWishlistSavings: BigDecimal = BigDecimal.ZERO,
     val funFundRatio: Float = 15f,
     val calculationInputPrice: String = "",
@@ -59,16 +51,8 @@ data class SmartToolsUiState(
         get() = gameyas.filter { !it.isCompleted }
             .fold(BigDecimal.ZERO) { acc, item -> acc + item.monthlyShare }
 
-    fun calculateZakat(liquidCash: BigDecimal): ZakatResult {
-        return ZakatCalculator.calculate(
-            liquidCash = liquidCash,
-            goldHoldingsValue = goldPortfolio.currentTotalMarketValue,
-            goldPrice21k = zakatSettings.goldPriceForNisab.takeIf { it > BigDecimal.ZERO }
-                ?: goldPortfolio.currentPricePerGram21k,
-            customNisab = zakatSettings.customNisabAmount,
-            isHawlCompleted = zakatSettings.isHawlCompleted,
-        )
-    }
+    val totalMonthlyCommitments: BigDecimal
+        get() = totalMonthlyInstallments + totalMonthlyGameyaShares
 }
 
 @HiltViewModel
@@ -92,8 +76,6 @@ class SmartToolsViewModel @Inject constructor(
     private data class StreamBatchB(
         val installments: List<InstallmentItem>,
         val gameyas: List<GameyaItem>,
-        val gold: GoldPortfolio,
-        val zakat: ZakatState,
     )
 
     private val batchAFlow = combine(
@@ -108,10 +90,8 @@ class SmartToolsViewModel @Inject constructor(
     private val batchBFlow = combine(
         repository.observeInstallments(),
         repository.observeGameyas(),
-        repository.observeGoldPortfolio(),
-        repository.observeZakatSettings(),
-    ) { installments, gameyas, gold, zakat ->
-        StreamBatchB(installments, gameyas, gold, zakat)
+    ) { installments, gameyas ->
+        StreamBatchB(installments, gameyas)
     }
 
     val uiState: StateFlow<SmartToolsUiState> = combine(
@@ -126,8 +106,6 @@ class SmartToolsViewModel @Inject constructor(
             wishlist = batchA.wishlist,
             installments = batchB.installments,
             gameyas = batchB.gameyas,
-            goldPortfolio = batchB.gold,
-            zakatSettings = batchB.zakat,
             totalWishlistSavings = batchA.savings,
             funFundRatio = batchA.funRatio,
             calculationInputPrice = priceInput,
@@ -261,20 +239,6 @@ class SmartToolsViewModel @Inject constructor(
     fun deleteGameya(id: String) {
         viewModelScope.launch {
             repository.deleteGameya(id)
-        }
-    }
-
-    // --- Gold Portfolio ---
-    fun saveGoldPortfolio(portfolio: GoldPortfolio) {
-        viewModelScope.launch {
-            repository.saveGoldPortfolio(portfolio)
-        }
-    }
-
-    // --- Zakat ---
-    fun saveZakatSettings(state: ZakatState) {
-        viewModelScope.launch {
-            repository.saveZakatSettings(state)
         }
     }
 

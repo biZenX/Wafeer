@@ -1179,6 +1179,20 @@
     <string name="smart_wallet_btn_clear">Clear</string>
     <string name="smart_wallet_unrecognized">No valid wallet transfer was recognized in the entered text.</string>
 
+    <!-- Smart Commitments & Budget Integration -->
+    <string name="smart_tab_commitments">Commitments &amp; Budget</string>
+    <string name="smart_commitments_header_title">Monthly Budget Commitments</string>
+    <string name="smart_commitments_deduction_desc">Directly deducted from monthly budget</string>
+    <string name="smart_commitments_net_remaining">Net budget after commitments</string>
+    <string name="smart_commitments_sub_installments">Installments (%1$d)</string>
+    <string name="smart_commitments_sub_gameya">Gam\'eya (%1$d)</string>
+    <string name="smart_commitments_installments_part">Installments: %1$s %2$s</string>
+    <string name="smart_commitments_gameya_part">Gam\'eya: %1$s %2$s</string>
+
+    <!-- Editor Empty State -->
+    <string name="editor_empty_state_title">A calm, fresh start</string>
+    <string name="editor_empty_state_desc">Log your first expense from the keypad below. Wafeer works 100% offline and your data stays strictly local.</string>
+
     <!-- About & Credits -->
     <string name="about_app_title">Wafeer</string>
     <string name="about_app_version">Version: v%1$s</string>
