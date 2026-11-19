@@ -3,4 +3,4 @@
 - feat: instant transaction search with date range, amount, and category filters
 - feat: custom spending limits and visual threshold alerts per category
 - fix: seamless mandatory upgrade compatibility across all Android versions
-- fix: optimal runtime stability with hardened dependency injection
+- fix: fixed startup crash and optimized overall performance

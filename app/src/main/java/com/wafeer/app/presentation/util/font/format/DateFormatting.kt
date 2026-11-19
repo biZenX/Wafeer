@@ -244,3 +244,20 @@ fun calculateDaysToCutoff(cutoffDay: Int, fromDate: LocalDate = LocalDate.now())
     }
 }
 
+
+fun LocalDate.formatLocalized(pattern: String, locale: Locale = Locale.getDefault()): String =
+    try {
+        format(DateTimeFormatter.ofPattern(pattern, locale))
+    } catch (_: Exception) {
+        toString()
+    }
+
+fun LocalDateTime.formatLocalized(pattern: String, locale: Locale = Locale.getDefault()): String =
+    try {
+        format(DateTimeFormatter.ofPattern(pattern, locale))
+    } catch (_: Exception) {
+        toString()
+    }
+
+fun localizedFormatter(pattern: String, locale: Locale = Locale.getDefault()): (LocalDate) -> String =
+    { it.formatLocalized(pattern, locale) }

@@ -344,6 +344,7 @@ class NotificationScheduler @Inject constructor(
         val billingDay = transaction.subscriptionDay ?: startDate.dayOfMonth
 
         fun advance(from: LocalDate): LocalDate = when (frequency) {
+            RecurrentFrequency.ONCE -> from.plusYears(100)
             RecurrentFrequency.WEEKLY -> from.plusWeeks(1)
             RecurrentFrequency.BIWEEKLY -> from.plusWeeks(2)
             RecurrentFrequency.MONTHLY -> nextMonthlyOccurrence(
@@ -354,6 +355,7 @@ class NotificationScheduler @Inject constructor(
         }
 
         var occurrenceDate = when (frequency) {
+            RecurrentFrequency.ONCE -> startDate
             RecurrentFrequency.WEEKLY -> nextSteppedOccurrence(startDate, now.toLocalDate(), 7)
             RecurrentFrequency.BIWEEKLY -> nextSteppedOccurrence(startDate, now.toLocalDate(), 14)
             RecurrentFrequency.MONTHLY -> nextMonthlyOccurrence(

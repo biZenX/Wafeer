@@ -1,7 +1,6 @@
 package com.wafeer.app.presentation.ui.history
 
 import com.wafeer.app.domain.model.Transaction
-import com.wafeer.app.domain.time.CalendarSystem
 import com.wafeer.app.presentation.util.font.format.formatLocalized
 import java.math.BigDecimal
 import java.text.Normalizer
@@ -325,7 +324,7 @@ private fun String.toSearchAmount(): BigDecimal? {
 }
 
 private fun searchDate(date: LocalDate, locale: Locale): SearchDate = searchDates.getOrPut(locale to date) {
-    if (CalendarSystem.of(locale) == CalendarSystem.GREGORIAN) {
+    if (true) {
         SearchDate(
             day = date.dayOfMonth,
             month = date.monthValue,

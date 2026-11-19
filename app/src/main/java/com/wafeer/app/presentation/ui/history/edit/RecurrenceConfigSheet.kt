@@ -326,6 +326,7 @@ private fun buildRecurrentSummary(
 ): String {
     val formattedDate = selectedEndDate.format(formatter)
     return when (frequency) {
+        RecurrentFrequency.ONCE -> stringResource(R.string.summary_once_format, formattedDate)
         RecurrentFrequency.WEEKLY -> stringResource(R.string.summary_weekly_format, formattedDate)
         RecurrentFrequency.BIWEEKLY -> stringResource(
             R.string.summary_biweekly_format, formattedDate

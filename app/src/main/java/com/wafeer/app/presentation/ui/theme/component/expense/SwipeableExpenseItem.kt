@@ -99,6 +99,8 @@ fun SwipeableExpenseItem(
                 sharedTransitionScope = sharedTransitionScope,
                 animatedVisibilityScope = animatedVisibilityScope,
                 creditCardCutoffDay = creditCardCutoffDay,
+                highlightRanges = highlightRanges,
+                highlightAmount = highlightAmount,
             )
         }
     } else {
@@ -141,6 +143,8 @@ fun SwipeableExpenseItem(
                 sharedTransitionScope = sharedTransitionScope,
                 animatedVisibilityScope = animatedVisibilityScope,
                 creditCardCutoffDay = creditCardCutoffDay,
+                highlightRanges = highlightRanges,
+                highlightAmount = highlightAmount,
             )
         }
 
@@ -237,8 +241,6 @@ fun SwipeableUpcomingRecurrentItem(
             sharedTransitionScope = sharedTransitionScope,
             animatedVisibilityScope = animatedVisibilityScope,
             creditCardCutoffDay = creditCardCutoffDay,
-            highlightRanges = highlightRanges,
-            highlightAmount = highlightAmount,
         )
     }
 }

@@ -193,8 +193,6 @@ fun History(
                         isCreditQuickToggleEnabled = uiState.isCreditQuickToggleEnabled,
                         isExtraNoteEnabled = uiState.isExtraNoteEnabled,
                         creditCardCutoffDay = uiState.budgetSettings?.creditCardCutoffDay,
-                searchQuery = uiState.searchQuery,
-                searchHighlight = searchHighlight,
                         onUpdateCreditCutoffDay = { day -> onProcessIntent(HistoryUiIntent.UpdateCreditCutoffDay(day)) },
                         sharedTransitionScope = sharedTransitionScope,
                         animatedVisibilityScope = this@AnimatedContent,
@@ -264,8 +262,6 @@ fun History(
             isCreditQuickToggleEnabled = uiState.isCreditQuickToggleEnabled,
             isExtraNoteEnabled = uiState.isExtraNoteEnabled,
             creditCardCutoffDay = uiState.budgetSettings?.creditCardCutoffDay,
-                searchQuery = uiState.searchQuery,
-                searchHighlight = searchHighlight,
             onUpdateCreditCutoffDay = { day -> onProcessIntent(HistoryUiIntent.UpdateCreditCutoffDay(day)) },
             onCancel = { onProcessIntent(HistoryUiIntent.SetEditingTransaction(null)) },
             onSave = { expense ->
@@ -438,8 +434,6 @@ private fun HistoryListContent(
                 sharedTransitionScope = sharedTransitionScope,
                 animatedVisibilityScope = animatedVisibilityScope,
                 creditCardCutoffDay = uiState.budgetSettings?.creditCardCutoffDay,
-                searchQuery = uiState.searchQuery,
-                searchHighlight = searchHighlight,
             )
 
             transactionDateSections(
@@ -511,8 +505,6 @@ private fun HistoryListContent(
                 sharedTransitionScope = sharedTransitionScope,
                 animatedVisibilityScope = animatedVisibilityScope,
                 creditCardCutoffDay = uiState.budgetSettings?.creditCardCutoffDay,
-                searchQuery = uiState.searchQuery,
-                searchHighlight = searchHighlight,
             )
 
             if (uiState.showPastTransactionsSetting) {
@@ -566,8 +558,6 @@ private fun HistoryListContent(
                     sharedTransitionScope = sharedTransitionScope,
                     animatedVisibilityScope = animatedVisibilityScope,
                     creditCardCutoffDay = uiState.budgetSettings?.creditCardCutoffDay,
-                searchQuery = uiState.searchQuery,
-                searchHighlight = searchHighlight,
                 )
             }
 

@@ -41,7 +41,7 @@ import java.text.NumberFormat
 import java.time.LocalDate
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.ui.tooling.preview.Preview
-import com.wafeer.app.presentation.ui.theme.MinusTheme
+import com.wafeer.app.presentation.ui.theme.WafeerTheme
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.PreviewLightDark
@@ -207,7 +207,7 @@ private fun TransactionDateSectionsPreview() {
         date = today.atStartOfDay(),
         isDeleted = false,
     )
-    MinusTheme {
+    WafeerTheme {
         LazyColumn(modifier = Modifier.fillMaxSize()) {
             transactionDateSections(
                 groupedTransactions = mapOf(today to listOf(tx)),

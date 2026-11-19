@@ -59,10 +59,8 @@ import com.wafeer.app.domain.model.BudgetPeriod
 import com.wafeer.app.domain.model.BudgetSettings
 import com.wafeer.app.domain.model.BudgetState
 import com.wafeer.app.domain.model.RecurrentFrequency
-import com.wafeer.app.domain.time.CalendarSystem
 import com.wafeer.app.presentation.ui.theme.WafeerTheme
 import com.wafeer.app.presentation.ui.theme.bodySmallCondensed
-import com.wafeer.app.presentation.ui.theme.component.date.PersianDateCaption
 import com.wafeer.app.presentation.ui.theme.labelMediumCondensed
 import com.wafeer.app.presentation.util.font.format.formatCurrencySymbolOnly
 import com.wafeer.app.presentation.util.font.format.localizedFormatter
@@ -89,7 +87,7 @@ fun RecurrentExpenseDialog(
 
     var selectedFrequency by remember { mutableStateOf(initialFrequency) }
     var selectedDay by remember {
-        mutableIntStateOf(CalendarSystem.current().dayOfMonth(today).coerceIn(MinSubscriptionDay, MaxSubscriptionDay))
+        mutableIntStateOf(today.dayOfMonth.coerceIn(MinSubscriptionDay, MaxSubscriptionDay))
     }
 
     var showDatePicker by remember { mutableStateOf(false) }
@@ -134,7 +132,7 @@ fun RecurrentExpenseDialog(
             }
         }) {
             DatePicker(state = datePickerState)
-            PersianDateCaption(datePickerState.selectedDateMillis)
+            
         }
     }
 

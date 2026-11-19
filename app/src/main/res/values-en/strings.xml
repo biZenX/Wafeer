@@ -1264,4 +1264,9 @@
     <string name="pockets_action_failed">Couldn\'t update the pocket. Try again.</string>
     <string name="rollover_dialog_save_to_pocket_title">Save to %1$s</string>
     <string name="rollover_dialog_save_to_pocket_desc">Put %1$s aside in this pocket</string>
+
+    <string name="pockets_period_title">Savings this period</string>
+    <string name="pockets_period_added">You set aside %1$s into your pockets.</string>
+    <string name="pockets_period_withdrawn">You took %1$s out of your pockets.</string>
+    <string name="pockets_period_added_and_withdrawn">You set aside %1$s and took out %2$s.</string>
 </resources>

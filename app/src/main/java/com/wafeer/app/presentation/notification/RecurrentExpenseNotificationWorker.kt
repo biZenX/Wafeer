@@ -276,6 +276,7 @@ class RecurrentExpenseNotificationWorker(
         }
 
         return when (frequency) {
+            RecurrentFrequency.ONCE -> today == startDate
             RecurrentFrequency.WEEKLY -> {
                 val daysBetween = ChronoUnit.DAYS.between(startDate, today).toInt()
                 daysBetween >= 0 && daysBetween % 7 == 0

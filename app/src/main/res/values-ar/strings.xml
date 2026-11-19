@@ -1273,4 +1273,9 @@
     <string name="pockets_action_failed">تعذر تحديث الجيب. حاول مجدداً.</string>
     <string name="rollover_dialog_save_to_pocket_title">ادخار في %1$s</string>
     <string name="rollover_dialog_save_to_pocket_desc">وضع %1$s جانباً في هذا الجيب</string>
+
+    <string name="pockets_period_title">الادخار في هذه الدورة</string>
+    <string name="pockets_period_added">قمت بادخار %1$s في جيوبك الادخارية.</string>
+    <string name="pockets_period_withdrawn">قمت بسحب %1$s من جيوبك الادخارية.</string>
+    <string name="pockets_period_added_and_withdrawn">قمت بادخار %1$s وسحب %2$s من جيوبك الادخارية.</string>
 </resources>

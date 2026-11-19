@@ -102,6 +102,7 @@ fun RolloverDialog(
     onCarryToNextDay: () -> Unit,
     onDismiss: () -> Unit,
     onDiscardRemaining: (() -> Unit)? = null,
+    onViewAnalytics: () -> Unit = {},
     pockets: List<SavingsPocket> = emptyList(),
     onSaveToPocket: (SavingsPocket) -> Unit = {},
 ) {
@@ -147,6 +148,7 @@ private fun RolloverDialogContent(
     onCarryToNextDay: () -> Unit,
     onDismiss: () -> Unit,
     onDiscardRemaining: (() -> Unit)? = null,
+    onViewAnalytics: () -> Unit = {},
     pockets: List<SavingsPocket> = emptyList(),
     onSaveToPocket: (SavingsPocket) -> Unit = {},
 ) {

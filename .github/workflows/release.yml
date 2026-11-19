@@ -159,9 +159,9 @@ jobs:
           ar_path, en_path, ver_tag, out_file = sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4]
 
           def parse_items(p):
-              features, improvements, fixes = [], [], []
+              items = []
               if not os.path.exists(p):
-                  return features, improvements, fixes
+                  return items
               with open(p, "r", encoding="utf-8") as f:
                   for raw in f:
                       line = raw.strip()
@@ -170,55 +170,35 @@ jobs:
                       content = line[2:].strip()
                       lower = content.lower()
                       if lower.startswith("feat:") or lower.startswith("feature:"):
-                          features.append(content.split(":", 1)[1].strip())
-                      elif lower.startswith("improve:") or lower.startswith("perf:"):
-                          improvements.append(content.split(":", 1)[1].strip())
+                          items.append(content.split(":", 1)[1].strip())
                       elif lower.startswith("fix:") or lower.startswith("bug:"):
-                          fixes.append(content.split(":", 1)[1].strip())
+                          items.append(content.split(":", 1)[1].strip())
+                      elif lower.startswith("improve:") or lower.startswith("perf:"):
+                          items.append(content.split(":", 1)[1].strip())
                       else:
-                          improvements.append(content)
-              return features, improvements, fixes
+                          items.append(content)
+              return items
 
-          ar_f, ar_i, ar_x = parse_items(ar_path)
-          en_f, en_i, en_x = parse_items(en_path)
+          ar_items = parse_items(ar_path)
+          en_items = parse_items(en_path)
 
           lines = [f"# Wafeer {ver_tag} • وفير {ver_tag}", ""]
 
-          if ar_f or ar_i or ar_x:
-              lines.append("## مميزات التحديث (العربية)")
+          if ar_items:
+              lines.append("## ما الجديد:")
+              for it in ar_items:
+                  lines.append(f"- {it}")
               lines.append("")
-              if ar_f:
-                  lines.append("### الميزات الجديدة")
-                  lines.extend(f"- {x}" for x in ar_f)
-                  lines.append("")
-              if ar_i:
-                  lines.append("### التحسينات العامة")
-                  lines.extend(f"- {x}" for x in ar_i)
-                  lines.append("")
-              if ar_x:
-                  lines.append("### الإصلاحات والاستقرار")
-                  lines.extend(f"- {x}" for x in ar_x)
-                  lines.append("")
               lines.append("---")
               lines.append("")
 
-          lines.append("## Release Notes (English)")
-          lines.append("")
-          if en_f:
-              lines.append("### Major Features")
-              lines.extend(f"- {x}" for x in en_f)
-              lines.append("")
-          if en_i:
-              lines.append("### Improvements")
-              lines.extend(f"- {x}" for x in en_i)
-              lines.append("")
-          if en_x:
-              lines.append("### Fixes & Stability")
-              lines.extend(f"- {x}" for x in en_x)
+          if en_items:
+              lines.append("## What's New:")
+              for it in en_items:
+                  lines.append(f"- {it}")
               lines.append("")
 
-          if not (en_f or en_i or en_x) and not (ar_f or ar_i or ar_x):
-              lines.append("### Improvements")
+          if not ar_items and not en_items:
               lines.append("- General improvements and bug fixes.")
 
           with open(out_file, "w", encoding="utf-8") as out:
