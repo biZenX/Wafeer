@@ -22,7 +22,8 @@ data class Transaction(
     val isCredit: Boolean = false,
     val isCreditPaid: Boolean = false,
     val isAdjustment: Boolean = false,
-    val sourceTransactionId: Long? = null
+    val sourceTransactionId: Long? = null,
+    val pocketId: Long? = null
 ) {
     companion object {
         fun create(
@@ -39,7 +40,8 @@ data class Transaction(
             categoryId: Long? = null,
             isCredit: Boolean = false,
             isCreditPaid: Boolean = false,
-            isAdjustment: Boolean = false
+            isAdjustment: Boolean = false,
+            pocketId: Long? = null
         ): Transaction = Transaction(
             id = 0,
             amount = amount,
@@ -56,13 +58,15 @@ data class Transaction(
             categoryId = categoryId,
             isCredit = isCredit,
             isCreditPaid = isCreditPaid,
-            isAdjustment = isAdjustment
+            isAdjustment = isAdjustment,
+            pocketId = pocketId
         )
     }
 }
 
 
 enum class RecurrentFrequency {
+    ONCE,
     WEEKLY,
     BIWEEKLY,
     MONTHLY

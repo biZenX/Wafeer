@@ -59,6 +59,7 @@ object DatabaseModule {
             .addMigrations(AppDatabaseMigrations.MIGRATION_20_21)
             .addMigrations(AppDatabaseMigrations.MIGRATION_21_22)
             .addMigrations(AppDatabaseMigrations.MIGRATION_22_23)
+            .addMigrations(AppDatabaseMigrations.MIGRATION_24_25)
             .build()
     }
 
@@ -106,5 +107,10 @@ object DatabaseModule {
     @Provides
     fun provideWishlistDao(database: AppDatabase): com.wafeer.app.data.local.dao.WishlistDao {
         return database.wishlistDao()
+    }
+
+    @Provides
+    fun provideSavingsPocketDao(database: AppDatabase): com.wafeer.app.data.local.dao.SavingsPocketDao {
+        return database.savingsPocketDao()
     }
 }

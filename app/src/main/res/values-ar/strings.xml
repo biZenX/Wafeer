@@ -1218,4 +1218,59 @@
     <string name="about_foss_badge">مفتوح المصدر 100%</string>
     <!-- Credits -->
     <string name="about_credits_summary">تطوير وفير بواسطة عبدالرحمن (@biZenX) • مبني على تطبيق Minus للمطور Isaac Serrano</string>
+
+    <!-- Planned Expenses & Recurrent Once -->
+    <string name="planned_expense_title">مصروف مخطط</string>
+    <string name="planned_expenses_title">المصاريف المخططة</string>
+    <string name="planned_on_date_label">في</string>
+    <string name="recurrent_frequency_once">مرة واحدة</string>
+    <string name="summary_once_format">يُخصم لمرة واحدة في %1$s.</string>
+    <string name="planned_preview_held">يتم احتجاز المبلغ وخصمه تدريجياً من الميزانية اليومية حتى موعده.</string>
+    <string name="planned_preview_changes_to">%1$s يتغير إلى %2$s</string>
+    <string name="planned_preview_other_period">يُحتجز في الدورة التي تشمل %1$s.</string>
+
+    <!-- History Search -->
+    <string name="history_search_placeholder">الاسم، الملاحظة، التاريخ أو المبلغ</string>
+    <string-array name="history_search_examples">
+        <item>نطاق: من 19 نوفمبر إلى 30 نوفمبر</item>
+        <item>يوم: طعام 12 أكتوبر</item>
+        <item>مبلغ: مواصلات 150</item>
+        <item>أكثر من: طعام &gt;200</item>
+        <item>تصنيف: بقالة</item>
+        <item>ملاحظات: قهوة مع الأصدقاء</item>
+    </string-array>
+    <string name="history_search_clear">مسح البحث</string>
+    <string name="history_search_no_results">لا توجد مصاريف تطابق "%1$s"</string>
+    <plurals name="history_search_results_summary">
+        <item quantity="zero">لا نتائج · أُنفِق %2$s</item>
+        <item quantity="one">نتيجة واحدة · أُنفِق %2$s</item>
+        <item quantity="two">نتيجتان · أُنفِق %2$s</item>
+        <item quantity="few">%1$d نتائج · أُنفِق %2$s</item>
+        <item quantity="many">%1$d نتيجة · أُنفِق %2$s</item>
+        <item quantity="other">%1$d نتيجة · أُنفِق %2$s</item>
+    </plurals>
+
+    <!-- Savings Pockets -->
+    <string name="pockets_title">الجيوب الادخارية</string>
+    <string name="pockets_empty">ضع مالاً جانباً لهدف معين. يخرج من ميزانيتك حتى تقرر سحبه.</string>
+    <string name="pockets_new">جيب جديد</string>
+    <string name="pockets_name_label">اسم الجيب</string>
+    <string name="pockets_target_label">المبلغ المستهدف (اختياري)</string>
+    <string name="pockets_amount_label">المبلغ</string>
+    <string name="pockets_add_money">إيداع مبلغ</string>
+    <string name="pockets_take_out">سحب مبلغ</string>
+    <string name="pockets_add_money_title">إيداع في %1$s</string>
+    <string name="pockets_take_out_title">سحب من %1$s</string>
+    <string name="pockets_take_out_max">حتى %1$s</string>
+    <string name="pockets_of_target">من %1$s</string>
+    <string name="pockets_of_target_by">من %1$s بحلول %2$s</string>
+    <string name="pockets_goal_name">المدخرات</string>
+    <string name="pockets_set_aside">تخصيص جانباً</string>
+    <string name="pockets_saved_to">تم ادخار %1$s في %2$s</string>
+    <string name="pockets_delete">حذف الجيب</string>
+    <string name="pockets_delete_title">حذف %1$s؟</string>
+    <string name="pockets_delete_desc">الجيب فارغ، لن تفقد أي أموال.</string>
+    <string name="pockets_action_failed">تعذر تحديث الجيب. حاول مجدداً.</string>
+    <string name="rollover_dialog_save_to_pocket_title">ادخار في %1$s</string>
+    <string name="rollover_dialog_save_to_pocket_desc">وضع %1$s جانباً في هذا الجيب</string>
 </resources>

@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalMaterial3ExpressiveApi::class)
+
 package com.wafeer.app.presentation.ui.theme.component
 
 import android.content.res.Configuration
@@ -5,11 +7,33 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.graphics.Shape
+import androidx.compose.material3.toShape
+import androidx.compose.material3.MaterialShapes
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.ToggleButtonDefaults
+import androidx.compose.foundation.horizontalScroll
+import com.wafeer.app.presentation.util.haptic.HapticUtil.performUIHaptic
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.platform.LocalView
+import androidx.compose.runtime.mutableLongStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.getValue
+import androidx.compose.material3.ToggleButton
+import androidx.compose.material3.ButtonGroupDefaults
+import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -18,7 +42,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.CallSplit
@@ -26,8 +49,13 @@ import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowRight
 import androidx.compose.material.icons.automirrored.rounded.NextPlan
 import androidx.compose.material.icons.outlined.Cancel
 import androidx.compose.material.icons.rounded.Celebration
+import androidx.compose.material.icons.rounded.Savings
+import com.wafeer.app.domain.model.SavingsPocket
+import com.wafeer.app.presentation.ui.analytics.pocketDisplayName
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -41,18 +69,28 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.platform.LocalLocale
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.em
 import androidx.compose.ui.window.Dialog
 import com.wafeer.app.R
 import com.wafeer.app.presentation.ui.theme.WafeerTheme
 import com.wafeer.app.presentation.ui.theme.bodySmallCondensed
-import com.wafeer.app.presentation.ui.theme.colorEditor
-import com.wafeer.app.presentation.ui.theme.colorOnEditor
-import com.wafeer.app.presentation.ui.theme.colorPrimary
 import com.wafeer.app.presentation.ui.theme.labelMediumCondensed
 import com.wafeer.app.presentation.util.font.format.symbolOnlyCurrencyFormat
 import java.math.BigDecimal
+
+private val HeaderBadgeSize = 56.dp
+private const val BadgeSpinMillis = 12_000
+private val ActionOuterRadius = 24.dp
+private val ActionInnerRadius = 6.dp
+
+private fun actionShape(index: Int, count: Int): Shape {
+    val top = if (index == 0) ActionOuterRadius else ActionInnerRadius
+    val bottom = if (index == count - 1) ActionOuterRadius else ActionInnerRadius
+    return RoundedCornerShape(topStart = top, topEnd = top, bottomStart = bottom, bottomEnd = bottom)
+}
 
 @Composable
 fun RolloverDialog(
@@ -63,7 +101,9 @@ fun RolloverDialog(
     onSplitEqually: () -> Unit,
     onCarryToNextDay: () -> Unit,
     onDismiss: () -> Unit,
-    onViewAnalytics: (() -> Unit)? = null,
+    onDiscardRemaining: (() -> Unit)? = null,
+    pockets: List<SavingsPocket> = emptyList(),
+    onSaveToPocket: (SavingsPocket) -> Unit = {},
 ) {
     if (LocalInspectionMode.current) {
         RolloverDialogContent(
@@ -74,7 +114,9 @@ fun RolloverDialog(
             onSplitEqually = onSplitEqually,
             onCarryToNextDay = onCarryToNextDay,
             onDismiss = onDismiss,
-            onViewAnalytics = onViewAnalytics,
+            onDiscardRemaining = onDiscardRemaining,
+            pockets = pockets,
+            onSaveToPocket = onSaveToPocket,
         )
     } else {
         Dialog(onDismissRequest = onDismiss) {
@@ -86,7 +128,9 @@ fun RolloverDialog(
                 onSplitEqually = onSplitEqually,
                 onCarryToNextDay = onCarryToNextDay,
                 onDismiss = onDismiss,
-                onViewAnalytics = onViewAnalytics,
+                onDiscardRemaining = onDiscardRemaining,
+                pockets = pockets,
+                onSaveToPocket = onSaveToPocket,
             )
         }
     }
@@ -102,7 +146,9 @@ private fun RolloverDialogContent(
     onSplitEqually: () -> Unit,
     onCarryToNextDay: () -> Unit,
     onDismiss: () -> Unit,
-    onViewAnalytics: (() -> Unit)? = null,
+    onDiscardRemaining: (() -> Unit)? = null,
+    pockets: List<SavingsPocket> = emptyList(),
+    onSaveToPocket: (SavingsPocket) -> Unit = {},
 ) {
     val currencyFormat = symbolOnlyCurrencyFormat(currencyCode)
     val formattedRemaining = currencyFormat.format(remainingAmount)
@@ -115,8 +161,8 @@ private fun RolloverDialogContent(
         modifier = Modifier
             .fillMaxWidth()
             .padding(16.dp),
-        colors = CardDefaults.cardColors(containerColor = colorEditor),
-        shape = RoundedCornerShape(28.dp)
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
+        shape = MaterialTheme.shapes.extraLarge
     ) {
         Column(
             modifier = Modifier
@@ -124,149 +170,208 @@ private fun RolloverDialogContent(
                 .verticalScroll(scrollState)
                 .padding(horizontal = 20.dp, vertical = 24.dp)
         ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(IntrinsicSize.Min),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally,
             ) {
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(
-                        text = stringResource(R.string.rollover_dialog_period_finished_title),
-                        style = MaterialTheme.typography.titleLargeEmphasized,
-                        color = colorOnEditor
-                    )
-                    Spacer(modifier = Modifier.height(2.dp))
-                    Text(
-                        text = periodLabel,
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = colorOnEditor.copy(alpha = 0.6f)
-                    )
-                }
-
-                Spacer(modifier = Modifier.width(16.dp))
-
+                val badgeRotation by rememberInfiniteTransition(label = "rolloverBadge").animateFloat(
+                    initialValue = 0f,
+                    targetValue = 360f,
+                    animationSpec = infiniteRepeatable(tween(BadgeSpinMillis, easing = LinearEasing)),
+                    label = "rolloverBadgeRotation",
+                )
                 Box(
-                    modifier = Modifier
-                        .fillMaxHeight()
-                        .aspectRatio(1f)
-                        .clip(CircleShape)
-                        .background(colorPrimary.copy(alpha = 0.14f)),
-                    contentAlignment = Alignment.Center
+                    modifier = Modifier.size(HeaderBadgeSize),
+                    contentAlignment = Alignment.Center,
                 ) {
+                    Box(
+                        modifier = Modifier
+                            .matchParentSize()
+                            .graphicsLayer { rotationZ = badgeRotation }
+                            .background(
+                                color = MaterialTheme.colorScheme.tertiary,
+                                shape = MaterialShapes.Cookie7Sided.toShape(),
+                            ),
+                    )
                     Icon(
                         imageVector = Icons.Rounded.Celebration,
                         contentDescription = null,
-                        modifier = Modifier.fillMaxSize(0.52f),
-                        tint = colorPrimary
+                        modifier = Modifier.fillMaxSize(0.48f),
+                        tint = MaterialTheme.colorScheme.onTertiary,
                     )
                 }
-            }
-
-            Spacer(modifier = Modifier.height(20.dp))
-
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(20.dp))
-                    .background(colorOnEditor.copy(alpha = 0.05f))
-                    .padding(20.dp)
-            ) {
-                if (formattedSpent != null) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            text = stringResource(R.string.total_spent),
-                            style = MaterialTheme.typography.labelMediumCondensed,
-                            color = colorOnEditor.copy(alpha = 0.6f)
-                        )
-                        Text(
-                            text = formattedSpent,
-                            style = MaterialTheme.typography.titleLargeEmphasized,
-                            color = colorOnEditor,
-                            maxLines = 1
-                        )
-                    }
-
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    HorizontalDivider(color = colorOnEditor.copy(alpha = 0.1f))
-
-                    Spacer(modifier = Modifier.height(8.dp))
-                }
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = stringResource(R.string.remaining),
-                        style = MaterialTheme.typography.labelMediumCondensed,
-                        color = colorOnEditor.copy(alpha = 0.6f)
-                    )
-                    Text(
-                        text = formattedRemaining,
-                        style = MaterialTheme.typography.titleLargeEmphasized,
-                        color = MaterialTheme.colorScheme.tertiary,
-                        maxLines = 1
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.height(20.dp))
-
-            RolloverActionRow(
-                icon = Icons.AutoMirrored.Rounded.CallSplit,
-                title = stringResource(R.string.rollover_dialog_split_equally_title),
-                description = stringResource(
-                    R.string.rollover_dialog_split_equally_desc,
-                    formattedRemaining
-                ),
-                highlighted = false,
-                onClick = onSplitEqually
-            )
-
-            Spacer(modifier = Modifier.height(10.dp))
-
-            RolloverActionRow(
-                icon = Icons.AutoMirrored.Rounded.NextPlan,
-                title = stringResource(R.string.rollover_dialog_carry_to_tomorrow_title),
-                description = stringResource(
-                    R.string.rollover_dialog_carry_to_tomorrow_desc,
-                    formattedRemaining
-                ),
-                highlighted = true,
-                onClick = onCarryToNextDay
-            )
-
-            if (onViewAnalytics != null) {
-                Spacer(modifier = Modifier.height(10.dp))
-
-                RolloverActionRow(
-                    icon = Icons.Outlined.Cancel,
-                    title = stringResource(R.string.rollover_dialog_view_analytics_title),
-                    description = stringResource(R.string.rollover_dialog_view_analytics_desc),
-                    highlighted = false,
-                    onClick = onViewAnalytics
+                Spacer(modifier = Modifier.height(12.dp))
+                Text(
+                    text = stringResource(R.string.rollover_dialog_period_finished_title),
+                    style = MaterialTheme.typography.titleLargeEmphasized,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    textAlign = TextAlign.Center,
                 )
+                Text(
+                    text = periodLabel,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    textAlign = TextAlign.Center,
+                )
+                Spacer(modifier = Modifier.height(20.dp))
+                Text(
+                    text = formattedRemaining,
+                    style = MaterialTheme.typography.displaySmallEmphasized,
+                    color = MaterialTheme.colorScheme.primary,
+                    maxLines = 1,
+                )
+                Text(
+                    text = listOfNotNull(
+                        stringResource(R.string.remaining),
+                        formattedSpent?.let { "${stringResource(R.string.total_spent)} $it" },
+                    ).joinToString(" · "),
+                    style = MaterialTheme.typography.labelMediumCondensed,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    textAlign = TextAlign.Center,
+                )
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            val segments = 2 + (if (pockets.isNotEmpty()) 1 else 0) + if (onDiscardRemaining != null) 1 else 0
+            Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
+                RolloverActionRow(
+                    icon = Icons.AutoMirrored.Rounded.NextPlan,
+                    title = stringResource(R.string.rollover_dialog_carry_to_tomorrow_title),
+                    description = stringResource(R.string.rollover_dialog_carry_to_tomorrow_desc, formattedRemaining),
+                    highlighted = true,
+                    shape = actionShape(0, segments),
+                    onClick = onCarryToNextDay,
+                )
+                RolloverActionRow(
+                    icon = Icons.AutoMirrored.Rounded.CallSplit,
+                    title = stringResource(R.string.rollover_dialog_split_equally_title),
+                    description = stringResource(R.string.rollover_dialog_split_equally_desc, formattedRemaining),
+                    highlighted = false,
+                    shape = actionShape(1, segments),
+                    onClick = onSplitEqually,
+                )
+                if (pockets.isNotEmpty()) {
+                    SaveToPocketRow(
+                        pockets = pockets,
+                        formattedRemaining = formattedRemaining,
+                        shape = actionShape(2, segments),
+                        onSaveToPocket = onSaveToPocket,
+                    )
+                }
+                if (onDiscardRemaining != null) {
+                    RolloverActionRow(
+                        icon = Icons.Outlined.Cancel,
+                        title = stringResource(R.string.rollover_dialog_view_analytics_title),
+                        description = stringResource(R.string.rollover_dialog_view_analytics_desc),
+                        highlighted = false,
+                        destructive = true,
+                        shape = actionShape(segments - 1, segments),
+                        onClick = onDiscardRemaining,
+                    )
+                }
             }
 
             Spacer(modifier = Modifier.height(12.dp))
 
             TextButton(
                 onClick = onDismiss,
-                modifier = Modifier.align(Alignment.CenterHorizontally)
+                modifier = Modifier.align(Alignment.CenterHorizontally),
+                shapes = ButtonDefaults.shapes(),
+                colors = ButtonDefaults.textButtonColors(
+                    contentColor = MaterialTheme.colorScheme.onSurfaceVariant
+                )
             ) {
                 Text(
                     text = stringResource(R.string.cancel),
-                    color = colorOnEditor.copy(alpha = 0.6f),
-                    style = MaterialTheme.typography.labelSmallEmphasized,
+                    style = MaterialTheme.typography.labelMediumEmphasized,
                 )
+            }
+        }
+    }
+}
+
+@Composable
+private fun SaveToPocketRow(
+    pockets: List<SavingsPocket>,
+    formattedRemaining: String,
+    shape: Shape,
+    onSaveToPocket: (SavingsPocket) -> Unit,
+) {
+    var selectedId by remember(pockets) { mutableLongStateOf(pockets.first().id) }
+    val selected = pockets.firstOrNull { it.id == selectedId } ?: pockets.first()
+    val view = LocalView.current
+
+    Card(
+        onClick = { onSaveToPocket(selected) },
+        modifier = Modifier.fillMaxWidth(),
+        shape = shape,
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceContainer,
+            contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(start = 14.dp, end = 14.dp, top = 14.dp, bottom = if (pockets.size > 1) 10.dp else 14.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            SettingsLeadingIcon(icon = Icons.Rounded.Savings, active = false)
+            Spacer(modifier = Modifier.width(14.dp))
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = stringResource(R.string.rollover_dialog_save_to_pocket_title, pocketDisplayName(selected)),
+                    style = MaterialTheme.typography.titleSmallEmphasized,
+                    lineHeight = 1.2.em,
+                )
+                Text(
+                    text = stringResource(R.string.rollover_dialog_save_to_pocket_desc, formattedRemaining),
+                    style = MaterialTheme.typography.bodySmallCondensed,
+                )
+            }
+            Spacer(modifier = Modifier.width(8.dp))
+            Icon(
+                imageVector = Icons.AutoMirrored.Rounded.KeyboardArrowRight,
+                contentDescription = null,
+                modifier = Modifier.size(20.dp),
+            )
+        }
+        if (pockets.size > 1) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .horizontalScroll(rememberScrollState())
+                    .padding(start = 14.dp, end = 14.dp, bottom = 14.dp)
+                    .selectableGroup(),
+                horizontalArrangement = Arrangement.spacedBy(ButtonGroupDefaults.ConnectedSpaceBetween),
+            ) {
+                pockets.forEachIndexed { index, pocket ->
+                    ToggleButton(
+                        checked = pocket.id == selected.id,
+                        onCheckedChange = {
+                            performUIHaptic(view)
+                            selectedId = pocket.id
+                        },
+                        shapes = when (index) {
+                            0 -> ButtonGroupDefaults.connectedLeadingButtonShapes()
+                            pockets.lastIndex -> ButtonGroupDefaults.connectedTrailingButtonShapes()
+                            else -> ButtonGroupDefaults.connectedMiddleButtonShapes()
+                        },
+                        colors = ToggleButtonDefaults.toggleButtonColors(
+                            containerColor = MaterialTheme.colorScheme.surfaceContainerHighest,
+                        ),
+                        modifier = Modifier.semantics { role = Role.RadioButton },
+                    ) {
+                        Text(
+                            text = pocketDisplayName(pocket),
+                            style = MaterialTheme.typography.labelMedium,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                        )
+                    }
+                }
             }
         }
     }
@@ -278,22 +383,29 @@ private fun RolloverActionRow(
     title: String,
     description: String,
     highlighted: Boolean,
+    shape: Shape,
     onClick: () -> Unit,
+    destructive: Boolean = false,
 ) {
-    val accent = MaterialTheme.colorScheme.secondary
-    val container = if (highlighted) accent else colorOnEditor.copy(alpha = 0.06f)
-    val onContainer = if (highlighted) MaterialTheme.colorScheme.onSecondary else colorOnEditor
-    val badgeBackground =
-        if (highlighted) onContainer.copy(alpha = 0.16f) else accent.copy(alpha = 0.14f)
-    val badgeTint = if (highlighted) onContainer else accent
-    val descriptionColor = onContainer.copy(alpha = if (highlighted) 0.75f else 0.6f)
-    val chevronColor = onContainer.copy(alpha = if (highlighted) 0.75f else 0.35f)
+    val container = if (highlighted) {
+        MaterialTheme.colorScheme.secondaryContainer
+    } else {
+        MaterialTheme.colorScheme.surfaceContainer
+    }
+    val onContainer = if (highlighted) {
+        MaterialTheme.colorScheme.onSecondaryContainer
+    } else {
+        MaterialTheme.colorScheme.onSurfaceVariant
+    }
 
     Card(
         onClick = onClick,
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(containerColor = container),
+        shape = shape,
+        colors = CardDefaults.cardColors(
+            containerColor = container,
+            contentColor = onContainer
+        ),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
     ) {
         Row(
@@ -302,20 +414,11 @@ private fun RolloverActionRow(
                 .padding(horizontal = 14.dp, vertical = 14.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Box(
-                modifier = Modifier
-                    .size(40.dp)
-                    .clip(CircleShape)
-                    .background(badgeBackground),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    imageVector = icon,
-                    contentDescription = null,
-                    modifier = Modifier.size(20.dp),
-                    tint = badgeTint
-                )
-            }
+            SettingsLeadingIcon(
+                icon = icon,
+                active = highlighted,
+                tint = if (destructive) MaterialTheme.colorScheme.error else null,
+            )
 
             Spacer(modifier = Modifier.width(14.dp))
 
@@ -323,12 +426,11 @@ private fun RolloverActionRow(
                 Text(
                     text = title,
                     style = MaterialTheme.typography.titleSmallEmphasized,
-                    color = onContainer
+                    lineHeight = 1.2.em
                 )
                 Text(
                     text = description,
-                    style = MaterialTheme.typography.bodySmallCondensed,
-                    color = descriptionColor
+                    style = MaterialTheme.typography.bodySmallCondensed
                 )
             }
 
@@ -337,8 +439,7 @@ private fun RolloverActionRow(
             Icon(
                 imageVector = Icons.AutoMirrored.Rounded.KeyboardArrowRight,
                 contentDescription = null,
-                modifier = Modifier.size(20.dp),
-                tint = chevronColor
+                modifier = Modifier.size(20.dp)
             )
         }
     }
@@ -386,7 +487,7 @@ private fun RolloverDialogAnalyticsPreview() {
             onSplitEqually = {},
             onCarryToNextDay = {},
             onDismiss = {},
-            onViewAnalytics = {})
+            onDiscardRemaining = {})
     }
 }
 
@@ -402,7 +503,7 @@ private fun RolloverDialogFullPreview() {
             onSplitEqually = {},
             onCarryToNextDay = {},
             onDismiss = {},
-            onViewAnalytics = {})
+            onDiscardRemaining = {})
     }
 }
 
@@ -420,6 +521,6 @@ private fun RolloverDialogDarkModePreview() {
             onSplitEqually = {},
             onCarryToNextDay = {},
             onDismiss = {},
-            onViewAnalytics = {})
+            onDiscardRemaining = {})
     }
 }

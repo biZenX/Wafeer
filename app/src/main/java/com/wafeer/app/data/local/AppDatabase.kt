@@ -12,6 +12,8 @@ import com.wafeer.app.data.local.dao.PaidRecurrentOccurrenceDao
 import com.wafeer.app.data.local.dao.QueuedTransactionDao
 import com.wafeer.app.data.local.dao.TransactionDao
 import com.wafeer.app.data.local.dao.WishlistDao
+import com.wafeer.app.data.local.dao.SavingsPocketDao
+import com.wafeer.app.data.local.entity.SavingsPocketEntity
 import com.wafeer.app.data.local.entity.ArchivedBudgetEntity
 import com.wafeer.app.data.local.entity.BudgetSettingsEntity
 import com.wafeer.app.data.local.entity.CategoryBudgetEntity
@@ -33,8 +35,9 @@ import com.wafeer.app.data.local.entity.WishlistItemEntity
         PaidRecurrentOccurrenceEntity::class,
         MicroGoalEntity::class,
         WishlistItemEntity::class,
+        SavingsPocketEntity::class,
     ],
-    version = 24,
+    version = 25,
     autoMigrations = [
         AutoMigration(from = 16, to = 17),
         AutoMigration(from = 17, to = 18),
@@ -62,6 +65,8 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun microGoalDao(): MicroGoalDao
 
     abstract fun wishlistDao(): WishlistDao
+
+    abstract fun savingsPocketDao(): SavingsPocketDao
 
     companion object {
         const val DATABASE_NAME = "wafeer_budget.db"

@@ -100,6 +100,7 @@ class BudgetRepositoryImplCategoryTest {
             categoryDao = categoryDao,
             queuedTransactionDao = mockk(relaxed = true),
             paidRecurrentOccurrenceDao = mockk(relaxed = true),
+            savingsPocketDao = mockk(relaxed = true),
         )
     }
 

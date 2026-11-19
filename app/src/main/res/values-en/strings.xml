@@ -1213,4 +1213,55 @@
     <string name="about_foss_badge">100% Free &amp; Open Source</string>
     <!-- Credits -->
     <string name="about_credits_summary">Wafeer developed by Abdulrhman (@biZenX) • Built on the Minus app by Isaac Serrano</string>
+
+    <!-- Planned Expenses & Recurrent Once -->
+    <string name="planned_expense_title">Planned Expense</string>
+    <string name="planned_expenses_title">Planned Expenses</string>
+    <string name="planned_on_date_label">On</string>
+    <string name="recurrent_frequency_once">Once</string>
+    <string name="summary_once_format">It will be charged once on %1$s.</string>
+    <string name="planned_preview_held">Amount set aside and deducted from daily budget until due date.</string>
+    <string name="planned_preview_changes_to">%1$s changes to %2$s</string>
+    <string name="planned_preview_other_period">Held in the period that includes %1$s.</string>
+
+    <!-- History Search -->
+    <string name="history_search_placeholder">Name, note, date or amount</string>
+    <string-array name="history_search_examples">
+        <item>Range: 19 nov to 30 nov</item>
+        <item>Day: Food 12 oct</item>
+        <item>Amount: Uber $150</item>
+        <item>More than: Food &gt;200</item>
+        <item>Category: Groceries</item>
+        <item>Notes: coffee with friends</item>
+    </string-array>
+    <string name="history_search_clear">Clear search</string>
+    <string name="history_search_no_results">No expenses match "%1$s"</string>
+    <plurals name="history_search_results_summary">
+        <item quantity="one">%1$d match · %2$s spent</item>
+        <item quantity="other">%1$d matches · %2$s spent</item>
+    </plurals>
+
+    <!-- Savings Pockets -->
+    <string name="pockets_title">Savings pockets</string>
+    <string name="pockets_empty">Put money aside for a goal. It leaves your budget until you take it out.</string>
+    <string name="pockets_new">New pocket</string>
+    <string name="pockets_name_label">Name</string>
+    <string name="pockets_target_label">Goal amount (optional)</string>
+    <string name="pockets_amount_label">Amount</string>
+    <string name="pockets_add_money">Add money</string>
+    <string name="pockets_take_out">Take out</string>
+    <string name="pockets_add_money_title">Add to %1$s</string>
+    <string name="pockets_take_out_title">Take out of %1$s</string>
+    <string name="pockets_take_out_max">Up to %1$s</string>
+    <string name="pockets_of_target">of %1$s</string>
+    <string name="pockets_of_target_by">of %1$s by %2$s</string>
+    <string name="pockets_goal_name">Savings</string>
+    <string name="pockets_set_aside">Set aside</string>
+    <string name="pockets_saved_to">%1$s saved to %2$s</string>
+    <string name="pockets_delete">Delete pocket</string>
+    <string name="pockets_delete_title">Delete %1$s?</string>
+    <string name="pockets_delete_desc">The pocket is empty, so no money is lost.</string>
+    <string name="pockets_action_failed">Couldn't update the pocket. Try again.</string>
+    <string name="rollover_dialog_save_to_pocket_title">Save to %1$s</string>
+    <string name="rollover_dialog_save_to_pocket_desc">Put %1$s aside in this pocket</string>
 </resources>

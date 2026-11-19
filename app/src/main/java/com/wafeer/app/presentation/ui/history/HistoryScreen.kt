@@ -30,6 +30,13 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
+import java.util.Locale
+import com.wafeer.app.presentation.ui.history.sections.historySearchSection
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -186,6 +193,8 @@ fun History(
                         isCreditQuickToggleEnabled = uiState.isCreditQuickToggleEnabled,
                         isExtraNoteEnabled = uiState.isExtraNoteEnabled,
                         creditCardCutoffDay = uiState.budgetSettings?.creditCardCutoffDay,
+                searchQuery = uiState.searchQuery,
+                searchHighlight = searchHighlight,
                         onUpdateCreditCutoffDay = { day -> onProcessIntent(HistoryUiIntent.UpdateCreditCutoffDay(day)) },
                         sharedTransitionScope = sharedTransitionScope,
                         animatedVisibilityScope = this@AnimatedContent,
@@ -255,6 +264,8 @@ fun History(
             isCreditQuickToggleEnabled = uiState.isCreditQuickToggleEnabled,
             isExtraNoteEnabled = uiState.isExtraNoteEnabled,
             creditCardCutoffDay = uiState.budgetSettings?.creditCardCutoffDay,
+                searchQuery = uiState.searchQuery,
+                searchHighlight = searchHighlight,
             onUpdateCreditCutoffDay = { day -> onProcessIntent(HistoryUiIntent.UpdateCreditCutoffDay(day)) },
             onCancel = { onProcessIntent(HistoryUiIntent.SetEditingTransaction(null)) },
             onSave = { expense ->
@@ -312,6 +323,19 @@ private fun HistoryListContent(
     onShowInfoSnackbar: (message: String) -> Unit,
     onProcessIntent: (HistoryUiIntent) -> Unit,
 ) {
+    var searchText by rememberSaveable { mutableStateOf(uiState.searchQuery) }
+    LaunchedEffect(Unit) {
+        if (searchText.isNotEmpty()) onProcessIntent(HistoryUiIntent.SetSearchQuery(searchText))
+    }
+    val currentOnProcessIntent = rememberUpdatedState(onProcessIntent)
+    DisposableEffect(Unit) {
+        onDispose { currentOnProcessIntent.value(HistoryUiIntent.SetSearchQuery("")) }
+    }
+
+    val searchHighlight = remember(uiState.searchQuery) {
+        uiState.searchQuery.takeIf { it.isNotBlank() }?.let { historySearchHighlight(it, Locale.getDefault()) }
+    }
+
     val currentOnCollapseDragDelta = rememberUpdatedState(onCollapseDragDelta)
     val density = LocalDensity.current
     val threshold = remember(density) { with(density) { 128.dp.toPx() } }
@@ -360,6 +384,19 @@ private fun HistoryListContent(
                 creditOwed = uiState.creditOwed,
             )
 
+            if (uiState.transactions.isNotEmpty()) {
+                historySearchSection(
+                    query = searchText,
+                    appliedQuery = uiState.searchQuery,
+                    resultCount = uiState.searchResultCount,
+                    resultTotal = currencyFormat.format(uiState.searchResultTotal),
+                    onQueryChange = {
+                        searchText = it
+                        onProcessIntent(HistoryUiIntent.SetSearchQuery(it))
+                    },
+                )
+            }
+
             currentPeriodRecurrentSection(
                 upcomingRecurrentInPeriod = uiState.upcomingRecurrentInPeriod,
                 showUpcomingRecurrentInPeriod = uiState.showUpcomingRecurrentInPeriod,
@@ -401,6 +438,8 @@ private fun HistoryListContent(
                 sharedTransitionScope = sharedTransitionScope,
                 animatedVisibilityScope = animatedVisibilityScope,
                 creditCardCutoffDay = uiState.budgetSettings?.creditCardCutoffDay,
+                searchQuery = uiState.searchQuery,
+                searchHighlight = searchHighlight,
             )
 
             transactionDateSections(
@@ -441,6 +480,8 @@ private fun HistoryListContent(
                 sharedTransitionScope = sharedTransitionScope,
                 animatedVisibilityScope = animatedVisibilityScope,
                 creditCardCutoffDay = uiState.budgetSettings?.creditCardCutoffDay,
+                searchQuery = uiState.searchQuery,
+                searchHighlight = searchHighlight,
             )
 
             futureRecurrentSection(
@@ -470,6 +511,8 @@ private fun HistoryListContent(
                 sharedTransitionScope = sharedTransitionScope,
                 animatedVisibilityScope = animatedVisibilityScope,
                 creditCardCutoffDay = uiState.budgetSettings?.creditCardCutoffDay,
+                searchQuery = uiState.searchQuery,
+                searchHighlight = searchHighlight,
             )
 
             if (uiState.showPastTransactionsSetting) {
@@ -523,6 +566,8 @@ private fun HistoryListContent(
                     sharedTransitionScope = sharedTransitionScope,
                     animatedVisibilityScope = animatedVisibilityScope,
                     creditCardCutoffDay = uiState.budgetSettings?.creditCardCutoffDay,
+                searchQuery = uiState.searchQuery,
+                searchHighlight = searchHighlight,
                 )
             }
 

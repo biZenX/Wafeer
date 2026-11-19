@@ -252,5 +252,21 @@ object AppDatabaseMigrations {
             )
         }
     }
-}
 
+    val MIGRATION_24_25: Migration = object : Migration(24, 25) {
+        override fun migrate(db: SupportSQLiteDatabase) {
+            db.execSQL("ALTER TABLE transactions ADD COLUMN pocketId INTEGER DEFAULT NULL")
+            db.execSQL(
+                """
+                CREATE TABLE IF NOT EXISTS `savings_pockets` (
+                    `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                    `name` TEXT NOT NULL,
+                    `targetAmount` TEXT DEFAULT NULL,
+                    `targetEpochDay` INTEGER DEFAULT NULL,
+                    `createdAt` INTEGER NOT NULL
+                )
+                """.trimIndent()
+            )
+        }
+    }
+}

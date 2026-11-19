@@ -33,7 +33,8 @@ data class TransactionEntity(
     val isCredit: Boolean = false,
     val isCreditPaid: Boolean = false,
     @ColumnInfo(defaultValue = "0")
-    val isAdjustment: Boolean = false
+    val isAdjustment: Boolean = false,
+    val pocketId: Long? = null
 ) {
     companion object {
         fun fromDomain(
@@ -48,7 +49,8 @@ data class TransactionEntity(
             categoryId: Long? = null,
             isCredit: Boolean = false,
             isCreditPaid: Boolean = false,
-            isAdjustment: Boolean = false
+            isAdjustment: Boolean = false,
+            pocketId: Long? = null
         ): TransactionEntity = TransactionEntity(
             id = 0,
             amount = amount,
@@ -62,7 +64,8 @@ data class TransactionEntity(
             categoryId = categoryId,
             isCredit = isCredit,
             isCreditPaid = isCreditPaid,
-            isAdjustment = isAdjustment
+            isAdjustment = isAdjustment,
+            pocketId = pocketId
         )
     }
 }

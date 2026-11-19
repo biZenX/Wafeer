@@ -114,4 +114,14 @@ interface BudgetRepository {
         isArabic: Boolean,
         isDemoMode: Boolean = false,
     ) {}
+
+    suspend fun addPocketWithdrawal(transaction: Transaction): Boolean
+
+    suspend fun addPocketDeposit(transaction: Transaction): Boolean
+
+    fun getSavingsPockets(): Flow<List<com.wafeer.app.domain.model.SavingsPocket>>
+
+    suspend fun saveSavingsPocket(pocket: com.wafeer.app.domain.model.SavingsPocket): Long
+
+    suspend fun deleteSavingsPocket(pocketId: Long): Boolean
 }

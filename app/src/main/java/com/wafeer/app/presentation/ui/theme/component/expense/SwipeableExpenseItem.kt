@@ -47,6 +47,8 @@ fun SwipeableExpenseItem(
     sharedTransitionScope: SharedTransitionScope? = null,
     animatedVisibilityScope: AnimatedVisibilityScope? = null,
     creditCardCutoffDay: Int? = null,
+    highlightRanges: List<IntRange> = emptyList(),
+    highlightAmount: Boolean = false,
 ) {
     val isIncome = transaction.amount < java.math.BigDecimal.ZERO
     val isDecrease = transaction.amount > java.math.BigDecimal.ZERO && transaction.isAdjustment
@@ -163,6 +165,8 @@ fun SwipeableUpcomingRecurrentItem(
     sharedTransitionScope: SharedTransitionScope? = null,
     animatedVisibilityScope: AnimatedVisibilityScope? = null,
     creditCardCutoffDay: Int? = null,
+    highlightRanges: List<IntRange> = emptyList(),
+    highlightAmount: Boolean = false,
 ) {
     val isIncome = item.transaction.amount < java.math.BigDecimal.ZERO
     val isDecrease = item.transaction.amount > java.math.BigDecimal.ZERO && item.transaction.isAdjustment
@@ -233,6 +237,8 @@ fun SwipeableUpcomingRecurrentItem(
             sharedTransitionScope = sharedTransitionScope,
             animatedVisibilityScope = animatedVisibilityScope,
             creditCardCutoffDay = creditCardCutoffDay,
+            highlightRanges = highlightRanges,
+            highlightAmount = highlightAmount,
         )
     }
 }

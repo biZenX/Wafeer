@@ -123,12 +123,8 @@ jobs:
       - name: Resolve Version and Changelog
         id: version
         run: |
-          TAG="${{ github.ref_name }}"
-          CLEAN="${TAG#v}"
-          CLEAN="${CLEAN%%-*}"
-          IFS='.' read -r MAJOR MINOR PATCH <<< "$CLEAN"
-          CODE=$(( ${MAJOR:-0} * 10000 + ${MINOR:-0} * 100 + ${PATCH:-0} ))
-          [ "$CODE" -le 0 ] && CODE=1
+          CODE=$(grep 'VERSION_CODE=' version.properties | cut -d'=' -f2 | tr -d ' \r\n')
+          [ -z "$CODE" ] && CODE=30101
           echo "code=$CODE" >> "$GITHUB_OUTPUT"
           
           AR_FILE="fastlane/metadata/android/ar/changelogs/${CODE}.txt"
@@ -145,8 +141,12 @@ jobs:
           EN_FILE: ${{ steps.version.outputs.en_file }}
         run: |
           shopt -s nullglob
-          APKS=(app/build/outputs/apk/foss/release/*.apk app/build/outputs/apk/wear/release/*.apk wear/build/outputs/apk/release/*.apk)
-          echo "Found APKs: ${APKS[*]}"
+          PHONE_APK=$(ls app/build/outputs/apk/foss/release/Wafeer-v*.apk 2>/dev/null | grep -v -- '-arm' | grep -v -- '-x86' | head -n 1)
+          WATCH_APK=$(ls wear/build/outputs/apk/release/Wafeer-Watch-v*.apk 2>/dev/null | head -n 1)
+          APKS=()
+          [ -f "$PHONE_APK" ] && APKS+=("$PHONE_APK")
+          [ -f "$WATCH_APK" ] && APKS+=("$WATCH_APK")
+          echo "Selected APKs (${#APKS[@]}): ${APKS[*]}"
           
           format_bilingual_release_notes() {
             local ar_path="$1"

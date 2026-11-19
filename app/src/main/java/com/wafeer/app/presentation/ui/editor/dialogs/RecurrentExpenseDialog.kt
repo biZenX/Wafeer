@@ -4,18 +4,21 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ButtonGroupDefaults
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DatePicker
@@ -23,6 +26,7 @@ import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.OutlinedTextField
@@ -44,6 +48,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
@@ -51,15 +57,19 @@ import androidx.compose.ui.unit.dp
 import com.wafeer.app.R
 import com.wafeer.app.domain.model.BudgetPeriod
 import com.wafeer.app.domain.model.BudgetSettings
+import com.wafeer.app.domain.model.BudgetState
 import com.wafeer.app.domain.model.RecurrentFrequency
+import com.wafeer.app.domain.time.CalendarSystem
 import com.wafeer.app.presentation.ui.theme.WafeerTheme
 import com.wafeer.app.presentation.ui.theme.bodySmallCondensed
+import com.wafeer.app.presentation.ui.theme.component.date.PersianDateCaption
 import com.wafeer.app.presentation.ui.theme.labelMediumCondensed
+import com.wafeer.app.presentation.util.font.format.formatCurrencySymbolOnly
+import com.wafeer.app.presentation.util.font.format.localizedFormatter
 import java.math.BigDecimal
 import java.time.Instant
 import java.time.LocalDate
-import java.time.ZoneId
-import java.time.format.DateTimeFormatter
+import java.time.ZoneOffset
 import java.util.Locale
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
@@ -70,25 +80,32 @@ fun RecurrentExpenseDialog(
     onConfirm: (frequency: RecurrentFrequency, endDate: LocalDate, subscriptionDay: Int?, fallbackComment: String) -> Unit,
     fallbackComments: Map<RecurrentFrequency, String>,
     modifier: Modifier = Modifier,
+    budgetState: BudgetState? = null,
+    amount: BigDecimal? = null,
+    today: LocalDate = LocalDate.now(),
+    initialFrequency: RecurrentFrequency = RecurrentFrequency.MONTHLY,
 ) {
-    val today = LocalDate.now()
     val budgetEndDate = budgetSettings?.getPeriodEndDate() ?: today.plusDays(30)
 
-    var selectedFrequency by remember { mutableStateOf(RecurrentFrequency.MONTHLY) }
-    var selectedDay by remember { mutableIntStateOf(today.dayOfMonth.coerceIn(1, 28)) }
+    var selectedFrequency by remember { mutableStateOf(initialFrequency) }
+    var selectedDay by remember {
+        mutableIntStateOf(CalendarSystem.current().dayOfMonth(today).coerceIn(MinSubscriptionDay, MaxSubscriptionDay))
+    }
 
     var showDatePicker by remember { mutableStateOf(false) }
     val defaultEndDate = remember(budgetEndDate) { budgetEndDate.plusMonths(3) }
     var selectedEndDate by remember { mutableStateOf(defaultEndDate) }
+    var plannedDate by remember { mutableStateOf(today.plusDays(1)) }
+    val isOnce = selectedFrequency == RecurrentFrequency.ONCE
 
     if (showDatePicker) {
         val maxSelectableDate = today.plusMonths(12)
         val datePickerState = rememberDatePickerState(
-            initialSelectedDateMillis = selectedEndDate.atStartOfDay(ZoneId.systemDefault())
+            initialSelectedDateMillis = (if (isOnce) plannedDate else selectedEndDate).atStartOfDay(ZoneOffset.UTC)
                 .toInstant().toEpochMilli(),
             selectableDates = object : SelectableDates {
                 override fun isSelectableDate(utcTimeMillis: Long): Boolean {
-                    val date = Instant.ofEpochMilli(utcTimeMillis).atZone(ZoneId.systemDefault())
+                    val date = Instant.ofEpochMilli(utcTimeMillis).atZone(ZoneOffset.UTC)
                         .toLocalDate()
                     return date.isAfter(today) && !date.isAfter(maxSelectableDate)
                 }
@@ -97,11 +114,11 @@ fun RecurrentExpenseDialog(
 
         DatePickerDialog(onDismissRequest = { showDatePicker = false }, confirmButton = {
             TextButton(
+                shapes = ButtonDefaults.shapes(),
                 onClick = {
                     datePickerState.selectedDateMillis?.let { millis ->
-                        selectedEndDate =
-                            Instant.ofEpochMilli(millis).atZone(ZoneId.systemDefault())
-                                .toLocalDate()
+                        val picked = Instant.ofEpochMilli(millis).atZone(ZoneOffset.UTC).toLocalDate()
+                        if (isOnce) plannedDate = picked else selectedEndDate = picked
                     }
                     showDatePicker = false
                 }
@@ -109,26 +126,25 @@ fun RecurrentExpenseDialog(
                 Text(stringResource(android.R.string.ok))
             }
         }, dismissButton = {
-            TextButton(onClick = { showDatePicker = false }) {
+            TextButton(
+                onClick = { showDatePicker = false },
+                shapes = ButtonDefaults.shapes()
+            ) {
                 Text(stringResource(android.R.string.cancel))
             }
         }) {
             DatePicker(state = datePickerState)
+            PersianDateCaption(datePickerState.selectedDateMillis)
         }
     }
 
-    val dateFormatter = remember { DateTimeFormatter.ofPattern("dd MMM yyyy", Locale.getDefault()) }
+    val dateFormatter = remember { localizedFormatter("dd MMM yyyy", Locale.getDefault()) }
 
     AlertDialog(modifier = modifier, onDismissRequest = onDismiss, title = {
         Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
             Text(
-                text = stringResource(R.string.recurrent_expense),
+                text = stringResource(if (isOnce) R.string.planned_expense_title else R.string.recurrent_expense),
                 style = MaterialTheme.typography.titleLargeEmphasized
-            )
-            Text(
-                text = stringResource(R.string.recurrent_expense_details),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
     }, text = {
@@ -142,11 +158,13 @@ fun RecurrentExpenseDialog(
             )
 
             val options = listOf(
+                stringResource(R.string.recurrent_frequency_once),
                 stringResource(R.string.recurrent_frequency_weekly),
                 stringResource(R.string.recurrent_frequency_biweekly),
                 stringResource(R.string.recurrent_frequency_monthly)
             )
             val frequencies = listOf(
+                RecurrentFrequency.ONCE,
                 RecurrentFrequency.WEEKLY,
                 RecurrentFrequency.BIWEEKLY,
                 RecurrentFrequency.MONTHLY,
@@ -154,17 +172,18 @@ fun RecurrentExpenseDialog(
             val selectedIndex = frequencies.indexOf(selectedFrequency).coerceAtLeast(0)
 
             Row(
-                Modifier.padding(horizontal = 8.dp),
+                Modifier.selectableGroup(),
                 horizontalArrangement = Arrangement.spacedBy(ButtonGroupDefaults.ConnectedSpaceBetween),
             ) {
                 val modifiers =
-                    listOf(Modifier.weight(1f), Modifier.weight(1.5f), Modifier.weight(1f))
+                    listOf(Modifier.weight(1f), Modifier.weight(1f), Modifier.weight(1.25f), Modifier.weight(1.1f))
 
                 options.forEachIndexed { index, label ->
                     ToggleButton(
                         checked = selectedIndex == index,
                         onCheckedChange = { selectedFrequency = frequencies[index] },
                         modifier = modifiers[index].semantics { role = Role.RadioButton },
+                        contentPadding = PaddingValues(horizontal = 4.dp),
                         shapes = when (index) {
                             0 -> ButtonGroupDefaults.connectedLeadingButtonShapes()
                             options.lastIndex -> ButtonGroupDefaults.connectedTrailingButtonShapes()
@@ -188,13 +207,14 @@ fun RecurrentExpenseDialog(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        IconButton(onClick = {
-                            selectedDay = (selectedDay - 1).coerceAtLeast(1)
-                        }) {
+                        IconButton(
+                            onClick = { selectedDay-- },
+                            enabled = selectedDay > MinSubscriptionDay,
+                            shapes = IconButtonDefaults.shapes(),
+                        ) {
                             Icon(
                                 Icons.AutoMirrored.Filled.KeyboardArrowLeft,
                                 contentDescription = stringResource(R.string.previous_day),
-                                modifier = Modifier.size(18.dp)
                             )
                         }
 
@@ -203,13 +223,14 @@ fun RecurrentExpenseDialog(
                             style = MaterialTheme.typography.titleMedium
                         )
 
-                        IconButton(onClick = {
-                            selectedDay = (selectedDay + 1).coerceAtMost(31)
-                        }) {
+                        IconButton(
+                            onClick = { selectedDay++ },
+                            enabled = selectedDay < MaxSubscriptionDay,
+                            shapes = IconButtonDefaults.shapes(),
+                        ) {
                             Icon(
                                 Icons.AutoMirrored.Filled.KeyboardArrowRight,
                                 contentDescription = stringResource(R.string.next_day),
-                                modifier = Modifier.size(18.dp)
                             )
                         }
                     }
@@ -217,23 +238,28 @@ fun RecurrentExpenseDialog(
             }
 
             Text(
-                text = stringResource(R.string.limit_date),
+                text = stringResource(if (isOnce) R.string.planned_on_date_label else R.string.limit_date),
                 style = MaterialTheme.typography.labelMediumCondensed,
             )
 
             OutlinedTextField(
-                value = selectedEndDate.format(dateFormatter),
+                value = (if (isOnce) plannedDate else selectedEndDate).let(dateFormatter),
                 onValueChange = {},
                 readOnly = true,
                 placeholder = { Text(stringResource(R.string.date_placeholder)) },
                 trailingIcon = {
-                    Icon(
-                        imageVector = Icons.Default.CalendarToday,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.outlineVariant,
-                    )
+                    IconButton(
+                        onClick = { showDatePicker = true },
+                        shapes = IconButtonDefaults.shapes(),
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.CalendarToday,
+                            contentDescription = stringResource(R.string.change_date),
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
                 },
-                shape = RoundedCornerShape(14.dp),
+                shape = MaterialTheme.shapes.medium,
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedBorderColor = MaterialTheme.colorScheme.surfaceContainer,
                     unfocusedBorderColor = MaterialTheme.colorScheme.surfaceContainer,
@@ -244,22 +270,22 @@ fun RecurrentExpenseDialog(
                 singleLine = true,
             )
 
-            TextButton(
-                onClick = { showDatePicker = true },
-                modifier = Modifier.align(Alignment.End)
-            ) {
-                Text(stringResource(R.string.change_date))
-            }
-
+            val preview = if (isOnce) plannedPreview(budgetSettings, budgetState, amount, plannedDate) else null
+            val isWarning = preview?.isNegative == true
             OutlinedCard(
                 modifier = Modifier.fillMaxWidth(),
                 shape = MaterialTheme.shapes.large,
                 border = BorderStroke(
                     1.dp,
-                    MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
+                    if (isWarning) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.outlineVariant,
                 ),
                 colors = CardDefaults.outlinedCardColors(
-                    containerColor = Color.Transparent
+                    containerColor = if (isWarning) MaterialTheme.colorScheme.errorContainer else Color.Transparent,
+                    contentColor = if (isWarning) {
+                        MaterialTheme.colorScheme.onErrorContainer
+                    } else {
+                        MaterialTheme.colorScheme.onSurfaceVariant
+                    },
                 ),
             ) {
                 Row(
@@ -272,27 +298,37 @@ fun RecurrentExpenseDialog(
                     Icon(
                         imageVector = Icons.Default.Info,
                         contentDescription = null,
-                        tint = MaterialTheme.colorScheme.outline,
                     )
-                    Text(
-                        text = buildRecurrentSummary(
-                            frequency = selectedFrequency,
-                            selectedDay = selectedDay,
-                            selectedEndDate = selectedEndDate,
-                            formatter = dateFormatter,
-                        ),
-                        style = MaterialTheme.typography.bodySmallCondensed,
-                        color = MaterialTheme.colorScheme.onSurface,
-                    )
+                    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                        Text(
+                            text = if (isOnce) {
+                                plannedSummary(preview, plannedDate, dateFormatter)
+                            } else {
+                                buildRecurrentSummary(
+                                    frequency = selectedFrequency,
+                                    selectedDay = selectedDay,
+                                    selectedEndDate = selectedEndDate,
+                                    formatter = dateFormatter,
+                                )
+                            },
+                            style = MaterialTheme.typography.bodySmallCondensed,
+                        )
+                        if (isOnce) {
+                            preview?.amounts()?.let { (before, after) ->
+                                PlannedAmountChange(before, after, budgetSettings?.currencyCode.orEmpty())
+                            }
+                        }
+                    }
                 }
             }
         }
     }, confirmButton = {
         Button(
+            shapes = ButtonDefaults.shapes(),
             onClick = {
                 onConfirm(
                     selectedFrequency,
-                    selectedEndDate,
+                    if (isOnce) plannedDate else selectedEndDate,
                     if (selectedFrequency == RecurrentFrequency.MONTHLY) selectedDay else null,
                     fallbackComments[selectedFrequency] ?: "",
                 )
@@ -304,7 +340,7 @@ fun RecurrentExpenseDialog(
             )
         }
     }, dismissButton = {
-        TextButton(onClick = onDismiss) {
+        TextButton(onClick = onDismiss, shapes = ButtonDefaults.shapes()) {
             Text(
                 stringResource(R.string.cancel),
                 style = MaterialTheme.typography.labelMediumEmphasized
@@ -313,15 +349,19 @@ fun RecurrentExpenseDialog(
     })
 }
 
+private const val MinSubscriptionDay = 1
+private const val MaxSubscriptionDay = 28
+
 @Composable
 private fun buildRecurrentSummary(
     frequency: RecurrentFrequency,
     selectedDay: Int,
     selectedEndDate: LocalDate,
-    formatter: DateTimeFormatter
+    formatter: (LocalDate) -> String
 ): String {
-    val formattedDate = selectedEndDate.format(formatter)
+    val formattedDate = selectedEndDate.let(formatter)
     return when (frequency) {
+        RecurrentFrequency.ONCE -> stringResource(R.string.summary_once_format, formattedDate)
         RecurrentFrequency.WEEKLY -> stringResource(R.string.summary_weekly_format, formattedDate)
         RecurrentFrequency.BIWEEKLY -> stringResource(
             R.string.summary_biweekly_format,
@@ -333,6 +373,43 @@ private fun buildRecurrentSummary(
             selectedDay,
             formattedDate
         )
+    }
+}
+
+@Composable
+private fun plannedSummary(
+    preview: PlannedPreview?,
+    day: LocalDate,
+    formatter: (LocalDate) -> String,
+): String = when (preview) {
+    is PlannedPreview.Daily, is PlannedPreview.LeftInPeriod -> stringResource(R.string.planned_preview_held)
+    is PlannedPreview.OtherPeriod -> stringResource(R.string.planned_preview_other_period, formatter(preview.day))
+    null -> stringResource(R.string.summary_once_format, formatter(day))
+}
+
+private fun PlannedPreview.amounts(): Pair<BigDecimal, BigDecimal>? = when (this) {
+    is PlannedPreview.Daily -> before to after
+    is PlannedPreview.LeftInPeriod -> before to after
+    is PlannedPreview.OtherPeriod -> null
+}
+
+@Composable
+private fun PlannedAmountChange(before: BigDecimal, after: BigDecimal, currencyCode: String) {
+    val beforeText = formatCurrencySymbolOnly(before, currencyCode)
+    val afterText = formatCurrencySymbolOnly(after, currencyCode)
+    val description = stringResource(R.string.planned_preview_changes_to, beforeText, afterText)
+    Row(
+        modifier = Modifier.clearAndSetSemantics { contentDescription = description },
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(6.dp),
+    ) {
+        Text(beforeText, style = MaterialTheme.typography.titleSmall)
+        Icon(
+            imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+            contentDescription = null,
+            modifier = Modifier.size(16.dp),
+        )
+        Text(afterText, style = MaterialTheme.typography.titleSmall)
     }
 }
 
