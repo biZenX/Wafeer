@@ -135,6 +135,14 @@ internal fun calculateNextChargeDate(transaction: Transaction, today: LocalDate)
     }
 
     return when (frequency) {
+        RecurrentFrequency.ONCE -> {
+            if (!startDate.isBefore(today) && (endDate == null || !startDate.isAfter(endDate))) {
+                startDate
+            } else {
+                null
+            }
+        }
+
         RecurrentFrequency.WEEKLY -> {
             var nextDate = startDate
             while (!nextDate.isAfter(today)) {
@@ -199,6 +207,7 @@ internal fun getRecurringChargesInPeriod(
         }
 
         chargeDate = when (frequency) {
+            RecurrentFrequency.ONCE -> chargeDate.plusYears(100)
             RecurrentFrequency.WEEKLY -> chargeDate.plusWeeks(1)
             RecurrentFrequency.BIWEEKLY -> chargeDate.plusWeeks(2)
             RecurrentFrequency.MONTHLY -> {
