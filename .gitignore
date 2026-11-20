@@ -47,6 +47,13 @@ app/src/main/assets/adi-registration.properties
 # Release signing config
 /keystore.properties
 
+# Secrets, Environment & Tokens
+.env*
+*.secret
+*.token
+*secrets*
+user_secrets.json
+
 specs/
 .claude/
 .claude/skills/
