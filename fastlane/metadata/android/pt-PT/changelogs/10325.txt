@@ -1,3 +1,0 @@
-- improve: Maior Privacidade: Zero permissões de rede na edição Play Store.
-- improve: Notificações Seguras: Lembretes diários protegidos contra manipulações.
-- fix: Atualizações Suaves: Verificação de versão mais confiável e estável.

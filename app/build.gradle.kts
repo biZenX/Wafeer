@@ -529,6 +529,9 @@ fun changelogVersionCodeFromFileName(fileName: String): Int =
     fileName.substringBeforeLast('.').toIntOrNull() ?: 0
 
 fun changelogVersionCodeToName(code: Int): String {
+    if (code == appVersionCode) return appVersionName
+    if (code == 30101) return "1.0.1"
+    if (code == 30100) return "1.0.0"
     val major = code / 10000
     val minor = (code % 10000) / 100
     val patch = code % 100

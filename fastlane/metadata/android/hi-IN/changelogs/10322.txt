@@ -1,3 +1,0 @@
-- improve: Faster Onboarding Steps: Smooth, lightweight setup transitions from start to end.
-- improve: Instant Update Checks: Verify new versions directly inside settings.
-- fix: Seamless Language Switch: Change app display language smoothly without exits.

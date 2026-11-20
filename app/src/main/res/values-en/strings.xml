@@ -1167,18 +1167,6 @@
     <string name="smart_zakat_not_eligible_badge">Total wealth has not reached Nisab or 1 lunar year has not passed.</string>
     <string name="smart_zakat_hawl_checkbox">One full lunar year (Hawl) has passed</string>
 
-    <!-- Smart InstaPay & Digital Wallets -->
-    <string name="smart_tab_wallet_parser">InstaPay &amp; Wallets</string>
-    <string name="smart_wallet_parser_subtitle">Paste SMS or InstaPay text to parse amounts instantly</string>
-    <string name="smart_wallet_input_placeholder">Paste payment or transfer SMS from InstaPay, Vodafone Cash, or bank here...</string>
-    <string name="smart_wallet_parsed_title">Detected Transfer Details:</string>
-    <string name="smart_wallet_transfer_party">Party: %1$s</string>
-    <string name="smart_wallet_transfer_platform">Platform: %1$s</string>
-    <string name="smart_wallet_transfer_ref">Ref: %1$s</string>
-    <string name="smart_wallet_btn_paste">Paste Clipboard</string>
-    <string name="smart_wallet_btn_clear">Clear</string>
-    <string name="smart_wallet_unrecognized">No valid wallet transfer was recognized in the entered text.</string>
-
     <!-- Smart Commitments & Budget Integration -->
     <string name="smart_tab_commitments">Commitments &amp; Budget</string>
     <string name="smart_commitments_header_title">Monthly Budget Commitments</string>

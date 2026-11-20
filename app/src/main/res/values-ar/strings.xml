@@ -1172,18 +1172,6 @@
     <string name="smart_zakat_not_eligible_badge">إجمالي أموالك لم يبلغ النصاب بعد، أو لم يكتمل الحول.</string>
     <string name="smart_zakat_hawl_checkbox">مرّ حول هجري كامل على بلوغ النصاب</string>
 
-    <!-- Smart InstaPay & Digital Wallets -->
-    <string name="smart_tab_wallet_parser">تحويلات إنستاباي</string>
-    <string name="smart_wallet_parser_subtitle">لصق رسائل تحويل إنستاباي والمحافظ وقراءتها بضغطة زر</string>
-    <string name="smart_wallet_input_placeholder">انسخ رسالة التحويل من إنستاباي أو فودافون كاش أو البنك والصقها هنا...</string>
-    <string name="smart_wallet_parsed_title">تفاصيل التحويل المكتشف:</string>
-    <string name="smart_wallet_transfer_party">الطرف: %1$s</string>
-    <string name="smart_wallet_transfer_platform">المنصة: %1$s</string>
-    <string name="smart_wallet_transfer_ref">رقم المرجع: %1$s</string>
-    <string name="smart_wallet_btn_paste">لصق من الحافظة</string>
-    <string name="smart_wallet_btn_clear">مسح النص</string>
-    <string name="smart_wallet_unrecognized">لم يتم التعرف على تفاصيل عملية تحويل واضحة في النص المدخل.</string>
-
     <!-- Smart Commitments & Budget Integration -->
     <string name="smart_tab_commitments">الالتزامات والميزانية</string>
     <string name="smart_commitments_header_title">خصم الالتزامات الشهرية</string>

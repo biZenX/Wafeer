@@ -123,8 +123,6 @@ fun SmartToolsBottomSheet(
     onAdvanceGameya: (String) -> Unit = {},
     onToggleGameyaCollected: (String) -> Unit = {},
     onDeleteGameya: (String) -> Unit = {},
-    onWalletInputChanged: (String) -> Unit = {},
-    onClearWalletInput: () -> Unit = {},
     onDismiss: () -> Unit,
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
@@ -198,17 +196,6 @@ fun SmartToolsBottomSheet(
                         label = stringResource(R.string.smart_tab_commitments),
                         onClick = {
                             onTabSelected(SmartToolTab.COMMITMENTS)
-                            performUIHaptic(view)
-                        },
-                    )
-                }
-                item {
-                    CategoryPill(
-                        selected = uiState.selectedTab == SmartToolTab.WALLET_PARSER,
-                        icon = Icons.Rounded.AccountBalanceWallet,
-                        label = stringResource(R.string.smart_tab_wallet_parser),
-                        onClick = {
-                            onTabSelected(SmartToolTab.WALLET_PARSER)
                             performUIHaptic(view)
                         },
                     )
@@ -296,13 +283,6 @@ fun SmartToolsBottomSheet(
                             onAdvanceGameya = onAdvanceGameya,
                             onToggleGameyaCollected = onToggleGameyaCollected,
                             onDeleteGameya = onDeleteGameya,
-                        )
-                    }
-                    SmartToolTab.WALLET_PARSER -> {
-                        WalletParserTab(
-                            uiState = uiState,
-                            onInputChanged = onWalletInputChanged,
-                            onClear = onClearWalletInput,
                         )
                     }
                     SmartToolTab.MICRO_GOALS -> {
@@ -1070,130 +1050,7 @@ private fun GameyaCard(
 
 
 // ==========================================
-// 5. WALLET / INSTAPAY PARSER TAB
-// ==========================================
-@Composable
-private fun WalletParserTab(
-    uiState: SmartToolsUiState,
-    onInputChanged: (String) -> Unit,
-    onClear: () -> Unit,
-) {
-    val clipboardManager = LocalClipboardManager.current
-    val parsed = uiState.parsedTransfer
-
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 20.dp),
-    ) {
-        Text(
-            text = stringResource(R.string.smart_wallet_parser_subtitle),
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
-
-        Spacer(modifier = Modifier.height(12.dp))
-
-        OutlinedTextField(
-            value = uiState.walletInputText,
-            onValueChange = onInputChanged,
-            placeholder = { Text(stringResource(R.string.smart_wallet_input_placeholder)) },
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(110.dp),
-            shape = RoundedCornerShape(16.dp),
-            maxLines = 4,
-        )
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-        ) {
-            FilledTonalButton(
-                onClick = {
-                    val text = clipboardManager.getText()?.text ?: ""
-                    if (text.isNotBlank()) {
-                        onInputChanged(text)
-                    }
-                },
-                modifier = Modifier.weight(1f),
-                shape = RoundedCornerShape(12.dp),
-            ) {
-                Icon(Icons.Rounded.ContentPaste, contentDescription = null, modifier = Modifier.size(16.dp))
-                Spacer(Modifier.width(6.dp))
-                Text(stringResource(R.string.smart_wallet_btn_paste))
-            }
-
-            if (uiState.walletInputText.isNotBlank()) {
-                OutlinedButton(
-                    onClick = onClear,
-                    modifier = Modifier.weight(1f),
-                    shape = RoundedCornerShape(12.dp),
-                ) {
-                    Text(stringResource(R.string.smart_wallet_btn_clear))
-                }
-            }
-        }
-
-        Spacer(modifier = Modifier.height(14.dp))
-
-        if (parsed != null) {
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(18.dp),
-                colors = CardDefaults.cardColors(
-                    containerColor = if (parsed.isExpense) MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.4f)
-                    else Color(0xFF2E7D32).copy(alpha = 0.15f)
-                ),
-            ) {
-                Column(modifier = Modifier.padding(16.dp)) {
-                    Text(
-                        text = stringResource(R.string.smart_wallet_parsed_title),
-                        style = MaterialTheme.typography.labelMedium,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.outline,
-                    )
-
-                    Spacer(modifier = Modifier.height(6.dp))
-
-                    Text(
-                        text = "${if (parsed.isExpense) "-" else "+"}${parsed.amount.toPlainString()} (${parsed.platform})",
-                        style = MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.Bold,
-                        color = if (parsed.isExpense) MaterialTheme.colorScheme.error else Color(0xFF2E7D32),
-                    )
-
-                    Spacer(modifier = Modifier.height(4.dp))
-
-                    Text(
-                        text = stringResource(R.string.smart_wallet_transfer_party, parsed.party),
-                        style = MaterialTheme.typography.bodyMedium,
-                        fontWeight = FontWeight.SemiBold,
-                    )
-
-                    if (!parsed.reference.isNullOrBlank()) {
-                        Text(
-                            text = stringResource(R.string.smart_wallet_transfer_ref, parsed.reference),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.outline,
-                        )
-                    }
-                }
-            }
-        } else if (uiState.walletInputText.isNotBlank()) {
-            Text(
-                text = stringResource(R.string.smart_wallet_unrecognized),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.outline,
-            )
-        }
-    }
-}
-
-// ==========================================
-// 6. MICRO GOALS TAB
+// 5. MICRO GOALS TAB
 // ==========================================
 @Composable
 private fun MicroGoalsTab(

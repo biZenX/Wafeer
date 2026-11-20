@@ -11,7 +11,7 @@ data class EmvCoInvoice(
 object EmvCoQrParser {
 
     /**
-     * Decodes an EMVCo merchant-presented QR code (used widely in InstaPay, Meeza, and standard POS QR codes).
+     * Decodes an EMVCo merchant-presented QR code (used widely in Meeza and standard POS QR codes).
      * Standard TLV format starts with "000201":
      * Tag 54: Transaction Amount
      * Tag 59: Merchant Name

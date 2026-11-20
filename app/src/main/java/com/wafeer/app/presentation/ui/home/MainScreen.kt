@@ -328,8 +328,6 @@ fun MainScreen(
                 onAdvanceGameya = smartToolsViewModel::advanceGameyaMonth,
                 onToggleGameyaCollected = smartToolsViewModel::toggleGameyaCollected,
                 onDeleteGameya = smartToolsViewModel::deleteGameya,
-                onWalletInputChanged = smartToolsViewModel::onWalletInputChanged,
-                onClearWalletInput = smartToolsViewModel::clearWalletInput,
                 onDismiss = { showSmartToolsBottomSheet = false },
             )
         }

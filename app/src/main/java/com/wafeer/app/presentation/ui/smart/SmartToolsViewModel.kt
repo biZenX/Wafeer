@@ -7,8 +7,6 @@ import com.wafeer.app.domain.model.smart.AffordabilityCalculation
 import com.wafeer.app.domain.model.smart.GameyaItem
 import com.wafeer.app.domain.model.smart.InstallmentItem
 import com.wafeer.app.domain.model.smart.MicroGoal
-import com.wafeer.app.domain.model.smart.ParsedWalletTransfer
-import com.wafeer.app.domain.model.smart.WalletTransferParser
 import com.wafeer.app.domain.model.smart.WishlistItem
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -24,7 +22,6 @@ import javax.inject.Inject
 enum class SmartToolTab {
     CALCULATOR,
     COMMITMENTS,
-    WALLET_PARSER,
     MICRO_GOALS,
     WISHLIST_48H,
     FUN_FUND,
@@ -40,8 +37,6 @@ data class SmartToolsUiState(
     val funFundRatio: Float = 15f,
     val calculationInputPrice: String = "",
     val calculationResult: AffordabilityCalculation? = null,
-    val walletInputText: String = "",
-    val parsedTransfer: ParsedWalletTransfer? = null,
 ) {
     val totalMonthlyInstallments: BigDecimal
         get() = installments.filter { !it.isCompleted }
@@ -63,8 +58,6 @@ class SmartToolsViewModel @Inject constructor(
     private val _selectedTab = MutableStateFlow(SmartToolTab.CALCULATOR)
     private val _calculationInputPrice = MutableStateFlow("")
     private val _calculationResult = MutableStateFlow<AffordabilityCalculation?>(null)
-    private val _walletInputText = MutableStateFlow("")
-    private val _parsedTransfer = MutableStateFlow<ParsedWalletTransfer?>(null)
 
     private data class StreamBatchA(
         val goals: List<MicroGoal>,
@@ -96,10 +89,9 @@ class SmartToolsViewModel @Inject constructor(
 
     val uiState: StateFlow<SmartToolsUiState> = combine(
         combine(_selectedTab, _calculationInputPrice, _calculationResult, ::Triple),
-        combine(_walletInputText, _parsedTransfer, ::Pair),
         batchAFlow,
         batchBFlow,
-    ) { (tab, priceInput, calcResult), (walletText, parsed), batchA, batchB ->
+    ) { (tab, priceInput, calcResult), batchA, batchB ->
         SmartToolsUiState(
             selectedTab = tab,
             goals = batchA.goals,
@@ -110,8 +102,6 @@ class SmartToolsViewModel @Inject constructor(
             funFundRatio = batchA.funRatio,
             calculationInputPrice = priceInput,
             calculationResult = calcResult,
-            walletInputText = walletText,
-            parsedTransfer = parsed,
         )
     }.stateIn(
         scope = viewModelScope,
@@ -240,16 +230,5 @@ class SmartToolsViewModel @Inject constructor(
         viewModelScope.launch {
             repository.deleteGameya(id)
         }
-    }
-
-    // --- Wallet / InstaPay Parser ---
-    fun onWalletInputChanged(text: String) {
-        _walletInputText.value = text
-        _parsedTransfer.value = WalletTransferParser.parse(text)
-    }
-
-    fun clearWalletInput() {
-        _walletInputText.value = ""
-        _parsedTransfer.value = null
     }
 }

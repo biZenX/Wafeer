@@ -1,6 +1,0 @@
-• Serene & Ultra-Fast UI: Pure distraction-free screen focused on your daily budget & calculator.
-• Integrated Commitments: Installments & savings are directly deducted from your daily allowance.
-• Smart Surplus Rollover: Spend less today to automatically expand tomorrow’s daily budget limit.
-• Clear Fresh Start: Reimagined welcoming empty state to guide your first expense effortlessly.
-• Wear OS Smartwatch Companion: Check remaining balance and log expenses right from your wrist.
-• 100% Private & Offline: Zero accounts, zero cloud, zero ads; your data stays on your device.

@@ -19,7 +19,7 @@ object ReceiptQrParser {
      * Parses a scanned QR payload, supporting:
      * 1. Saudi ZATCA e-invoicing QR codes (Base64 TLV format)
      * 2. Egyptian ETA e-receipt QR codes (URL with #Total:{total},IssuerRIN:{rin})
-     * 3. EMVCo payment QR codes (InstaPay / Meeza / Arab POS QRs)
+     * 3. EMVCo payment QR codes (Meeza / Arab POS QRs)
      * 4. JSON e-receipt payloads
      * 5. URLs with receipt amount in query or fragment parameters
      * 6. Structured text with explicit total keyword or currency
@@ -41,7 +41,7 @@ object ReceiptQrParser {
             )
         }
 
-        // 2. Try EMVCo payment QR (InstaPay / Meeza)
+        // 2. Try EMVCo payment QR (Meeza)
         val emv = EmvCoQrParser.parse(trimmed)
         if (emv?.amount != null && emv.amount.signum() > 0) {
             return ReceiptScan(
